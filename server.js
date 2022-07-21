@@ -37,13 +37,25 @@ app.use(function (req, res, next) {
 app.use(express.static(__dirname + '/static'));
 // ****
 
-const template = {
-    "1" : "1"
+function prmsRequest(url){
+    return new Promise(function (resolve, reject) {
+        request(url, function (error, res, body) {
+          if (res.statusCode == 200) {
+            resolve(body);
+          } else {
+            console.log('wrongStatus :' + res.statusCode )
+            reject(error);
+          }
+        });
+    })
 }
 
 app.get('/api/:pp', async (req, res) => {
     res.sendFile(__dirname + '/pp/' + req.params.pp);
 })
+
+
+
 
 app.get('/profile/:id', async (req, res) => {
     var arrayDB = await db.get(req.params.id);
@@ -54,7 +66,7 @@ app.get('/profile/:id', async (req, res) => {
     // console.log(arrayDB);
     // console.log(arrayDB.firstName + " " +arrayDB.lastName);
     // console.log(Object.values(arrayDB.states))
-    res.render(__dirname + '/pages/profil.html', {"pp" : arrayDB.pp, "name" : arrayDB.firstName + " " +arrayDB.lastName,"states":Object.values(arrayDB.states)})
+    res.render(__dirname + '/pages/profil.html', {"pp" : arrayDB.pp, "name" : arrayDB.firstName + " " +arrayDB.lastName,"states":Object.values(arrayDB.states), "id":req.params.id})
     
     
 })
@@ -62,9 +74,8 @@ app.get('/profile/:id', async (req, res) => {
 
 
 app.get('/', async (req, res) => {
-    // get the json
-    
-    arrayDB = Object.values(db.JSON());
+    // -get the json
+    let all_states = prmsRequest("192.168.0.200:8000/states");
     arrayDB.forEach(e => {
         
         //reduce first name
@@ -74,8 +85,8 @@ app.get('/', async (req, res) => {
             e.firstName = fn.slice(1);
         }
         
-        if(template[e.id]){
-            state = template[e.id];
+        if(all_states[e.id]){
+            state = all_states[e.id];
             console.log(state)
             e.st_msg = e.states[state].msg;
             e.st_color = e.states[state].color;
