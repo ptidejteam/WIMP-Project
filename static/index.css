@@ -281,3 +281,7 @@ main{
 #profile button{
     margin-top: 50px;
 }
+
+#profile header button{
+    margin-top: 0px;
+}

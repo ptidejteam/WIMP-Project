@@ -11,16 +11,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"> 
     <title>WIMP</title>
 </head>
-<body id="profile">
 
+    
+<body id="profile">
     <header>
         <img src="/logo.svg">
         <h1>wimp</h1>
+        <button class="pntr">Save</button>
     </header>
     <section id="main">
         <article>
             <img src="/api/{{pp}}" alt="">
             <h1>{{name}}</h1>
+            <h3>{{id}}</h3>
         </article>
     
         <main>
@@ -30,7 +33,7 @@
                     <h1>{{id}}</h1>
                 <div>
                     <p>Message :</p>
-                    <input type="text" value="{{msg}}">
+                    <input type="text" value="{{msg}}" maxlength = "25">
                 </div>
                 
                 <div>
