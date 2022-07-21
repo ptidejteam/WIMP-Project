@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/index.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"> 
+    <title>WIMP</title>
+</head>
+<body id="profile">
+
+    <header>
+        <img src="/logo.svg">
+        <h1>wimp</h1>
+    </header>
+    <section id="main">
+        <article>
+            <img src="/api/{{pp}}" alt="">
+            <h1>{{name}}</h1>
+        </article>
+    
+        <main>
+            <h2>States :</h2>
+            {{#states}}
+            <div id="template">
+                    <h1>{{id}}</h1>
+                <div>
+                    <p>Message :</p>
+                    <input type="text" value="{{msg}}">
+                </div>
+                
+                <div>
+                    <p>Color :</p>
+                    <select>
+                        <option>green</option>
+                        <option>orange</option>
+                        <option>red</option>
+                    </select>
+                </div>
+                
+            </div>
+            {{/states}}
+            
+        </main>
+        <button class="pntr">+ State</button>
+        
+    </section>
+    
+</body>
+</html>

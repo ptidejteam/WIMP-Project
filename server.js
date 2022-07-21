@@ -38,12 +38,28 @@ app.use(express.static(__dirname + '/static'));
 // ****
 
 const template = {
-
     "1" : "1"
 }
+
 app.get('/api/:pp', async (req, res) => {
     res.sendFile(__dirname + '/pp/' + req.params.pp);
 })
+
+app.get('/profile/:id', async (req, res) => {
+    var arrayDB = await db.get(req.params.id);
+    Object.keys(arrayDB.states).forEach(key => {
+        arrayDB.states[key].id = key;
+    });
+
+    // console.log(arrayDB);
+    // console.log(arrayDB.firstName + " " +arrayDB.lastName);
+    // console.log(Object.values(arrayDB.states))
+    res.render(__dirname + '/pages/profil.html', {"pp" : arrayDB.pp, "name" : arrayDB.firstName + " " +arrayDB.lastName,"states":Object.values(arrayDB.states)})
+    
+    
+})
+
+
 
 app.get('/', async (req, res) => {
     // get the json

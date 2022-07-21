@@ -173,7 +173,10 @@ main{
     text-align: center;
 }
 .card:hover{
-    outline: 1px solid var(--main);
+    border: 1px solid var(--main);
+    width: 172px;
+    height: 242px;
+    margin-top: -1px;
 }
 
 .status{
@@ -204,4 +207,77 @@ main{
 
 .pntr:hover{
     cursor: pointer;
+}
+
+
+
+
+
+
+/* PROFILE */
+
+#profile article{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+#profile article img{
+    border-radius: 100px;
+    height: 120px;
+    width: 120px;
+    margin-bottom: 20px;
+}
+
+#profile main{
+    margin-top: 50px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+#profile #template{
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    
+}
+#profile #template h1{
+    margin-right: 20px;
+}
+
+#profile section{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+#profile #template div{
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    margin: 0 10px;
+    box-shadow: var(--shadow);
+    background-color: var(--bg);
+    padding: 12px 20px;
+    border-radius: 100px;
+}
+
+#profile #template input{
+    padding: 0;
+    font-size: 14px;
+}
+
+#profile #template div:hover{
+    border: 1px solid var(--main);
+    margin: -1px 9px;
+}
+
+
+#profile #template p{
+    font-size: 14px;
+    margin-right: 20px;
+}
+
+#profile button{
+    margin-top: 50px;
 }
