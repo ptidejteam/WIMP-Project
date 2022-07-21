@@ -1,0 +1,25 @@
+{
+  "name": "wimp_webserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptidejteam/wimp_webserver.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ptidejteam/wimp_webserver/issues"
+  },
+  "homepage": "https://github.com/ptidejteam/wimp_webserver#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "mustache-express": "^1.3.2",
+    "simple-json-db": "^2.0.0"
+  }
+}
