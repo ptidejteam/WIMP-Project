@@ -2,13 +2,13 @@
 const express = require('express');
 const mustacheExpress = require('mustache-express');
 const dbjson = require('simple-json-db');
-
+const request = require('request');
 
 const app = express();
 app.engine('html', mustacheExpress());
 app.set('view engine', 'mustache');
 app.set('views', __dirname + '/pages');
-const port = 8000;
+const port = 3000;
 
 
 
@@ -40,6 +40,7 @@ app.use(express.static(__dirname + '/static'));
 function prmsRequest(url){
     return new Promise(function (resolve, reject) {
         request(url, function (error, res, body) {
+            console.log(error)
           if (res.statusCode == 200) {
             resolve(body);
           } else {
@@ -75,7 +76,11 @@ app.get('/profile/:id', async (req, res) => {
 
 app.get('/', async (req, res) => {
     // -get the json
-    let all_states = prmsRequest("192.168.0.200:8000/states");
+    let all_states = await prmsRequest("http://192.168.0.200:8000/states");
+    all_states = JSON.parse(all_states);
+    console.log(all_states)
+    let arrayDB = Object.values(db.JSON());
+    console.log(arrayDB);
     arrayDB.forEach(e => {
         
         //reduce first name
