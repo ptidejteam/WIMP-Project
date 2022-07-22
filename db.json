@@ -8,9 +8,9 @@
         "office" : "1186",
         "department" : "Info",
         "states" : {
-            "0" : {"msg" : "in his office", "color" : "green"},
+            "0" : {"msg" : "not available", "color" : "green"},
             "1" : {"msg" : "in his office but busy", "color" : "orange"},
-            "2" : {"msg" : "not available", "color" : "red"}
+            "2" : {"msg" : "available", "color" : "red"}
         }
     }
 }
