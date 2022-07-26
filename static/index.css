@@ -16,10 +16,10 @@
     font-family: 'Open Sans', sans-serif;
 }
 
-
 body{
     margin-top: 30px;
     background-color: #F5F5F5;
+    height: 100%;
 }
 
 h1{
@@ -113,7 +113,6 @@ input{
     outline: none;
     border: none;
     padding: 10px 25px;
-    border-radius: 100px;
 }
 
 .ov{
@@ -123,13 +122,6 @@ input{
 .ov:hover{
     outline: 1px solid var(--main);
 }
-
-
-
-
-
-
-
 
 main{
     margin: 0 auto;
@@ -235,13 +227,14 @@ main{
     align-items: center;
 }
 
-#profile #template{
+.state {
     display: flex;
     flex-flow: row;
     align-items: center;
-    
+    margin: 20px 0;
 }
-#profile #template h1{
+
+.state h1{
     margin-right: 20px;
 }
 
@@ -251,7 +244,7 @@ main{
     align-items: center;
 }
 
-#profile #template div{
+.state div{
     display: flex;
     flex-flow: row;
     align-items: center;
@@ -262,26 +255,67 @@ main{
     border-radius: 100px;
 }
 
-#profile #template input{
+.state input{
     padding: 0;
     font-size: 14px;
 }
 
-#profile #template div:hover{
+.state div:hover{
     border: 1px solid var(--main);
     margin: -1px 9px;
 }
 
-
-#profile #template p{
+.state p{
     font-size: 14px;
     margin-right: 20px;
 }
 
+.state select {
+    border: none;
+    border-radius: 10%;
+}
+
 #profile button{
-    margin-top: 50px;
+    margin-top: 30px;
+    margin-bottom: 5px;
+}
+
+#profile button:disabled{
+    color: grey;
+    border-color: grey;
+}
+
+#profile button:disabled:hover{
+    background-color: transparent;
+    cursor: not-allowed;
 }
 
 #profile header button{
     margin-top: 0px;
+}
+
+.states-control {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+}
+
+.states-control > * {
+    margin: 0 25px;
+}
+
+.arrow-size {
+    font-size: medium;
+}
+
+footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: 80px;
+}
+
+.ajs-ok{
+    color: var(--main) !important;
 }
