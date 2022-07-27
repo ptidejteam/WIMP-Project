@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="index.css">
 
+     <!-- jQuery -->
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+     <!-- Personal includes -->
+    <link rel="stylesheet" type="text/css" href="/home/home.css">
+    <link rel="stylesheet" type="text/css" href="/index.css">
+
+    <script src="/home/home.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"> 
@@ -43,7 +52,7 @@
             <img src="api/{{pp}}">
             <h1>{{firstName}} {{lastName}}</h1>
             <h3>{{building}} {{office}}</h3>
-            <p class="status {{st_color}}">{{st_msg}}</p>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
         </article>
         {{/articles}}
         </article>
