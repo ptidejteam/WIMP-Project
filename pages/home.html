@@ -25,20 +25,20 @@
     <header>
         <img src="/logo.svg">
         <h1>wimp</h1>
-        <button class="pntr">Login</button>
+        <button id="logout-btn" class="pntr">Logout</button>
     </header>
 
     <nav>
         <div class="select-box ov">
             <h2>Building :</h2>
-            <select class="pntr">
-                <option value="volvo">All</option>
+            <select id="building-selector" class="pntr">
+                <option value="All">All</option>
             </select>
         </div>
         <div class="select-box ov">
             <h2>Department :</h2>
-            <select class="pntr">
-                <option value="volvo">All</option>
+            <select id="department-selector" class="pntr">
+                <option value="All">All</option>
             </select>
         </div>
         <div>
@@ -49,9 +49,10 @@
     <main>
         {{#articles}}
         <article class="card pntr">
-            <img src="api/{{pp}}">
+            <img src="/pp/{{pp}}.jpg">
             <h1>{{firstName}} {{lastName}}</h1>
-            <h3>{{building}} {{office}}</h3>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
             <p class="status {{statusColor}}">{{statusMsg}}</p>
         </article>
         {{/articles}}

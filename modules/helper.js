@@ -1,10 +1,10 @@
 const request = require('request');
 
-function prmsRequest(url){
+async function prmsRequest(url){
     return new Promise(function (resolve, reject) {
       var options = {
         url: url,
-        timeout: 10
+        timeout: 3000
       } 
 
       request(options, function (error, res, body) {

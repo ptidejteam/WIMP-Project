@@ -20,6 +20,8 @@ require('dotenv').config();
 const config = process.env
 
 // Other Imports
+const fs = require('fs')
+var path = require('path');
 
 // Import custom modules
 const prmsRequest = require('./modules/helper');
@@ -64,59 +66,59 @@ app.get('/api/:pp', async (req, res) => {
     res.sendFile(__dirname + '/pp/' + req.params.pp);
 });
 
-let getStates = function (req, res, next) {
-    var options = {
-        url: "http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/states",
-        timeout: 10
-      } 
-
-    request(options, function (error, statesRes, body) {
-        if (error) {
-            console.log(error); 
-            res.redirect('/error/502');     
-        } else 
-        if (statesRes.statusCode == 200) {
-            res.locals.states = body;
-            next();
-        } else {
-            res.redirect('/error/' + statesRes.statusCode);
-        }
-    });
-};
-
-app.get('/home', getStates, async (req, res) => {
-    const states = JSON.parse(res.locals.states);
+app.get('/home', async (req, res) => {
     let allInfo = [];
-    Object.values(states).forEach(e => {
-        let info = {
-            firstName: "",
-            lastName: e.lastName,
-            building: e.building,
-            office: e.office,
-            statusColor: "",
-            statusMsg: ""
-        };
-        console.log(e);
-        //reduce first name
-        if(e.firstName.includes(" ")){
-            fn = e.firstName.split(' ')
-            fn = fn.reduce((a,aa)=>{return (  a + "." + aa[0]) },"");
-            info.firstName = fn.slice(1);
-        }
-        
-        // if(all_states[e.id]){
-        //     state = all_states[e.id];
-        //     console.log(state)
-        //     e.st_msg = e.states[state].msg;
-        //     e.st_color = e.states[state].color;
-        // }
-        // else{
-        //     e.status = "undefined";
-        //     e.state = "";
-        // }
-    });
-    console.log(arrayDB);
-    res.render(__dirname + '/pages/home.html', {"articles":arrayDB});
+    try {
+        const states = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/states"));
+        await Promise.all(Object.keys(states).map(async function(e) {
+            const currentState = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/current-state/" + e)).currentState;
+            const person = states[e];
+
+            let info = {
+                pp: "",
+                firstName: "",
+                lastName: person.lastName,
+                building: person.building,
+                department: person.department,
+                office: person.office,
+                statusColor: "",
+                statusMsg: "",
+            };
+
+            // Find if the person is in the database
+            if (fs.existsSync(path.resolve("./static/pp/" + e + ".jpg"))) {
+                info.pp = e;
+            } else {
+                info.pp = "undefined";
+            }
+
+            // Reduce first name
+            if(person.firstName.includes(" ")){
+                fn = person.firstName.split(' ')
+                fn = fn.reduce((a,aa)=>{return (  a + "." + aa[0]) },"");
+                info.firstName = fn.slice(1);
+            }
+
+            // Find if the current state is defined
+            if(currentState !== "undefined"){
+                info.statusColor = person.states[currentState].color;
+                info.statusMsg = person.states[currentState].msg;
+            }
+            else{
+                info.statusColor = "grey";
+                info.statusMsg = "undefined";
+            }
+
+            allInfo.push(info);
+        }));
+        res.render(__dirname + '/pages/home.html', {"articles":allInfo});
+           
+    } catch (error) {
+        console.log(error);
+        res.redirect('/error/502');
+    }
+    
+   
 });
 
 app.get('/error/:code',
