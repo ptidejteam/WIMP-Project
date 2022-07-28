@@ -76,6 +76,7 @@ app.get('/home', async (req, res) => {
 
             let info = {
                 pp: "",
+                firstNameRaw: person.firstName,
                 firstName: "",
                 lastName: person.lastName,
                 building: person.building,
@@ -97,6 +98,8 @@ app.get('/home', async (req, res) => {
                 fn = person.firstName.split(' ')
                 fn = fn.reduce((a,aa)=>{return (  a + "." + aa[0]) },"");
                 info.firstName = fn.slice(1);
+            } else {
+                info.firstName = person.firstName;
             }
 
             // Find if the current state is defined
