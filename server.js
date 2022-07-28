@@ -2,8 +2,8 @@
 
 // Imports for JSON database management (authentication only)
 const dbjson = require('simple-json-db');
-const db = new dbjson( __dirname + '/db.json');
-
+const db = new dbjson( __dirname + '/database/db.json');
+const db_acc = new dbjson( __dirname + '/database/db_acc.json');
 // Imports for Web Server management
 const express = require('express');
 
@@ -18,6 +18,12 @@ const bodyParser = require('body-parser');
 // Import dotvenv file
 require('dotenv').config();
 const config = process.env
+
+// import passport
+const passport = require('passport');
+const session = require('express-session');
+const LocalStrategy = require('passport-local').Strategy
+
 
 // Other Imports
 const fs = require('fs')
@@ -47,7 +53,50 @@ app.use(function (req, res, next) {
 });
 
 
-
+// passport implementation 
+app.use(session({
+    secret: "secret",
+    resave: false ,
+    saveUninitialized: true 
+  }));
+  
+  app.use(passport.initialize());
+  app.use(passport.session());
+  
+  passport.use(new LocalStrategy(
+    (username, password, done) => {
+        console.log(username);
+        let acc = db_acc.get(username);
+        console.log(acc);
+        if (acc === undefined || acc.pwd != password){
+            console.log('failed auth')
+            return done(null, false);
+        } 
+        else{
+            console.log('auth ok')
+            let authenticated_user = { "id": username};
+            return done(null, authenticated_user);
+        }  
+    }
+  ));
+  
+  passport.serializeUser( (userObj, done) => {
+    console.log("serialize");
+    done(null, userObj);
+  });
+  
+  passport.deserializeUser((userObj, done) => {
+    console.log("deserealize");
+    done (null, userObj )
+  });
+  
+  checkAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) { console.log("auth done"); return next() }
+    console.log("redirect");
+    res.redirect("/login")
+  }
+  
+  
 // Body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -66,9 +115,23 @@ app.get('/api/:pp', async (req, res) => {
     res.sendFile(__dirname + '/pp/' + req.params.pp);
 });
 
-app.get('/home', async (req, res) => {
+
+
+app.get('/login', async (req,res) => {
+    res.sendFile(path.resolve('./pages/login.html'));
+  })
+  
+app.post('/login',
+passport.authenticate('local', { failureRedirect: '/login', failureMessage: true }),
+async (req, res) => {
+    res.redirect('/home' + req.user.id);
+});
+
+
+app.get('/home', checkAuthenticated, async (req, res) => {
     let allInfo = [];
     try {
+        
         const states = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/states"));
         await Promise.all(Object.keys(states).map(async function(e) {
             const currentState = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/current-state/" + e)).currentState;
