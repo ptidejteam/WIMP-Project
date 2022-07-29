@@ -2,8 +2,7 @@
 
 // Imports for JSON database management (authentication only)
 const dbjson = require('simple-json-db');
-const db = new dbjson( __dirname + '/database/db.json');
-const db_acc = new dbjson( __dirname + '/database/db_acc.json');
+
 // Imports for Web Server management
 const express = require('express');
 
@@ -52,49 +51,54 @@ app.use(function (req, res, next) {
     next();    
 });
 
-
 // passport implementation 
 app.use(session({
-    secret: "secret",
+    secret: config.SESSION_SECRET,
     resave: false ,
-    saveUninitialized: true 
-  }));
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 3600000
+    }
+}));
   
-  app.use(passport.initialize());
-  app.use(passport.session());
-  
-  passport.use(new LocalStrategy(
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(
     (username, password, done) => {
-        console.log(username);
+        const db_acc = new dbjson( __dirname + '/database/db_acc.json');
         let acc = db_acc.get(username);
-        console.log(acc);
         if (acc === undefined || acc.pwd != password){
-            console.log('failed auth')
+            console.log('Failed to authorize : ' + username);
             return done(null, false);
         } 
         else{
-            console.log('auth ok')
-            let authenticated_user = { "id": username};
+            console.log('Authorized : ' + username);
+            let authenticated_user = {
+                id: username,
+                role: acc.role
+            };
             return done(null, authenticated_user);
         }  
     }
-  ));
+));
   
-  passport.serializeUser( (userObj, done) => {
-    console.log("serialize");
+passport.serializeUser( (userObj, done) => {
     done(null, userObj);
-  });
-  
-  passport.deserializeUser((userObj, done) => {
-    console.log("deserealize");
+});
+
+passport.deserializeUser((userObj, done) => {
     done (null, userObj )
-  });
-  
-  checkAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) { console.log("auth done"); return next() }
-    console.log("redirect");
+});
+
+checkAuthenticated = (req, res, next) => {
+    console.log("Authenticating for access to " + req.originalUrl + "...")
+    if (req.isAuthenticated()) { 
+        console.log("Authentication done for access to " + req.originalUrl);
+        return next();
+    }
     res.redirect("/login")
-  }
+}
   
   
 // Body parser middleware
@@ -116,22 +120,28 @@ app.get('/api/:pp', async (req, res) => {
 });
 
 
-
 app.get('/login', async (req,res) => {
     res.sendFile(path.resolve('./pages/login.html'));
-  })
+})
   
 app.post('/login',
-passport.authenticate('local', { failureRedirect: '/login', failureMessage: true }),
-async (req, res) => {
-    res.redirect('/home' + req.user.id);
+  passport.authenticate('local', { failureMessage: "true" }),
+  async (req, res) => {
+      res.redirect('/home');
+})
+
+app.post('/logout', function(req, res){
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.redirect('/login');
+    });
 });
 
 
 app.get('/home', checkAuthenticated, async (req, res) => {
     let allInfo = [];
+    const role = req.user.role;
     try {
-        
         const states = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/states"));
         await Promise.all(Object.keys(states).map(async function(e) {
             const currentState = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/current-state/" + e)).currentState;
@@ -165,16 +175,36 @@ app.get('/home', checkAuthenticated, async (req, res) => {
                 info.firstName = person.firstName;
             }
 
-            // Find if the current state is defined
-            if(currentState !== "undefined"){
-                info.statusColor = person.states[currentState].color;
-                info.statusMsg = person.states[currentState].msg;
-            }
-            else{
+            if (person.tracking === "OFF") {
                 info.statusColor = "grey";
-                info.statusMsg = "undefined";
+                info.statusMsg = "Disconnected";
+            } else {
+                // Find if the current state is defined
+                if(currentState !== "undefined"){
+                    info.statusColor = person.states[currentState].color;
+                    console.log(person.states[currentState]);
+                    console.log(person.states[currentState].visibility);
+                    if (person.states[currentState].visibility[role] === true) {
+                        info.statusMsg = person.states[currentState].msg;
+                    } else {
+                        switch (info.statusColor) {
+                            case "green":
+                                info.statusMsg = person.default.available;
+                                break;
+                            case "orange":
+                                info.statusMsg = person.default.busy;
+                                break;
+                            case "red":
+                                info.statusMsg = person.default.unavailable;
+                                break;
+                        }
+                    }                   
+                }
+                else {
+                    info.statusColor = "grey";
+                    info.statusMsg = "undefined";
+                }
             }
-
             allInfo.push(info);
         }));
         res.render(__dirname + '/pages/home.html', {"articles":allInfo});
@@ -185,6 +215,11 @@ app.get('/home', checkAuthenticated, async (req, res) => {
     }
     
    
+});
+
+app.get('/', checkAuthenticated,
+  async(req,res)=>{
+    res.redirect("/home");
 });
 
 app.get('/error/:code',

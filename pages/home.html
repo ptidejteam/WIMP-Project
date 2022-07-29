@@ -17,14 +17,19 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fontawsome -->
+    <script src="https://kit.fontawesome.com/182b62724d.js" crossorigin="anonymous"></script>
+    
     <title>WIMP</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/logo.svg">
 </head>
 <body>
 
     <header>
         <img src="/logo.svg">
-        <h1>wimp</h1>
+        <h1>WIMP</h1>
         <button id="logout-btn" class="pntr">Logout</button>
     </header>
 
@@ -42,7 +47,10 @@
             </select>
         </div>
         <div>
-            <input placeholder="Name" class="ov">
+            <input id="search-bar" placeholder="Name" class="ov">
+        </div>
+        <div>
+            <button id="refresh-btn"><i class="fa fa-refresh" aria-hidden="true"></i></button>
         </div>
     </nav>
 
@@ -50,7 +58,7 @@
         {{#articles}}
         <article class="card pntr">
             <img src="/pp/{{pp}}.jpg">
-            <h1>{{firstName}} {{lastName}}</h1>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
             <h3><span id="department">{{department}}</span></h3>
             <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
             <p class="status {{statusColor}}">{{statusMsg}}</p>
