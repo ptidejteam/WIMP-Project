@@ -6,7 +6,7 @@ const JSONdb = require('simple-json-db');
 
 const filterRouter = express.Router({mergeParams: true});
 
-filterRouter.get('/department',async(req,res)=>{
+filterRouter.get('/department', async(req,res)=>{
     let staff = {};
     let departments = [];
     const db_staff = new JSONdb(path.resolve('./database/staff.json'));
@@ -22,7 +22,7 @@ filterRouter.get('/department',async(req,res)=>{
     res.json(departments).status(200);
 });
 
-filterRouter.get('/building',async(req,res)=>{
+filterRouter.get('/building', async(req,res)=>{
     let staff = {};
     let buildings = [];
     const db_staff = new JSONdb(path.resolve('./database/staff.json'));

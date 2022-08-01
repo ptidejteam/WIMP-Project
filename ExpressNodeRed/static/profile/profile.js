@@ -8,6 +8,18 @@ $(function(){
             $(this).val(initColor);
         });
 
+        const val = $(this).attr('value');
+        $.ajax({
+            url: 'http://' + backendUrl + '/api/pp/' + val,
+            type: 'GET',
+            success: function(data){
+                $('#pp').attr('src', "data:image/jpg;base64," + data);
+            },
+            error: function(data){
+                console.log(data);
+            }            
+        });
+
         counter = $("div[id^=state-]").length;
 
         $("#save-states").attr("disabled", true);
@@ -95,7 +107,6 @@ $(function(){
                     url: 'http://localhost:8000/myflow',
                     type: 'GET',
                     success: function(data){
-                        console.log(data);
                         window.open("http://localhost:8000/red/#flow/" + data.id, "_blank");
                     },
                     error: function(data){

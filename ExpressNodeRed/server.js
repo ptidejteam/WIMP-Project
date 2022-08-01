@@ -17,7 +17,9 @@ const mustacheExpress = require('mustache-express');
 
 // Import dotvenv file
 require('dotenv').config();
-const config = process.env
+const config = process.env;
+const frontendUrl = config.FRONTEND_HOST + ":" + config.FRONTEND_PORT;
+const backendUrl = config.BACKEND_HOST + ":" + config.BACKEND_PORT;
 
 // Other Imports
 const fs = require('fs');
@@ -133,7 +135,10 @@ app.use(express.static(__dirname + '/static'));
 
 // API Routes
 app.get('/login', async (req,res) => {
-    res.sendFile(path.resolve('./pages/login.html'));
+    res.render(path.resolve('./pages/login.html'), {
+        "frontendUrl": frontendUrl,
+        "backendUrl": backendUrl
+    });
 })
 
 app.post('/login',
@@ -187,13 +192,15 @@ app.get('/profile/:id', checkAuthenticated,
             teacher.states[key].id = key;
         });
 
-        res.render(__dirname + '/pages/profile.html', {
+        res.render(path.resolve('./pages/profile.html'), {
             "pp": teacher.pp, 
             "name": teacher.firstName + " " + teacher.lastName,
             "states": Object.values(teacher.states),
             "id": req.params.id,
             "default": teacher.default,
-            "tracking": teacher.tracking
+            "tracking": teacher.tracking,
+            "backendUrl": backendUrl,
+            "frontendUrl": frontendUrl
         }); 
     }
 );
@@ -240,7 +247,7 @@ app.get('/', checkAuthenticated, (req,res) => {
 app.get('/error/:code', async(req,res)=>{
     const code = req.params.code;
     const message = req.query.msg || "An error has occurred. Please report it to an administrator.";
-    res.render(__dirname + '/pages/error.html', {
+    res.render(path.resolve('./pages/error.html'), {
         "code": code,
         "msg": message
     });
@@ -251,9 +258,9 @@ app.get('*', function(req, res){
 });
 
 // Start the server
-console.log('\x1b[33m%s\x1b[0m', "Starting server on port " + config.PORT + "...");
+console.log('\x1b[33m%s\x1b[0m', "Starting server on port " + config.BACKEND_PORT + "...");
 console.log("");
-server.listen(config.PORT);
+server.listen(config.BACKEND_PORT);
 
 // Start the Node-RED runtime
 console.log('\x1b[33m%s\x1b[0m', "Starting Node-RED runtime...");

@@ -5,14 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Mustache -->
+    <script src="https://unpkg.com/mustache@latest"></script>
+
+    <!-- Personal includes -->
     <link rel="stylesheet" href="/index.css">
     <link rel="stylesheet" href="/profile/profile.css">
 
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/profile/profile.js"></script>
-    <script src="https://unpkg.com/mustache@latest"></script>
-
+    <script>
+        let frontendUrl = "{{ frontendUrl }}";
+        let backendUrl = "{{ backendUrl }}";
+    </script>
+    
     <!-- JavaScript -->
     <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 
@@ -44,6 +52,9 @@
 
     <!-- Fontawsome -->
     <script src="https://kit.fontawesome.com/182b62724d.js" crossorigin="anonymous"></script>
+
+    <title>WIMP</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/logo.svg">
 </head>
 
     
@@ -55,7 +66,7 @@
     </header>
     <section id="main">
         <article>
-            <img src="/api/pp/{{pp}}" alt="">
+            <img id="pp" value="{{pp}}" alt="Profile photo">
             <h1>{{name}}</h1>
             <h3>{{id}}</h3>
         </article>
