@@ -16,7 +16,9 @@ const bodyParser = require('body-parser');
 
 // Import dotvenv file
 require('dotenv').config();
-const config = process.env
+const config = process.env;
+const frontendUrl = config.FRONTEND_HOST + ":" + config.FRONTEND_PORT;
+const backendUrl = config.BACKEND_HOST + ":" + config.BACKEND_PORT;
 
 // import passport
 const passport = require('passport');
@@ -25,7 +27,6 @@ const LocalStrategy = require('passport-local').Strategy
 
 
 // Other Imports
-const fs = require('fs')
 var path = require('path');
 
 // Import custom modules
@@ -76,7 +77,7 @@ passport.use(new LocalStrategy(
             console.log('Authorized : ' + username);
             let authenticated_user = {
                 id: username,
-                role: acc.role
+                role: acc.role,
             };
             return done(null, authenticated_user);
         }  
@@ -121,7 +122,10 @@ app.get('/api/:pp', async (req, res) => {
 
 
 app.get('/login', async (req,res) => {
-    res.sendFile(path.resolve('./pages/login.html'));
+    res.render(path.resolve('./pages/login.html'), {
+        "frontendUrl": frontendUrl,
+        "backendUrl": backendUrl
+    });
 })
   
 app.post('/login',
@@ -139,82 +143,24 @@ app.post('/logout', function(req, res){
 
 
 app.get('/home', checkAuthenticated, async (req, res) => {
-    let allInfo = [];
     const role = req.user.role;
     try {
-        const states = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/states"));
-        await Promise.all(Object.keys(states).map(async function(e) {
-            const currentState = JSON.parse(await prmsRequest("http://" + config.NODE_RED_EXPRESS_HOST + ":" + config.NODE_RED_EXPRESS_PORT + "/api/current-state/" + e)).currentState;
+        let states = JSON.parse(await prmsRequest("http://" + config.BACKEND_HOST + ":" + config.BACKEND_PORT + "/api/states"));
+        Object.keys(states).forEach(e => {
             const person = states[e];
-
-            let info = {
-                pp: "",
-                firstNameRaw: person.firstName,
-                firstName: "",
-                lastName: person.lastName,
-                building: person.building,
-                department: person.department,
-                office: person.office,
-                statusColor: "",
-                statusMsg: "",
-            };
-
-            // Find if the person is in the database
-            if (fs.existsSync(path.resolve("./static/pp/" + e + ".jpg"))) {
-                info.pp = e;
-            } else {
-                info.pp = "undefined";
+            if ((person.currentState !== "undefined") && (person.visibility[role] !== true)) {
+                states[e].statusMsg = person.defaultMsg;
             }
-
-            // Reduce first name
-            if(person.firstName.includes(" ")){
-                fn = person.firstName.split(' ')
-                fn = fn.reduce((a,aa)=>{return (  a + "." + aa[0]) },"");
-                info.firstName = fn.slice(1);
-            } else {
-                info.firstName = person.firstName;
-            }
-
-            if (person.tracking === "OFF") {
-                info.statusColor = "grey";
-                info.statusMsg = "Disconnected";
-            } else {
-                // Find if the current state is defined
-                if(currentState !== "undefined"){
-                    info.statusColor = person.states[currentState].color;
-                    console.log(person.states[currentState]);
-                    console.log(person.states[currentState].visibility);
-                    if (person.states[currentState].visibility[role] === true) {
-                        info.statusMsg = person.states[currentState].msg;
-                    } else {
-                        switch (info.statusColor) {
-                            case "green":
-                                info.statusMsg = person.default.available;
-                                break;
-                            case "orange":
-                                info.statusMsg = person.default.busy;
-                                break;
-                            case "red":
-                                info.statusMsg = person.default.unavailable;
-                                break;
-                        }
-                    }                   
-                }
-                else {
-                    info.statusColor = "grey";
-                    info.statusMsg = "undefined";
-                }
-            }
-            allInfo.push(info);
-        }));
-        res.render(__dirname + '/pages/home.html', {"articles":allInfo});
-           
+        });
+        res.render(path.resolve('./pages/home.html'), {
+            "articles": states,
+            "frontendUrl": frontendUrl,
+            "backendUrl": backendUrl,
+        });      
     } catch (error) {
         console.log(error);
         res.redirect('/error/502');
     }
-    
-   
 });
 
 app.get('/', checkAuthenticated,
@@ -236,8 +182,8 @@ app.get('*', function(req, res){
     res.redirect("/error/404?msg=Page not found.");
 });
 
-app.listen(config.PORT, () => {
-    console.log('\x1b[33m%s\x1b[0m', "Serveur running on : http://" + config.HOST + ":" + config.PORT);
+app.listen(config.FRONTEND_PORT, () => {
+    console.log('\x1b[33m%s\x1b[0m', "Serveur running on : http://" + config.FRONTEND_HOST + ":" + config.FRONTEND_PORT);
 });
 
 

@@ -4,7 +4,7 @@ $(function(){
             alertify.set('notifier','position', 'top-right');
             e.preventDefault();
             $.ajax({
-                url: 'http://localhost:3000/login',
+                url: 'http://' + frontendUrl + '/login',
                 type: 'POST',
                 data: $('#login-form').serialize(),
                 success: function(data){
