@@ -1,7 +1,7 @@
 $(function(){
     $(document).ready( function () {
         $.ajax({
-            url: 'http://' + backendUrl + '/api/filter/building',
+            url: protocol + '://' + backendUrl + '/api/filter/building',
             type: 'GET',
             success: function(data){
                 data.forEach(building => {
@@ -17,7 +17,7 @@ $(function(){
         });
 
         $.ajax({
-            url: 'http://' + backendUrl + '/api/filter/department',
+            url: protocol + '://' + backendUrl + '/api/filter/department',
             type: 'GET',
             success: function(data){
                 data.forEach(department => {
@@ -36,7 +36,7 @@ $(function(){
             const id = $(this).attr('id').split('-')[1];
             const val = $(this).attr('value');
             $.ajax({
-                url: 'http://' + backendUrl + '/api/pp/' + val,
+                url: protocol + '://' + backendUrl + '/api/pp/' + val,
                 type: 'GET',
                 success: function(data){
                     $('#pp-' + id).attr('src', "data:image/jpg;base64," + data);
@@ -92,7 +92,7 @@ $(function(){
     $('#logout-btn').on("click", function(e){
         e.preventDefault();
         $.ajax({
-            url: 'http://' + frontendUrl + '/logout',
+            url: protocol + '://' + frontendUrl + '/logout',
             type: 'POST',
             success: function(data){
                 console.log(data);

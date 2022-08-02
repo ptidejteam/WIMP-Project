@@ -123,6 +123,7 @@ app.get('/api/:pp', async (req, res) => {
 
 app.get('/login', async (req,res) => {
     res.render(path.resolve('./pages/login.html'), {
+        "protocol": config.PROTOCOL,
         "frontendUrl": frontendUrl,
         "backendUrl": backendUrl
     });
@@ -154,6 +155,7 @@ app.get('/home', checkAuthenticated, async (req, res) => {
         });
         res.render(path.resolve('./pages/home.html'), {
             "articles": states,
+            "protocol": config.PROTOCOL,
             "frontendUrl": frontendUrl,
             "backendUrl": backendUrl,
         });      
