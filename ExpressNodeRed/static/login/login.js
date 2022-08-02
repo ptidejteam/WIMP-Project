@@ -3,7 +3,7 @@ $(function(){
         alertify.set('notifier','position', 'top-right');
         e.preventDefault();
         $.ajax({
-            url: 'http://localhost:8000/login',
+            url: protocol + '://' + backendUrl + '/login',
             type: 'POST',
             data: $('#login-form').serialize(),
             success: function(data){

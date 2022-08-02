@@ -10,7 +10,7 @@ $(function(){
 
         const val = $(this).attr('value');
         $.ajax({
-            url: 'http://' + backendUrl + '/api/pp/' + val,
+            url: protocol + '://' + backendUrl + '/api/pp/' + val,
             type: 'GET',
             success: function(data){
                 $('#pp').attr('src', "data:image/jpg;base64," + data);
@@ -104,10 +104,10 @@ $(function(){
         alertify.confirm("You're going to be redirected on Node-RED interface. Please only edit the tab that corresponds to your profile.", function (e) {
             if (e) {
                 $.ajax({
-                    url: 'http://localhost:8000/myflow',
+                    url: protocol + '://' + backendUrl + '/myflow',
                     type: 'GET',
                     success: function(data){
-                        window.open("http://localhost:8000/red/#flow/" + data.id, "_blank");
+                        window.open(protocol + "://" + backendUrl + "/red/#flow/" + data.id, "_blank");
                     },
                     error: function(data){
                         console.log(data);
@@ -154,7 +154,7 @@ $(function(){
 
         e.preventDefault();
         $.ajax({
-            url: 'http://localhost:8000/update-states',
+            url: protocol + '://' + backendUrl + '/update-states',
             type: 'POST',
             data: JSON.stringify(payload),
             contentType: "application/json; charset=utf-8",
@@ -173,7 +173,7 @@ $(function(){
     $('#logout-btn').on("click", function(e){
         e.preventDefault();
         $.ajax({
-            url: 'http://localhost:8000/logout',
+            url: protocol + '://' + backendUrl + '/logout',
             type: 'POST',
             success: function(data){
                 console.log(data);
@@ -213,7 +213,7 @@ $(function(){
         }
 
         $.ajax({
-            url: 'http://localhost:8000/tracker/update',
+            url: protocol + '://' + backendUrl + '/tracker/update',
             type: 'POST',
             data: JSON.stringify(payload),
             contentType: "application/json; charset=utf-8",
