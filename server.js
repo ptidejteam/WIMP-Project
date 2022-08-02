@@ -10,8 +10,6 @@ const express = require('express');
 const mustacheExpress = require('mustache-express');
 const request = require('request');
 
-const axios = require('axios');
-const open = require('open');
 const bodyParser = require('body-parser');
 
 // Import dotvenv file
