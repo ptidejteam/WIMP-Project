@@ -136,6 +136,7 @@ app.use(express.static(__dirname + '/static'));
 // API Routes
 app.get('/login', async (req,res) => {
     res.render(path.resolve('./pages/login.html'), {
+        "protocol": config.PROTOCOL,
         "frontendUrl": frontendUrl,
         "backendUrl": backendUrl
     });
@@ -199,6 +200,7 @@ app.get('/profile/:id', checkAuthenticated,
             "id": req.params.id,
             "default": teacher.default,
             "tracking": teacher.tracking,
+            "protocol": config.PROTOCOL,
             "backendUrl": backendUrl,
             "frontendUrl": frontendUrl
         }); 
