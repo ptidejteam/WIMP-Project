@@ -150,8 +150,9 @@ app.post('/logout', function(req, res){
 
 app.get('/home', checkAuthenticated, async (req, res) => {
     const role = req.user.role;
+    console.log(config.PROTOCOL + '://' + backendUrl + '/api/states');
     try {
-        let states = JSON.parse(await prmsRequest("http://" + config.BACKEND_HOST + ":" + config.BACKEND_PORT + "/api/states"));
+        let states = JSON.parse(await prmsRequest(config.PROTOCOL + "://" + backendUrl + "/api/states"));
         Object.keys(states).forEach(e => {
             const person = states[e];
             if ((person.currentState !== "undefined") && (person.visibility[role] !== true)) {
