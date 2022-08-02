@@ -17,8 +17,15 @@ const bodyParser = require('body-parser');
 // Import dotvenv file
 require('dotenv').config();
 const config = process.env;
-const frontendUrl = config.FRONTEND_HOST + ":" + config.FRONTEND_PORT;
-const backendUrl = config.BACKEND_HOST + ":" + config.BACKEND_PORT;
+let frontendUrl = "";
+let backendUrl = "";
+if (config.ENV === "dev") {
+    frontendUrl = config.FRONTEND_HOST + ":" + config.FRONTEND_PORT;
+    backendUrl = config.BACKEND_HOST + ":" + config.BACKEND_PORT;
+} else if (config.ENV === "prod") {
+    frontendUrl = config.FRONTEND_HOST;
+    backendUrl = config.BACKEND_HOST;
+}
 
 // import passport
 const passport = require('passport');
