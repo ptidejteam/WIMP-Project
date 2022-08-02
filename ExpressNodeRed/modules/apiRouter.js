@@ -61,8 +61,6 @@ apiRouter.get('/states', ipfilter(authorizedIPs, ipfilterConfig), async(req,res)
                 state.pp = "undefined";
             }
 
-            console.log(state.pp);  
-
             // Reduce first name
             if(person.firstName.includes(" ")){
                 fn = person.firstName.split(' ')

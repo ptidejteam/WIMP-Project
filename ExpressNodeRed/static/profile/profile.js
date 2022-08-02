@@ -8,7 +8,7 @@ $(function(){
             $(this).val(initColor);
         });
 
-        const val = $(this).attr('value');
+        const val = $('#pp').attr('value').split(".")[0];
         $.ajax({
             url: protocol + '://' + backendUrl + '/api/pp/' + val,
             type: 'GET',
