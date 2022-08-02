@@ -3,7 +3,8 @@ Description=WIMP Backend Service
 After=network.target
 
 [Service]
-WorkingDirectory=/home/iiot/wimp-backend/ExpressNodeRed/
+Type=simple
+WorkingDirectory=/home/iiot/wimp-backend/ExpressNodeRed
 ExecStart=/bin/bash -c '/usr/bin/npm install && /usr/bin/npm run start'
 Restart=on-failure
 User=iiot
