@@ -1,10 +1,13 @@
 const request = require('request');
+const fs = require('fs');
+const path = require('path');
 
 async function prmsRequest(url){
     return new Promise(function (resolve, reject) {
         var options = {
             url: url,
-            timeout: 3000
+            timeout: 3000,
+            ca: fs.readFileSync(path.resolve('./conf/wimp.pem'))
         } 
 
         request(options, function (error, res, body) {
