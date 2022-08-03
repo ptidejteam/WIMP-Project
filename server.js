@@ -121,11 +121,6 @@ app.use(express.static(__dirname + '/static'));
 
 // ****
 
-app.get('/api/:pp', async (req, res) => {
-    res.sendFile(__dirname + '/pp/' + req.params.pp);
-});
-
-
 app.get('/login', async (req,res) => {
     res.render(path.resolve('./pages/login.html'), {
         "protocol": config.PROTOCOL,
@@ -150,9 +145,8 @@ app.post('/logout', function(req, res){
 
 app.get('/home', checkAuthenticated, async (req, res) => {
     const role = req.user.role;
-    console.log(config.PROTOCOL + '://' + backendUrl + '/api/states');
     try {
-        let states = JSON.parse(await prmsRequest(config.PROTOCOL + "://" + backendUrl + "/api/states"));
+        let states = await prmsRequest(config.PROTOCOL + "://" + backendUrl + "/api/states", "POST", {password: config.BACKEND_SECRET});
         Object.keys(states).forEach(e => {
             const person = states[e];
             if ((person.currentState !== "undefined") && (person.visibility[role] !== true)) {
