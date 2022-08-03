@@ -94,6 +94,7 @@ input {
 main {
     margin: 0 auto;
     width: fit-content;
+    width: -moz-fit-content;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     row-gap: 30px;

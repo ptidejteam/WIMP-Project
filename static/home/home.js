@@ -96,13 +96,13 @@ $(function(){
             type: 'POST',
             success: function(data){
                 console.log(data);
+                location.reload();
             },
             error: function(data){
                 console.log(data);
             }            
         });
 
-        location.reload();
     });
 
     $('#refresh-btn').on("click", function(e) {
