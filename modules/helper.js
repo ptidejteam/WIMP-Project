@@ -2,12 +2,18 @@ const request = require('request');
 const fs = require('fs');
 const path = require('path');
 
+require('dotenv').config();
+const config = process.env;
+
 async function prmsRequest(url){
     return new Promise(function (resolve, reject) {
         var options = {
             url: url,
             timeout: 3000,
-            ca: fs.readFileSync(path.resolve('./conf/wimp.pem'))
+        } 
+	
+	if (config.PROTOCOL === "https") {
+            options.ca = fs.readFileSync(path.resolve('./conf/backend-cacert.pem'));
         } 
 
         request(options, function (error, res, body) {
