@@ -19,41 +19,59 @@
 }
 
 .state {
+    width: 700px;
     display: flex;
     flex-flow: row;
     align-items: center;
-    margin: 20px 0;
+    padding: 60px 0;
+    border-bottom: 2px solid rgb(230, 230, 230);
+}
+.state:last-child{
+    border-bottom: 2px solid transparent;
+    padding: 60px 0 30px 0;
 }
 
+.cont{
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+}
 .state h1{
     margin-right: 20px;
 }
 
-#profile section{
+/* #profile section{
     display: flex;
     flex-flow: column;
     align-items: center;
-}
+} */
 
-.state div{
+.state div.input{
     display: flex;
     flex-flow: row;
     align-items: center;
-    margin: 0 10px;
+    margin: auto 10px;
     box-shadow: var(--shadow);
     background-color: var(--bg);
     padding: 12px 20px;
     border-radius: 100px;
+    border: 1px solid transparent;
 }
 
+.crop{
+    width: 150px !important;
+    margin-left: auto;
+    overflow-wrap: break-word;
+    padding: 7px 20px !important;
+    font-size:  var(--small-text) !important;
+}
 .state input{
     padding: 0;
     font-size: var(--small-text);
 }
 
-.state div:hover {
+.state div.input:hover {
     border: 1px solid var(--main);
-    margin: -1px 9px;
 }
 
 .state p {
@@ -66,10 +84,6 @@
     border-radius: 10%;
 }
 
-#profile button{
-    margin-top: 30px;
-    margin-bottom: 5px;
-}
 
 #profile button:disabled{
     color: grey;
@@ -86,13 +100,19 @@
 }
 
 .states-control {
-    display: flex;
-    flex-flow: row;
-    align-items: center;
+    width: 700px;
+    margin: 100px auto 40px auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
 .states-control > * {
     margin: 0 25px;
+}
+
+.states-control button{
+    width: 150px;
+    margin: 0 auto;
 }
 
 .arrow-size {
@@ -103,19 +123,23 @@
     color: var(--main) !important;
 }
 
+.visibility{
+    margin-top: 20px !important;
+}
+.visibility > p{
+    margin-right: auto;
+}
 .visibility input {
     margin: 0 15px 0 10px;
 }
 
 .visibility label {
+    margin-right: 15px;
     font-size: var(--small-text);
 }
 
 .default-messages {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-top: 10px;
+    width: 700px;
 }
 
 .default-message {
@@ -128,6 +152,9 @@
     border-radius: 100px;
     font-size: var(--small-text);
     margin-bottom: 20px;
+    border: 1px solid transparent;
+    float: left;
+    width: 450px;
 }
 
 .default-message > * {
@@ -136,6 +163,8 @@
 
 .default-message > p {
     margin-right: 10px;
+    float: right;
+    width: 200px;
 }
 
 .default-message > input {
@@ -148,13 +177,13 @@
 
 .input-default {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    margin: 0 10px;
 }
 
 .input-default > p {
     font-size: var(--small-text);
+    margin-left: auto;
 }
 
 .tracker-on {
@@ -177,4 +206,9 @@
     border-color: var(--green);
     color: var(--bg);
     background-color: var(--green);
+}
+
+
+#my-flow{
+    width: 150px;
 }

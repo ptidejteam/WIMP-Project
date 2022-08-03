@@ -51,30 +51,34 @@ $(function(){
         $('#states').append(
             `<div id="state-${counter}" class="state">
                 <h1>+</h1>
-                <div>
-                    <p>Message :</p>
-                    <input id="state-msg-${counter}" type="text" value="" placeholder="Describe your state..." maxlength = "25">
-                </div>
-                    
-                <div>
-                    <p>Color :</p>
-                    <select id="color-selector-${counter}">
-                        <option value="--color--" disabled selected>--color--</option>
-                        <option value="green">green</option>
-                        <option value="orange">orange</option>
-                        <option value="red">red</option>
-                    </select>
-                </div>
-                <div class="visibility">
-                    <p>Visibility :</p>
-                    <label>Student</label>
-                    <input type="checkbox" id="visibility-student">
-                    <label>Researcher</label>
-                    <input type="checkbox" id="visibility-researcher">
-                    <label>Colleague</label>
-                    <input type="checkbox" id="visibility-colleague">
-                </div>
-                <p id="preview-${counter}" class="status" style="margin-left: 10px;"></p>
+                <section>
+                    <div class="cont">
+                        <div class="input">
+                            <p>Message :</p>
+                            <input id="state-msg-${counter}" type="text" value="" placeholder="Describe your state..." maxlength = "25">
+                        </div>
+                            
+                        <div class="input">
+                            <p>Color :</p>
+                            <select id="color-selector-${counter}">
+                                <option value="--color--" disabled selected>--color--</option>
+                                <option value="green">green</option>
+                                <option value="orange">orange</option>
+                                <option value="red">red</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="visibility input">
+                        <p>Visibility :</p>
+                        <label>Student</label>
+                        <input type="checkbox" id="visibility-student">
+                        <label>Researcher</label>
+                        <input type="checkbox" id="visibility-researcher">
+                        <label>Colleague</label>
+                        <input type="checkbox" id="visibility-colleague">
+                    </div>
+                </section>
+                <p id="preview-${counter}" class="status crop"></p>
             </div>`
         );
         counter++;
@@ -93,6 +97,7 @@ $(function(){
         classList = classList.filter(it => it === "status");
         let currentValue = $(this).find(":selected").text();
         classList.push(currentValue);
+        classList.push("crop");
         $('#preview-' + id).attr('class', classList.join(" "));
 
         $("#save-states").removeAttr("disabled");
