@@ -166,13 +166,13 @@ $(function(){
             dataType: "json",
             success: function(data){
                 console.log(data);
+                location.reload();
             },
             error: function(data){
                 console.log(data);
             }            
         });
 
-        location.reload();
     });
 
     $('#logout-btn').on("click", function(e){
@@ -182,13 +182,14 @@ $(function(){
             type: 'POST',
             success: function(data){
                 console.log(data);
+                location.reload();
             },
-            error: function(data){
+            error: function (data) {
                 console.log(data);
             }            
         });
 
-        location.reload();
+        
     });
 
     $('#tracker').on("mouseover", function() {

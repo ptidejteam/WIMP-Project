@@ -43,7 +43,7 @@ var server = http.createServer(app);
 
 app.use(function (req, res, next) {
   // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Methods', 'GET', 'POST');
 
   // Request headers you wish to allow
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
@@ -51,12 +51,12 @@ app.use(function (req, res, next) {
   // Set to true if you need the website to include cookies in the requests sent
   // to the API (e.g. in case you use sessions)
   res.setHeader('Access-Control-Allow-Credentials', true);
-
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-
+  
+  res.setHeader('Access-Control-Allow-Origin', config.PROTOCOL + '://' + frontendUrl);
   // Pass to next layer of middleware
   next();    
 });
+
 
 // Body parser middleware config
 app.use(bodyParser.urlencoded({ extended: false }))
