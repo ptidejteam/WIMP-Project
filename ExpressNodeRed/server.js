@@ -65,7 +65,7 @@ app.use(bodyParser.json())
 // Use custom modules
 app.use('/api', apiRouter);
 
-// Passport config
+// Passport Session config
 const passport = require('passport');
 const session = require('express-session');
 const LocalStrategy = require('passport-local').Strategy
@@ -115,7 +115,6 @@ checkAuthenticated = (req, res, next) => {
     res.redirect("/login")
 }
 
-
 // Node-RED config
 var settings = {
     httpAdminRoot:"/red",
@@ -123,7 +122,7 @@ var settings = {
     userDir: __dirname + "/../flows",
     flowFile:'flows.json',
     editorTheme: {
-    tours: false,
+        tours: false,
     },
     functionGlobalContext: { }    // enables global context
 };
