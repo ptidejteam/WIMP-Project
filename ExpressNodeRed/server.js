@@ -127,9 +127,19 @@ var settings = {
     functionGlobalContext: { }    // enables global context
 };
 
-RED.init(server,settings);
+nodeRedAuthentication = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        req.user = {
+            "anonymous":true,
+            "permissions": "*"
+        }
+    }
+    return next();
+}
+
+RED.init(server, settings);
 //app.use(settings.httpNodeRoot,RED.httpNode);
-app.use("/red",checkAuthenticated,RED.httpAdmin);
+app.use("/red", checkAuthenticated, nodeRedAuthentication, RED.httpAdmin);
 
 // Mustache config
 app.engine('html', mustacheExpress());
