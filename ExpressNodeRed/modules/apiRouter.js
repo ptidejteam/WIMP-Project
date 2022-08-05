@@ -93,7 +93,7 @@ apiRouter.post('/states', checkApiAuthorization, async(req,res)=>{
 
             if (person.tracking === "OFF") {
                 state.statusColor = "grey";
-                state.statusMsg = "Disconnected";
+                state.defaultMsg = "Disconnected";
             } else {
                 // Find if the current state is defined
                 let currentState = Object.keys(currentStates).find(status => status === e);

@@ -1,4 +1,9 @@
 const request = require('request');
+const fs = require('fs');
+const path = require('path');
+
+require('dotenv').config();
+const config = process.env;
 
 async function prmsRequest(url, method = 'GET', body = null) {
     return new Promise(function (resolve, reject) {
@@ -6,7 +11,11 @@ async function prmsRequest(url, method = 'GET', body = null) {
             url: url,
             timeout: 3000,
             method: method,
-        } 
+        }
+
+	if (config.PROTOCOL === "https") {
+	    options.ca = fs.readFileSync(path.resolve('./conf/backend-cacert.pem'));
+	}
 
         if (method === 'POST') {
             options.json = body;
