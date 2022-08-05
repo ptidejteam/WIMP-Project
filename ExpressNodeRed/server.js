@@ -30,10 +30,10 @@ if (config.ENV === "dev") {
 
 // Other Imports
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 // Import custom modules
 const apiRouter = require('./modules/apiRouter');
-const prmsRequest = require('./modules/helper');
 
 // -------------------------------
 
@@ -87,11 +87,11 @@ passport.use(new LocalStrategy(
         let db_auth = new JSONdb('./database/credentials.json');
         let reel_password = db_auth.get(username);
         if (reel_password != password){
-            console.log('Failed to authorize : ' + username);
+            console.log('\x1b[31m%s\x1b[0m', 'Failed to authorize : ' + username);
             return done(null, false);
         } 
         else{
-            console.log('Authorized : ' + username);
+            console.log('\x1b[32m%s\x1b[0m', 'Authorized : ' + username);
             let authenticated_user = { "id": username};
             return done (null, authenticated_user);
         }  
@@ -106,26 +106,54 @@ passport.deserializeUser((userObj, done) => {
     done (null, userObj )
 });
 
+
 checkAuthenticated = (req, res, next) => {
     console.log("Authenticating for access to " + req.originalUrl + "...")
     if (req.isAuthenticated()) { 
         console.log("Authentication done for access to " + req.originalUrl);
         return next(); 
     }
-    res.redirect("/login")
+    res.redirect("/login");
 }
 
 // Node-RED config
 var settings = {
-    httpAdminRoot:"/red",
-    httpNodeRoot: "/#/api",
-    userDir: __dirname + "/../flows",
+    httpAdminRoot:"/red", // base url to access the Node-RED web interface
+    httpNodeRoot: "/node", // base url to access endpoints in the flows
+    userDir: path.resolve("../flows/"),
     flowFile:'flows.json',
     editorTheme: {
-        tours: false,
+        tours: false, // To disable the welcome tour
     },
     functionGlobalContext: { }    // enables global context
 };
+
+
+nodeRedAccess = (req, res, next) => {
+    const endpoints = config.EXTERNAL_DEVICES_ROUTES.split(',');
+    console.log("Node-RED Security check for " + req.originalUrl + "...");
+
+    if (endpoints.includes(req.originalUrl)) {
+        console.log('\x1b[32m%s\x1b[0m', "Node-RED Security Exception Accepted for " + req.originalUrl);
+        return next();
+    }
+    
+    const backendRestrictedAccess = config.BACKEND_RESTRICTED_ACCESS.split(',');
+    if (backendRestrictedAccess.includes(req.originalUrl)) {
+        try {
+            if (bcrypt.compareSync(req.body.password, config.NODE_RED_SECRET_ENC)) {
+                console.log('\x1b[32m%s\x1b[0m', "Backend restricted access for " + req.originalUrl);
+                req.body = {};
+                return next();
+            };
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    
+    console.log('\x1b[31m%s\x1b[0m', "Node-RED Security Exception Rejected for " + req.originalUrl);
+    res.redirect("/login");
+}
 
 nodeRedAuthentication = (req, res, next) => {
     if (req.isAuthenticated()) {
@@ -138,8 +166,8 @@ nodeRedAuthentication = (req, res, next) => {
 }
 
 RED.init(server, settings);
-//app.use(settings.httpNodeRoot,RED.httpNode);
-app.use("/red", checkAuthenticated, nodeRedAuthentication, RED.httpAdmin);
+app.use(settings.httpNodeRoot, nodeRedAccess, RED.httpNode);
+app.use(settings.httpAdminRoot, checkAuthenticated, nodeRedAuthentication, RED.httpAdmin);
 
 // Mustache config
 app.engine('html', mustacheExpress());
@@ -173,17 +201,13 @@ app.post('/logout', function(req, res){
 });
 
 app.get('/myflow', checkAuthenticated, async(req,res)=>{
-    //const id = req.user.id;
-    // TEMP LINE //
-    const id = "Get Fitbit Profile";
-    // --------- //
+    const id = req.user.id;
+    console.log("ID : " + id);
     try {
         const rawFlows = fs.readFileSync(__dirname + '/../flows/flows.json');
         const flows = JSON.parse(rawFlows);
-        const flow = flows.filter(it => it.name === id)
-        const type = flow[0].type;
-        const flowId = type.split(":")[1];
-        res.json({id: flowId}).status(200);
+        const flow = flows.find(it => ((it.type === "subflow") && (it.name === id)));
+        res.json({id: flow.id}).status(200);
     }
     catch (e) {
         res.status(404).send(e);
@@ -271,7 +295,7 @@ app.get('/error/:code', async(req,res)=>{
     });
 });
 
-app.get('*', function(req, res){
+app.all('*', function(req, res){
     res.redirect("/error/404?msg=Page not found.");
 });
 

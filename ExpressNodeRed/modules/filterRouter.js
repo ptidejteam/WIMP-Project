@@ -1,9 +1,12 @@
 var express = require("express");
-var path = require('path');
 
-// DB config
+// Database import
 const JSONdb = require('simple-json-db');
 
+// Other imports
+var path = require('path');
+
+// Router definition
 const filterRouter = express.Router({mergeParams: true});
 
 filterRouter.get('/department', async(req,res)=>{

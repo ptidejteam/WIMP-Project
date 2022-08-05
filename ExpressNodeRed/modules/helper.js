@@ -12,8 +12,6 @@ async function prmsRequest(url, method = 'GET', body = null) {
             options.json = body;
         }
 
-        console.log(options);
-
         request(options, function (error, res, body) {
             if (error) {
                 reject(error);     

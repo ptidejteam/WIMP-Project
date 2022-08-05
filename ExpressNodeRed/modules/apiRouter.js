@@ -1,30 +1,44 @@
 var express = require("express");
-const prmsRequest = require('./helper');
-var path = require('path');
-const fs = require('fs')
-const filterRouter = require("./filterRouter");
 
-// DB config
+// Database import
 const JSONdb = require('simple-json-db');
 
 // Import dotvenv file
 require('dotenv').config();
 const config = process.env;
 
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+let backendUrl = "";
+if (config.ENV === "dev") {
+    backendUrl = config.PROTOCOL + "://" + config.BACKEND_HOST + ":" + config.BACKEND_PORT;
+} else if (config.ENV === "prod") {
+    backendUrl = config.PROTOCOL + "://" + config.BACKEND_HOST;
+}
 
-checkApiAuthentication = (req, res, next) => {
+// Import custom modules
+const prmsRequest = require('./helper');
+
+// Other imports
+var path = require('path');
+const fs = require('fs')
+const bcrypt = require('bcrypt');
+
+// Import subrouters
+const filterRouter = require("./filterRouter");
+
+// API Authorization middleware
+checkApiAuthorization = (req, res, next) => {
     bcrypt.compare(req.body.password, config.BACKEND_SECRET, function(err, result) {
         if (result === true) {
+            console.log('\x1b[32m%s\x1b[0m', "API Authorization successful for " + req.originalUrl);
             next();
         } else {
+            console.log('\x1b[31m%s\x1b[0m', "API Authorization failed for " + req.originalUrl);
             res.status(401).send("Unauthorized");
         }
     });
 }
 
-
+// Router definition
 const apiRouter = express.Router();
 
 apiRouter.use("/filter", filterRouter)
@@ -34,13 +48,13 @@ apiRouter.get('/pp/:pp', async(req,res)=>{
     res.send(contents).status(200);
 });
 
-apiRouter.post('/states', checkApiAuthentication, async(req,res)=>{
+apiRouter.post('/states', checkApiAuthorization, async(req,res)=>{
     const db_staff = new JSONdb('./database/staff.json');
     
     let staff = {};
     let states = [];
     try{
-        //let currentStates = await prmsRequest(config.BACKEND_URL + "/red/states/");
+        const currentStates = await prmsRequest(backendUrl + "/node/currentStates", "POST", {password: config.NODE_RED_SECRET});
 
         staff = db_staff.JSON();
         Object.keys(staff).forEach(e => {
@@ -82,21 +96,14 @@ apiRouter.post('/states', checkApiAuthentication, async(req,res)=>{
                 state.statusMsg = "Disconnected";
             } else {
                 // Find if the current state is defined
-                const db_data = new JSONdb(path.resolve('./database/db.json'));
-
-                //let currentState = currentStates.find(state => e.id === state);
-
-                let currentState = "undefined";
-                if (db_data.has(e)){
-                    currentState = db_data.get(e);
-                }
-                state.currentState = currentState;
+                let currentState = Object.keys(currentStates).find(status => status === e);
+                state.currentState = currentStates[currentState];
              
                 // Find the color & msg of the state
-                if(currentState !== "undefined"){
-                    state.visibility = person.states[currentState].visibility;
-                    state.statusColor = person.states[currentState].color;
-                    state.statusMsg = person.states[currentState].msg;
+                if ((state.currentState !== undefined) && (state.currentState !== "")){
+                    state.visibility = person.states[state.currentState].visibility;
+                    state.statusColor = person.states[state.currentState].color;
+                    state.statusMsg = person.states[state.currentState].msg;
                     switch (state.statusColor) {
                         case "green":
                             state.defaultMsg = person.default.available;
@@ -111,7 +118,7 @@ apiRouter.post('/states', checkApiAuthentication, async(req,res)=>{
                 }
                 else {
                     state.statusColor = "grey";
-                    state.statusMsg = "undefined";
+                    state.defaultMsg = "undefined";
                 }
             }
             states.push(state);

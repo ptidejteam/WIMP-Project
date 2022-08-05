@@ -124,11 +124,9 @@ $(function(){
 
     $('#save-states').on("click", function(e){
         const payload = {
-            "id": "",
             "states": {},
             "default": {},
         };
-        payload.id = "1"; //TODO: get the id from the user session
 
         $('#states')
             .children('div')
