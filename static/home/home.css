@@ -65,6 +65,7 @@ option {
     display: flex;
     flex-direction: column;
     align-items: center;
+    border: 1px solid transparent;
 }
 
 .card h1{
@@ -73,5 +74,4 @@ option {
 
 .card:hover{
     border: 1px solid var(--main);
-    margin-top: -1px;
 }
