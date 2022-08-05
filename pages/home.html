@@ -4,16 +4,27 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="index.css">
 
-     <!-- jQuery -->
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-     <!-- Personal includes -->
-    <link rel="stylesheet" type="text/css" href="/home/home.css">
+    <!-- Mustache -->
+    <script src="https://unpkg.com/mustache@latest"></script>
+
+    <!-- Personal includes -->
     <link rel="stylesheet" type="text/css" href="/index.css">
+    <link rel="stylesheet" type="text/css" href="/home/home.css">
 
     <script src="/home/home.js"></script>
+    <script>
+        let protocol = "{{ protocol }}";
+        let frontendUrl = "{{ frontendUrl }}";
+        let backendUrl = "{{ backendUrl }}";
+
+        setTimeout(function(){
+            window.location.reload(1);
+        }, 15000);
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,7 +68,7 @@
     <main>
         {{#articles}}
         <article class="card pntr">
-            <img src="/pp/{{pp}}.jpg">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
             <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
             <h3><span id="department">{{department}}</span></h3>
             <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>

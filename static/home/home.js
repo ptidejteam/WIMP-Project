@@ -1,7 +1,7 @@
 $(function(){
     $(document).ready( function () {
         $.ajax({
-            url: 'http://localhost:8000/api/filter/building',
+            url: protocol + '://' + backendUrl + '/api/filter/building',
             type: 'GET',
             success: function(data){
                 data.forEach(building => {
@@ -17,7 +17,7 @@ $(function(){
         });
 
         $.ajax({
-            url: 'http://localhost:8000/api/filter/department',
+            url: protocol + '://' + backendUrl + '/api/filter/department',
             type: 'GET',
             success: function(data){
                 data.forEach(department => {
@@ -32,6 +32,20 @@ $(function(){
             }            
         });
 
+        $('[id^=pp-]').each(function() {
+            const id = $(this).attr('id').split('-')[1];
+            const val = $(this).attr('value');
+            $.ajax({
+                url: protocol + '://' + backendUrl + '/api/pp/' + val,
+                type: 'GET',
+                success: function(data){
+                    $('#pp-' + id).attr('src', "data:image/jpg;base64," + data);
+                },
+                error: function(data){
+                    console.log(data);
+                }            
+            });
+        });
     });
 
     $('#building-selector').on('change', function(){
@@ -78,17 +92,17 @@ $(function(){
     $('#logout-btn').on("click", function(e){
         e.preventDefault();
         $.ajax({
-            url: 'http://localhost:3000/logout',
+            url: protocol + '://' + frontendUrl + '/logout',
             type: 'POST',
             success: function(data){
                 console.log(data);
+                location.reload();
             },
             error: function(data){
                 console.log(data);
             }            
         });
 
-        location.reload();
     });
 
     $('#refresh-btn').on("click", function(e) {
