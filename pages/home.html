@@ -12,8 +12,8 @@
     <script src="https://unpkg.com/mustache@latest"></script>
 
     <!-- Personal includes -->
-    <link rel="stylesheet" type="text/css" href="../static/index.css">
-    <link rel="stylesheet" type="text/css" href="../static/home/home.css">
+    <link rel="stylesheet" type="text/css" href="/index.css">
+    <link rel="stylesheet" type="text/css" href="/home/home.css">
 
     <script src="/home/home.js"></script>
     <script>
@@ -21,9 +21,9 @@
         let frontendUrl = "{{ frontendUrl }}";
         let backendUrl = "{{ backendUrl }}";
 
-        setTimeout(function(){
-            window.location.reload(1);
-        }, 15000);
+        // setTimeout(function(){
+        //     window.location.reload(1);
+        // }, 30000);
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -82,7 +82,7 @@
     </nav>
 
     <main>
-        
+        {{#articles}}
         <article class="card pntr">
             <img id="pp-{{id}}" value="{{pp}}" src=""></img>
             <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
@@ -90,63 +90,7 @@
             <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
             <p class="status {{statusColor}}">{{statusMsg}}</p>
         </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-        <article class="card pntr">
-            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
-            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
-            <h3><span id="department">{{department}}</span></h3>
-            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
-            <p class="status {{statusColor}}">{{statusMsg}}</p>
-        </article>
-
+        {{/articles}}
     </main>
 </body>
 </html>
