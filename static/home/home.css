@@ -5,7 +5,6 @@ nav select {
 }
 
 nav div input {
-    width: 400px;
     background-color: var(--bg);
     outline: none;
     border: none;
@@ -27,7 +26,6 @@ nav {
     align-items: center;
     justify-content: center;
 }
-
 nav .select-box {
     background-color: var(--bg);
     display: flex;
@@ -37,6 +35,8 @@ nav .select-box {
     border-radius: 100px;
     width: max-content;
 }
+
+
 
 option {
     text-align: right;
@@ -74,4 +74,99 @@ option {
 
 .card:hover{
     border: 1px solid var(--main);
+}
+
+
+main {
+    margin: 0 auto;
+    width: 70vw;
+    /**
+   * User input values.
+   */
+  --grid-layout-gap: 5px;
+  --grid-column-count: 5;
+  --grid-item--min-width: 200px;
+
+  /**
+   * Calculated values.
+   */
+  --gap-count: calc(var(--grid-column-count) - 1);
+  --total-gap-width: calc(var(--gap-count) * var(--grid-layout-gap));
+  --grid-item--max-width: calc((100% - var(--total-gap-width)) / var(--grid-column-count));
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(var(--grid-item--min-width), var(--grid-item--max-width)), 1fr));
+  grid-gap: var(--grid-layout-gap);
+
+  row-gap: 30px;
+}
+
+.status {
+    font-size: var(--small-text);
+    padding: 7px 20px;
+    border-radius: 100px;
+    text-align: center;
+    max-width: 80%;
+}
+
+.status.green {
+    background-color: var(--greenT);
+    color: var(--green);
+}
+
+.status.orange {
+    background-color: var(--orangeT);
+    color: var(--orange);
+}
+
+.status.red {
+    background-color: var(--redT);
+    color: var(--red);
+}
+
+.status.grey {
+    background-color: #d5d1db;
+    color: var(--grey);
+}
+
+.status.state {
+    background-color: #F5F5F5;
+    color: var(--grey);
+}
+
+
+
+@media only screen and (max-width: 950px){
+    nav > * {
+        margin: 0 0px;
+    }
+    nav {
+        width: 70vw;
+        display: grid;
+        grid-template-columns: 1fr ;
+        grid-template-rows: 1fr 1fr 1fr 1fr;
+        margin-top: 50px;
+    }
+    nav .select-box {
+        background-color: var(--bg);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 10px 20px;
+        border-radius: 100px;
+        width: auto;
+        margin: 8px 0;
+    }
+    nav .search{
+        width: auto;
+    }
+    #search-bar{
+        width: 100%;
+    }
+    nav .refresh{
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+    }
+    
 }

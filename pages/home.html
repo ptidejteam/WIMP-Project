@@ -12,8 +12,8 @@
     <script src="https://unpkg.com/mustache@latest"></script>
 
     <!-- Personal includes -->
-    <link rel="stylesheet" type="text/css" href="/index.css">
-    <link rel="stylesheet" type="text/css" href="/home/home.css">
+    <link rel="stylesheet" type="text/css" href="../static/index.css">
+    <link rel="stylesheet" type="text/css" href="../static/home/home.css">
 
     <script src="/home/home.js"></script>
     <script>
@@ -36,15 +36,31 @@
     <title>WIMP</title>
     <link rel="shortcut icon" type="image/x-icon" href="/logo.svg">
 </head>
+<script defer>
+    var changeColor_filter = function(){
+        let filter = document.querySelector("header svg path");
+        if(filter.classList.contains("selected")){
+            filter.classList.remove("selected");
+            document.querySelector("nav").classList.add("hiden");
+        }
+        else{
+            filter.classList.add("selected");
+            document.querySelector("nav").classList.remove("hiden");
+        }
+
+
+    }
+</script>
 <body>
 
     <header>
-        <img src="/logo.svg">
+        <img class="logo" src="/logo.svg">
         <h1>WIMP</h1>
+        <svg class="pntr" onclick="changeColor_filter()" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs></defs><path class="cls-1" d="M22,40a2,2,0,0,1-2-2V26L8.05,10.75A1.51,1.51,0,0,1,7.85,9,1.65,1.65,0,0,1,9.4,8H38.6A1.65,1.65,0,0,1,40.15,9a1.51,1.51,0,0,1-.2,1.8L28,26V38a2,2,0,0,1-2,2Zm2-13.8L36,11H12Z"/></svg>
         <button id="logout-btn" class="pntr">Logout</button>
     </header>
 
-    <nav>
+    <nav class="hiden">
         <div class="select-box ov">
             <h2>Building :</h2>
             <select id="building-selector" class="pntr">
@@ -57,16 +73,16 @@
                 <option value="All">All</option>
             </select>
         </div>
-        <div>
-            <input id="search-bar" placeholder="Name" class="ov">
+        <div class="search">
+            <input id="search-bar" placeholder="Name" class="ov ">
         </div>
-        <div>
-            <button id="refresh-btn"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+        <div class="refresh">
+            <button id="refresh-btn"><i class="fa fa-refresh pntr" aria-hidden="true"></i></button>
         </div>
     </nav>
 
     <main>
-        {{#articles}}
+        
         <article class="card pntr">
             <img id="pp-{{id}}" value="{{pp}}" src=""></img>
             <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
@@ -74,8 +90,63 @@
             <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
             <p class="status {{statusColor}}">{{statusMsg}}</p>
         </article>
-        {{/articles}}
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
         </article>
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
+        </article>
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
+        </article>
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
+        </article>
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
+        </article>
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
+        </article>
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
+        </article>
+        <article class="card pntr">
+            <img id="pp-{{id}}" value="{{pp}}" src=""></img>
+            <h1><span id="firstName" value="{{firstNameRaw}}">{{firstName}}</span> <span id="lastName">{{lastName}}</span></h1>
+            <h3><span id="department">{{department}}</span></h3>
+            <h3><span id="building">{{building}}</span> <span id="office">{{office}}</span></h3>
+            <p class="status {{statusColor}}">{{statusMsg}}</p>
+        </article>
+
     </main>
 </body>
 </html>

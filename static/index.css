@@ -8,7 +8,7 @@
     --orange: #eeab00;
     --bg: #FFFFFF;
     --shadow: 0 2px 5px #00000034;
-    --grey: rgb(128, 128, 128);
+    --grey: #808080;
     --greenT: #00C15915;
     --redT: #EE463C15;
     --orangeT: #F8BC2220;
@@ -45,13 +45,28 @@ h3 {
     margin-bottom: 20px;
 }
 
-header img {
+header img.logo {
     height: 50px;
     margin-right: 10px;
 }
 
-header button {
+
+header svg{
+    height: 25px;
     margin-left: auto;
+}
+header svg:hover > path{
+    fill: var(--main);
+}
+header svg path.selected{
+    fill: var(--main);
+}
+header svg path{
+    fill: rgb(162, 162, 162);
+}
+
+header button {
+    margin-left: 20px;
 }
 
 header h1 {
@@ -85,54 +100,13 @@ input {
 
 .ov {
     box-shadow: var(--shadow);
+    border: 1px solid transparent;
 }
 
 .ov:hover {
-    outline: 1px solid var(--main);
+    border: 1px solid var(--main);
 }
 
-main {
-    margin: 0 auto;
-    width: fit-content;
-    width: -moz-fit-content;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    row-gap: 30px;
-    column-gap: 30px;
-}
-
-.status {
-    font-size: var(--small-text);
-    padding: 7px 20px;
-    border-radius: 100px;
-    text-align: center;
-    max-width: 80%;
-}
-
-.status.green {
-    background-color: var(--greenT);
-    color: var(--green);
-}
-
-.status.orange {
-    background-color: var(--orangeT);
-    color: var(--orange);
-}
-
-.status.red {
-    background-color: var(--redT);
-    color: var(--red);
-}
-
-.status.grey {
-    background-color: #d5d1db;
-    color: var(--grey);
-}
-
-.status.state {
-    background-color: #F5F5F5;
-    color: var(--grey);
-}
 
 .pntr:hover {
     cursor: pointer;
@@ -152,4 +126,9 @@ main {
     bottom: 20px;
     width: 100%;
     text-align: center;
+}
+
+
+.hiden{
+    display: none;
 }
