@@ -50,6 +50,8 @@ apiRouter.get('/pp/:pp', async(req,res)=>{
 
 apiRouter.post('/states', checkApiAuthorization, async(req,res)=>{
     const db_staff = new JSONdb('./database/staff.json');
+
+    const role = req.body.role;
     
     let staff = {};
     let states = [];
@@ -69,11 +71,8 @@ apiRouter.post('/states', checkApiAuthorization, async(req,res)=>{
                 department: person.department,
                 office: person.office,
                 statusColor: "",
-                statusMsg: "",
-                defaultMsg: "",
-                currentState: "",
-                visibility: {}
-            }
+                statusMsg: ""
+            };
 
             // Find if the person is in the database
             if (fs.existsSync(path.resolve('./pp/' + person.pp))) {
@@ -93,32 +92,34 @@ apiRouter.post('/states', checkApiAuthorization, async(req,res)=>{
 
             if (person.tracking === "OFF") {
                 state.statusColor = "grey";
-                state.defaultMsg = "Disconnected";
+                state.statusMsg = "Disconnected";
             } else {
                 // Find if the current state is defined
                 let currentState = Object.keys(currentStates).find(status => status === e);
-                state.currentState = currentStates[currentState];
-             
+                currentState = currentStates[currentState];
+           
                 // Find the color & msg of the state
-                if ((state.currentState !== undefined) && (state.currentState !== "")){
-                    state.visibility = person.states[state.currentState].visibility;
-                    state.statusColor = person.states[state.currentState].color;
-                    state.statusMsg = person.states[state.currentState].msg;
-                    switch (state.statusColor) {
-                        case "green":
-                            state.defaultMsg = person.default.available;
-                            break;
-                        case "orange":
-                            state.defaultMsg = person.default.busy;
-                            break;
-                        case "red":
-                            state.defaultMsg = person.default.unavailable;
-                            break;
+                if ((currentState !== undefined) && (currentState !== "")){
+                    state.visibility = person.states[currentState].visibility;
+                    state.statusColor = person.states[currentState].color;
+                    if (person.states[currentState].visibility[role] === true) {
+                        state.statusMsg = person.states[currentState].msg;
+                    } else {
+                        switch (state.statusColor) {
+                            case "green":
+                                state.statusMsg = person.default.available;
+                                break;
+                            case "orange":
+                                state.statusMsg = person.default.busy;
+                                break;
+                            case "red":
+                                state.statusMsg = person.default.unavailable;
+                                break;
+                        }
                     }
-                }
-                else {
+                } else {
                     state.statusColor = "grey";
-                    state.defaultMsg = "undefined";
+                    state.statusMsg = "undefined";
                 }
             }
             states.push(state);
