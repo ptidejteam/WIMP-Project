@@ -1,6 +1,5 @@
 #error button{
     margin-top: 30px;
-    margin-bottom: 5px;
 }
 
 #error header button{
@@ -37,4 +36,8 @@
     font-size: 400px;
     font-family: 'Roboto', sans-serif;
     font-weight: 600;
+}
+
+header button {
+    margin-left: auto;
 }

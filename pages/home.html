@@ -32,11 +32,13 @@
     <title>WIMP</title>
     <link rel="shortcut icon" type="image/x-icon" href="/logo.svg">
 </head>
+
 <body>
 
     <header>
-        <img src="/logo.svg">
+        <img src="/logo.svg" class="logo">
         <h1>WIMP</h1>
+        <svg class="pntr" id="filter" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs></defs><path class="cls-1" d="M22,40a2,2,0,0,1-2-2V26L8.05,10.75A1.51,1.51,0,0,1,7.85,9,1.65,1.65,0,0,1,9.4,8H38.6A1.65,1.65,0,0,1,40.15,9a1.51,1.51,0,0,1-.2,1.8L28,26V38a2,2,0,0,1-2,2Zm2-13.8L36,11H12Z"/></svg>
         <button id="logout-btn" class="pntr">Logout</button>
     </header>
 
@@ -53,11 +55,11 @@
                 <option value="All">All</option>
             </select>
         </div>
-        <div>
-            <input id="search-bar" placeholder="Name" class="ov">
+        <div class="search">
+            <input id="search-bar" placeholder="Name" class="ov ">
         </div>
-        <div>
-            <button id="refresh-btn"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+        <div class="refresh">
+            <button id="refresh-btn"><i class="fa fa-refresh pntr" aria-hidden="true"></i></button>
         </div>
     </nav>
 
@@ -71,7 +73,6 @@
             <p class="status {{statusColor}}">{{statusMsg}}</p>
         </article>
         {{/articles}}
-        </article>
     </main>
 </body>
 </html>

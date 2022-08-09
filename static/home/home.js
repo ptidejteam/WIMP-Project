@@ -1,3 +1,46 @@
+setTimeout(function(){
+    location.reload(1);
+}, 20000);
+
+let currentBuilding = "";
+let currentDepartment = "";
+let currentSearchBar = "";
+
+let localBuilding = localStorage.getItem("currentBuilding");
+let localDepartment = localStorage.getItem("currentDepartment");
+let localSearchBar = localStorage.getItem("currentSearchBar");
+
+function filter() {
+    let value = $("#search-bar").val();
+    value = value.toLowerCase();
+    const buildingSelected = $('#building-selector').val();
+    const departmentSelected = $('#department-selector').val();
+
+    $('main').children('article').each(function(){
+        $(this).hide();
+        const firstName = $(this).find('#firstName').attr("value").toLowerCase();
+        const lastName = $(this).find('#lastName').text().toLowerCase();
+        const building = $(this).find('#building').text();
+        const department = $(this).find('#department').text();
+
+        if ((buildingSelected === "All" || building === buildingSelected) && (departmentSelected === "All" || department === departmentSelected)) {
+            if(firstName.includes(" ")) {
+                const firstNameSplit = firstName.split(' ');
+                $(this).hide();
+                firstNameSplit.forEach(fn => {
+                    if(fn.startsWith(value) || lastName.startsWith(value)){
+                        $(this).show();
+                    }
+                });
+            } else {
+                if((firstName.includes(value) || lastName.includes(value))){
+                    $(this).show();
+                }
+            }
+        }
+    });
+}
+
 $(function(){
     $(document).ready( function () {
         $.ajax({
@@ -5,10 +48,19 @@ $(function(){
             type: 'GET',
             success: function(data){
                 data.forEach(building => {
-                    $('#building-selector').append($('<option/>', { 
-                        value: building,
-                        text : building 
-                    }));
+                    if (building === localBuilding) {
+                        $('#building-selector').append($('<option/>', { 
+                            value: building,
+                            text : building,
+                            selected: true
+                        })).change();
+                        $('#building-selector').val(building);
+                    } else {
+                        $('#building-selector').append($('<option/>', { 
+                            value: building,
+                            text : building 
+                        })).change();
+                    }
                 }); 
             },
             error: function(data){
@@ -21,16 +73,27 @@ $(function(){
             type: 'GET',
             success: function(data){
                 data.forEach(department => {
-                    $('#department-selector').append($('<option/>', { 
-                        value: department,
-                        text : department 
-                    }));
+                    if (department === localDepartment) {
+                        $('#department-selector').append($('<option/>', { 
+                            value: department,
+                            text : department,
+                            selected: true
+                        }));
+                        $('#department-selector').val(department);
+                    } else {
+                        $('#department-selector').append($('<option/>', { 
+                            value: department,
+                            text : department 
+                        }));
+                    }
                 }); 
             },
             error: function(data){
                 console.log(data);
             }            
         });
+
+        $("#search-bar").val(localSearchBar).change();
 
         $('[id^=pp-]').each(function() {
             const id = $(this).attr('id').split('-')[1];
@@ -48,45 +111,30 @@ $(function(){
         });
     });
 
-    $('#building-selector').on('change', function(){
+    $('#building-selector').on('change', function() {
         const building = $(this).val();
-        $('main').children('article').each(function(){
-            $(this).show();
-            if((building !== "All") && (building !== $(this).find('#building').text())){
-                $(this).hide();
-            }
-        });
+        localStorage.setItem("currentBuilding", building);
+        filter();
     });
 
-    $('#department-selector').on('change', function(){
+    $('#department-selector').on('change', function() {
         const department = $(this).val();
-        $('main').children('article').each(function(){
-            $(this).show();
-            if((department !== "All") && (department !== $(this).find('#department').text())){
-                $(this).hide();
-            }
-        });
+        localStorage.setItem("currentDepartment", department);
+        filter();
     });
 
-    $("#search-bar").on("keyup", function() {
-        var value = $(this).val().toLowerCase();
-        $('main').children('article').each(function(){
-            $(this).hide();
-            const firstName = $(this).find('#firstName').attr("value").toLowerCase();
-            const lastName = $(this).find('#lastName').text().toLowerCase();
-            if(firstName.includes(" ")) {
-                const firstNameSplit = firstName.split(' ');
-                firstNameSplit.forEach(fn => {
-                    if(fn.startsWith(value) || lastName.startsWith(value)){
-                        $(this).show();
-                    }
-                });
-            } else {
-                if(firstName.startsWith(value) || lastName.startsWith(value)){
-                    $(this).show();
-                }
-            }
-        });
+    $("#search-bar").on("keyup change", function() {
+        var value = $(this).val();
+        localStorage.setItem("currentSearchBar", value);
+        filter();
+    });
+
+    $('#filter').on('click', function(){
+        if ($('nav').is(':visible')) {
+            $('nav').hide();
+        } else if ($('nav').is(':hidden')) {
+            $('nav').show();
+        }
     });
 
     $('#logout-btn').on("click", function(e){

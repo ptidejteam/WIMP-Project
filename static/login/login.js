@@ -8,6 +8,7 @@ $(function(){
                 type: 'POST',
                 data: $('#login-form').serialize(),
                 success: function(data){
+                    localStorage.clear();
                     location.href = "/home";
                 },
                 error: function(data){
