@@ -127,13 +127,13 @@ app.get('/login', async (req,res) => {
         "frontendUrl": frontendUrl,
         "backendUrl": backendUrl
     });
-})
+});
   
 app.post('/login',
   passport.authenticate('local', { failureMessage: "true" }),
   async (req, res) => {
       res.redirect('/home');
-})
+});
 
 app.post('/logout', function(req, res){
     req.logout(function(err) {
@@ -146,12 +146,9 @@ app.post('/logout', function(req, res){
 app.get('/home', checkAuthenticated, async (req, res) => {
     const role = req.user.role;
     try {
-        let states = await prmsRequest(config.PROTOCOL + "://" + backendUrl + "/api/states", "POST", {password: config.BACKEND_SECRET});
-        Object.keys(states).forEach(e => {
-            const person = states[e];
-            if ((person.currentState !== "undefined") && (person.visibility[role] !== true)) {
-                states[e].statusMsg = person.defaultMsg;
-            }
+        let states = await prmsRequest(config.PROTOCOL + "://" + backendUrl + "/api/states", "POST", {
+            password: config.BACKEND_SECRET,
+            role: role
         });
         res.render(path.resolve('./pages/home.html'), {
             "articles": states,
