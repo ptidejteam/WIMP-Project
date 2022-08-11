@@ -59,8 +59,8 @@ app.use(function (req, res, next) {
 
 
 // Body parser middleware config
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }))
+app.use(bodyParser.json({ limit: '50mb' }))
 
 // Use custom modules
 app.use('/api', apiRouter);
