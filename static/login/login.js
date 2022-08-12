@@ -12,8 +12,9 @@ $(function(){
                     location.href = "/home";
                 },
                 error: function(data){
-                    console.log("failed");
-                    if (data.status === 401) { alertify.error(data.statusText + ": Invalid credentials", 'error', 5 )};
+                    if ((data.status === 401) || (data.status === 429)) { 
+                        alertify.error(data.statusText + ": " + data.responseText, 'error', 5 )
+                    };
                 }            
             });
         });

@@ -42,6 +42,9 @@ function filter() {
 }
 
 $(function(){
+
+    let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
     $(document).ready( function () {
         $.ajax({
             url: protocol + '://' + backendUrl + '/api/filter/building',
@@ -142,6 +145,10 @@ $(function(){
         $.ajax({
             url: protocol + '://' + frontendUrl + '/logout',
             type: 'POST',
+            credentials: 'same-origin', 
+            headers: {
+                'CSRF-Token': csrfToken
+            },
             success: function(data){
                 console.log(data);
                 location.reload();
