@@ -10,7 +10,10 @@ $(function(){
                 location.href = "/profile/" + $('#username').val();
             },
             error: function(data){
-                if (data.status === 401) { alertify.error(data.statusText + ": Invalid credentials", 'error', 5 )};
+                console.log(data);
+                if ((data.status === 401) || (data.status === 429)) { 
+                    alertify.error(data.statusText + ": " + data.responseText, 'error', 5 )
+                };
             }            
         });
     });

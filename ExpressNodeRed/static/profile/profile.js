@@ -2,6 +2,8 @@ $(function(){
 
     let counter = 0;
 
+    let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
     jQuery( function () {
         $('[id^=color-selector]').each(function() {
             const initColor = $(this).attr('init');
@@ -159,6 +161,10 @@ $(function(){
         $.ajax({
             url: protocol + '://' + backendUrl + '/update-states',
             type: 'POST',
+            credentials: 'same-origin', 
+            headers: {
+                'CSRF-Token': csrfToken
+            },
             data: JSON.stringify(payload),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -178,6 +184,10 @@ $(function(){
         $.ajax({
             url: protocol + '://' + backendUrl + '/logout',
             type: 'POST',
+            credentials: 'same-origin', 
+            headers: {
+                'CSRF-Token': csrfToken
+            },
             success: function(data){
                 console.log(data);
                 location.reload();
@@ -219,6 +229,10 @@ $(function(){
         $.ajax({
             url: protocol + '://' + backendUrl + '/tracker/update',
             type: 'POST',
+            credentials: 'same-origin', 
+            headers: {
+                'CSRF-Token': csrfToken
+            },
             data: JSON.stringify(payload),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
