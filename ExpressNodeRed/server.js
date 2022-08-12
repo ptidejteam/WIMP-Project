@@ -125,7 +125,7 @@ checkAuthenticated = (req, res, next) => {
 const redis = require('redis');
 const { RateLimiterRedis } = require('rate-limiter-flexible')
 
-// create a Redis client - connect to Redis (will be done later in this tutorial)
+// create a Redis client
 const redisClient = redis.createClient(process.env.REDIS_URL, {
     enable_offline_queue: false
 });
@@ -233,7 +233,6 @@ rateLimiterAuthenticator = async function(req, res, next) {
           })(req, res, next);
     }
 }
-
 // -------------------------------
 
 
@@ -242,7 +241,8 @@ rateLimiterAuthenticator = async function(req, res, next) {
 let csrf = require('csurf');
 let cookieParser = require('cookie-parser')
 let csrfProtection = csrf({ cookie: true });
-app.use(cookieParser())
+app.use(cookieParser());
+// -------------------------------
 
 
 // Node-RED config
@@ -324,14 +324,14 @@ app.post('/login',
     }
 );
 
-app.post('/logout', function(req, res){
+app.post('/logout', csrfProtection, function(req, res){
     req.logout(function(err) {
     if (err) { return next(err); }
         res.redirect('/login');
     });
 });
 
-app.get('/myflow', checkAuthenticated, async(req,res)=>{
+app.get('/myflow', csrfProtection, checkAuthenticated, async(req,res)=>{
     const id = req.user.id;
     console.log("ID : " + id);
     try {
