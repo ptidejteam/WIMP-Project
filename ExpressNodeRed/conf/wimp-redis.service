@@ -1,0 +1,13 @@
+[Unit]
+Description=WIMP Backend Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/etc/redis/redis-6.0.6/src/
+ExecStart=/bin/bash -c 'redis-server'
+Restart=on-failure
+User=iiot
+
+[Install]
+WantedBy=multi-user.target
