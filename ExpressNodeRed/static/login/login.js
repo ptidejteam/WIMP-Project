@@ -10,7 +10,6 @@ $(function(){
                 location.href = "/profile/" + $('#username').val();
             },
             error: function(data){
-                console.log(data);
                 if ((data.status === 401) || (data.status === 429)) { 
                     alertify.error(data.statusText + ": " + data.responseText, 'error', 5 )
                 };

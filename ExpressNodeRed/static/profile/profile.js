@@ -1,7 +1,6 @@
 $(function(){
 
     let counter = 0;
-
     let csrfToken = $('meta[name="csrf-token"]').attr('content');
 
     jQuery( function () {
