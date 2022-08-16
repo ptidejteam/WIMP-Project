@@ -7,6 +7,8 @@
   },
   "dependencies": {
     "json-database": "file:../nodes/db",
+    "node-red-contrib-apple-find-me": "~1.1.3",
+    "node-red-node-geofence": "~0.3.4",
     "node-red-node-wemo": "file:../nodes/wemo"
   }
 }

@@ -58,6 +58,7 @@ apiRouter.post('/states', checkApiAuthorization, async(req,res)=>{
     try{
         const currentStates = await prmsRequest(backendUrl + "/node/currentStates", "POST", {password: config.NODE_RED_SECRET});
 
+	console.log(currentStates);
         staff = db_staff.JSON();
         Object.keys(staff).forEach(e => {
             const person = staff[e];
