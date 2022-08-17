@@ -76,11 +76,11 @@ passport.use(new LocalStrategy(
         const db_acc = new dbjson( __dirname + '/database/db_acc.json');
         let acc = db_acc.get(username);
         if (acc === undefined || acc.pwd != password){
-            console.log('Failed to authorize : ' + username);
+            console.log('\x1b[31m%s\x1b[0m', 'Failed to authorize : ' + username);
             return done(null, false);
         } 
         else{
-            console.log('Authorized : ' + username);
+            console.log('\x1b[32m%s\x1b[0m', 'Authorized : ' + username);
             let authenticated_user = {
                 id: username,
                 role: acc.role,
