@@ -73,10 +73,11 @@ const LocalStrategy = require('passport-local').Strategy
 
 app.use(session({
     secret: config.SESSION_SECRET,
-    resave: false ,
+    resave: false,
     saveUninitialized: true,
     cookie: {
-        maxAge: 3600000
+        maxAge: 3600000,
+        sameSite: 'strict',
     }
 }));
 
@@ -224,10 +225,10 @@ rateLimiterAuthenticator = async function(req, res, next) {
             if (user) {
                 // login (Passport.js method)
                 req.logIn(user, function(err) {
-                if (err) {
-                    return next(err);
-                }
-                return res.redirect('/');
+                    if (err) {
+                        return next(err);
+                    }
+                    return next();
                 });
             }
           })(req, res, next);
@@ -316,7 +317,7 @@ app.get('/login', csrfProtection, async (req,res) => {
     });
 })
 
-app.post('/login', 
+app.post('/login',
     csrfProtection,
     rateLimiterAuthenticator,
     async (req, res) => {

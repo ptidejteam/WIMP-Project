@@ -2,11 +2,11 @@ $(function(){
 
     $('#return-btn').on("click", function(e){
         e.preventDefault();
-        location.href = "/dashboard";
+        location.href = "/";
     });
 
     $('#home-btn').on("click", function(e){
         e.preventDefault();
-        location.href = "/dashboard";
+        location.href = "/";
     });
 });
