@@ -393,7 +393,7 @@ app.post('/update-states', csrfProtection, checkAuthenticated, function(req, res
         user.states = states;
         user["default"] = defaults;
         db_staff.set(id, user);
-        res.send("OK").status(200);
+        res.json({"Update": "OK"}).status(200);
     }
     return res;
 });

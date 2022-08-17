@@ -19,7 +19,7 @@
 }
 
 .state {
-    width: 700px;
+    width: 800px;
     display: flex;
     flex-flow: row;
     align-items: center;
@@ -59,7 +59,7 @@
 }
 
 .crop{
-    width: 150px !important;
+    width: 200px !important;
     margin-left: auto;
     overflow-wrap: break-word;
     padding: 7px 20px !important;
@@ -100,7 +100,7 @@
 }
 
 .states-control {
-    width: 700px;
+    width: 800px;
     margin: 100px auto 40px auto;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -130,16 +130,16 @@
     margin-right: auto;
 }
 .visibility input {
-    margin: 0 15px 0 10px;
+    margin-right: 30px;
 }
 
 .visibility label {
-    margin-right: 15px;
+    margin-right: 10px;
     font-size: var(--small-text);
 }
 
 .default-messages {
-    width: 700px;
+    width: 800px;
 }
 
 .default-message {
@@ -211,4 +211,14 @@
 
 #my-flow{
     width: 150px;
+}
+
+.delete-btn {
+    margin-right: 20px;
+    color: var(--grey);
+}
+
+.delete-btn:hover {
+    cursor: pointer;
+    color: var(--main);
 }

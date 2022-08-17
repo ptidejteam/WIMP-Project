@@ -129,6 +129,7 @@ $(function(){
             "default": {},
         };
 
+        let idCounter = 0;
         $('#states')
             .children('div')
             .filter(function() {
@@ -146,14 +147,13 @@ $(function(){
                     "researcher": $(this).find('#visibility-researcher').is(':checked'),
                     "colleague": $(this).find('#visibility-colleague').is(':checked')
                 };
-                payload.states[id] = {msg, color, visibility};
-                
+                payload.states[idCounter++] = {msg, color, visibility};
         });
 
         $('[id^=default-message-]').each(function(e){
             const id = $(this).attr('id').split("-")[2];
             const msg = $(this).children('input').val();
-            payload.default[id] = msg;
+            payload.default[id] = msg; 
         });
 
         e.preventDefault();
@@ -169,13 +169,12 @@ $(function(){
             dataType: "json",
             success: function(data){
                 console.log(data);
-                location.reload();
+                location.reload(1);
             },
             error: function(data){
                 console.log(data);
             }            
         });
-
     });
 
     $('#logout-btn').on("click", function(e){
@@ -249,6 +248,14 @@ $(function(){
         $(this).next().text($(this).children('input').val());
         $("#save-states").removeAttr("disabled");
     });
+
+    $('.delete-btn').on("click", function(e){
+        const id = $(this).attr('id').split("-")[2];
+        e.preventDefault();
+        $(this).parent().remove();
+        $("#save-states").removeAttr("disabled");
+    });
+
 
 
 });
