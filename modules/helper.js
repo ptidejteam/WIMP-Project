@@ -9,7 +9,7 @@ async function prmsRequest(url, method = 'GET', body = null) {
     return new Promise(function (resolve, reject) {
         var options = {
             url: url,
-            timeout: 5000,
+            timeout: 10000,
             method: method,
         } 
 	
