@@ -1,0 +1,13 @@
+{
+  "name": "template",
+  "version": "1.0.0",
+  "description": "",
+  "node-red": {
+    "nodes": {
+      "lower-case": "lower-case.js"
+    }
+  },
+  "dependencies": {
+    "smallest": "^1.0.1"
+  }
+}

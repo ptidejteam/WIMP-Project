@@ -1,123 +1,35 @@
-# WIMP-Project
+# WIMP Backend
 
-The WIMP-Project is a comprehensive software system designed to [briefly describe the project's purpose, e.g., manage workflow, optimize data processing, or facilitate user interaction]. This project is highly modular and organized into several branches, each representing a different version or feature set.
+<p align="center" style="margin: 50px 0">
+    <img src="./ExpressNodeRed/static/wimp-backend.png" alt="WIMP Backend Logo" style="height:200px; width:auto;"/>
+<p>
 
-## Branches Overview
+## What is the WIMP system ?
 
-The WIMP-Project is divided into multiple branches, each tailored to different functionalities or stages of development. Here are some of the key branches:
+WIMP is an IoT system that allows the students to get their teachers availability in real time.
 
-- **Main:** The main production-ready branch containing the latest stable version of the project.
-- **Development:** This branch contains ongoing work and new feature development. It is updated frequently and might include experimental features.
-- **Feature-X:** This branch focuses on the implementation of [specific feature X]. It may not be stable and is under active development.
-- **Experimental:** Contains experimental features and prototypes that are not yet stable. This branch is used for testing new ideas and concepts.
+The goal of this project is also to offer a functional IoT system to the researchers of the lab for the experiments.
 
-## How to Get the Right Version
+## What is the WIMP Backend ?
 
-To ensure you're working with the correct version of the WIMP-Project, follow these steps:
+The backend part allows teachers to manage and define their states and to build their own logic in a Node-RED flow in order to compute their current state.
 
-### 1. Clone the Repository
+The principle of the backend part of the system is as follows:
 
-Start by cloning the repository to your local machine:
+A Node-RED server is used to process the information received from the different devices. This server is embedded in a Express.js server which have 3 main features:
 
-```bash
-git clone https://github.com/yourusername/WIMP-Project.git
-```
+- Serve as a firewall for the access to Node-RED.
+- Expose a REST API which can be accessed through the frontend part of the system.
+- Host the web pages accessible by the teachers.
 
-### 2. Navigate to the Project Directory
+In terms of software design, the backend part is separated in 2 sub parts :
 
-Move into the newly cloned directory:
+- The front-backend which manages the Teacher interface via web pages. In this case, the backend corresponds to a classic web server
+- The back-backend which contains the Node-Red part and the API accesible through the bakcend or the front of the system
 
-```bash
-cd WIMP-Project
-```
-
-### 3. List Available Branches
-
-Check which branches are available in the repository:
-
-```bash
-git branch -a
-```
-
-This command will list all branches, including remote branches that you can check out.
-
-### 4. Checkout the Desired Branch
-
-To work with a specific branch, use the following command:
-
-```bash
-git checkout <branch-name>
-```
-
-Replace `<branch-name>` with the name of the branch you wish to check out (e.g., `development`, `feature-X`).
-
-### 5. Pull the Latest Changes (Optional)
-
-If you want to ensure you have the most up-to-date version of the branch, pull the latest changes from the remote repository:
-
-```bash
-git pull origin <branch-name>
-```
-
-### 6. Build and Run the Project
-
-Refer to the project's build instructions in the `README.md` or `BUILD.md` file. Follow the steps outlined there to compile and run the project on your system.
-
-## Development Guidelines
-
-### 1. Always Include a `README.md`
-
-For each new version or feature branch, developers must include an updated `README.md` file. This file should:
-
-- Clearly describe the purpose and scope of the version or feature.
-- List any prerequisites for running the project.
-- Provide step-by-step instructions for installation, setup, and usage.
-
-### 2. Include Build Instructions
-
-In addition to the `README.md`, ensure that a `BUILD.md` file (or a dedicated section within the `README.md`) is included with:
-
-- Detailed instructions on how to compile and build the project.
-- Any environment variables, dependencies, or tools needed to build the project.
-- Instructions for running tests and verifying that the build is successful.
-
-### 3. Maintain Branch Consistency
-
-When creating new branches, ensure that the `README.md` and build instructions are consistent and reflect any changes made in that branch. This helps maintain clarity and usability across all versions of the project.
-
-### 4. Documentation Updates
-
-Whenever a new feature is added or a significant change is made, update the documentation accordingly. This includes adding new sections to the `README.md` or revising existing instructions to reflect changes.
-
-## Contributing
-
-If you wish to contribute to the WIMP-Project, please follow these guidelines:
-
-1. **Fork the Repository:**
-   Create your own fork of the repository by clicking the "Fork" button on the GitHub page.
-
-2. **Create a New Branch:**
-   Create a new branch for your feature or bug fix:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. **Commit Your Changes:**
-   Make sure to commit your changes with a clear and descriptive commit message:
-   ```bash
-   git commit -m "Add your descriptive commit message here"
-   ```
-
-4. **Push to Your Fork:**
-   Push your branch to your forked repository:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-5. **Submit a Pull Request:**
-   Open a pull request on the original repository, describing your changes and why they should be merged.
+The two parts of the backend are linked thanks to the Express.js server.
 
 
-## Contact
+## Learn more about the Backend
 
-For any questions or issues, please contact the project maintainers.
+To learn more about this part of the system, we invite you to consult its [documentation](https://ptidejteam.github.io/wimp-wiki/docs/backend/intro).
