@@ -1,0 +1,23 @@
+# redirect HTTP traffic to HTTPS
+server {
+        listen 80;
+        server_name 192.168.0.203;
+        return 301 https://192.168.0.203$request_uri;
+}
+
+# HTTPS server
+server {
+        listen 443 ssl;
+        server_name 192.168.0.203;
+
+        access_log /var/log/nginx/wimp-frontend.log;
+
+        ssl_certificate /etc/ssl/wimp/servercert.pem;
+        ssl_certificate_key /etc/ssl/wimp/serverkey.pem;
+
+        location / {
+            proxy_set_header HOST $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_pass http://127.0.0.1:8080; # Node.js Application
+        }
+}

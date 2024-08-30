@@ -1,0 +1,14 @@
+{
+    "etu1" : {
+        "pwd" : "5868",
+        "role" : "student"
+    },
+    "etu2" : {
+        "pwd" : "5868",
+        "role" : "researcher"
+    },
+    "etu3" : {
+        "pwd" : "5868",
+        "role" : "colleague"
+    }
+}
