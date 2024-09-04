@@ -1,15 +1,20 @@
 # WIMP-Project
 
-The WIMP-Project is a comprehensive software system designed to [briefly describe the project's purpose, e.g., manage workflow, optimize data processing, or facilitate user interaction]. This project is highly modular and organized into several branches, each representing a different version or feature set.
+The WIMP-Project is a comprehensive software system designed to optimize real-time monitoring and facilitate user interaction within IoT environments, specifically focusing on teacher availability and related data processing. This project is highly modular and organized into several branches, each representing a different version or feature set.
 
 ## Branches Overview
 
-The WIMP-Project is divided into multiple branches, each tailored to different functionalities or stages of development. Here are some of the key branches:
+The WIMP-Project is divided into several branches, each representing different versions of the project or specific areas of functionality:
 
-- **Main:** The main production-ready branch containing the latest stable version of the project.
-- **Development:** This branch contains ongoing work and new feature development. It is updated frequently and might include experimental features.
-- **Feature-X:** This branch focuses on the implementation of [specific feature X]. It may not be stable and is under active development.
-- **Experimental:** Contains experimental features and prototypes that are not yet stable. This branch is used for testing new ideas and concepts.
+- **Main:** The facade branch for the WIMP-Project. It integrates and presents the latest stable features from all other branches, providing a unified and production-ready version of the system. This branch serves as the primary interface for users and stakeholders, combining the best and most stable aspects of the project.
+- **V1:** This branch contains the initial version of the WIMP system, providing basic functionality and architecture.
+- **V2:** This branch includes improvements and new features over V1, with better performance and additional capabilities.
+- **V3:** The latest major version with enhanced functionality, optimizations, and bug fixes. It is the most feature-complete version so far.
+- **Wiki:** This branch hosts the documentation for the WIMP system, including detailed information about the architecture, deployment, and usage.
+- **Kinova:** This branch focuses on integrating and managing Kinova robotics systems within the WIMP framework, aimed at specific IoT and robotic features.
+
+Each branch serves a different purpose in the evolution and development of the WIMP system. To work on or review specific features, choose the relevant branch based on your needs.
+
 
 ## How to Get the Right Version
 
