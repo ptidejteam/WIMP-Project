@@ -1,0 +1,24 @@
+{
+  "unversionedId": "teacher/teacher",
+  "id": "teacher/teacher",
+  "isDocsHomePage": false,
+  "title": "Teacher Guide",
+  "description": "",
+  "source": "@site/docs/teacher/teacher.md",
+  "sourceDirName": "teacher",
+  "slug": "/teacher/teacher",
+  "permalink": "/wimp-wiki/docs/teacher/teacher",
+  "editUrl": "https://github.com/facebook/docusaurus/edit/main/website/docs/teacher/teacher.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Backend",
+    "permalink": "/wimp-wiki/docs/backend/backend"
+  },
+  "next": {
+    "title": "Student Guide",
+    "permalink": "/wimp-wiki/docs/student/student"
+  }
+}

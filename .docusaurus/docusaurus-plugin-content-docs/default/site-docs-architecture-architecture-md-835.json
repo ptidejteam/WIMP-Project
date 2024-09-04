@@ -1,0 +1,24 @@
+{
+  "unversionedId": "architecture/architecture",
+  "id": "architecture/architecture",
+  "isDocsHomePage": false,
+  "title": "Backend",
+  "description": "",
+  "source": "@site/docs/architecture/architecture.md",
+  "sourceDirName": "architecture",
+  "slug": "/architecture/architecture",
+  "permalink": "/wimp-wiki/docs/architecture/architecture",
+  "editUrl": "https://github.com/facebook/docusaurus/edit/main/website/docs/architecture/architecture.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/wimp-wiki/docs/intro"
+  },
+  "next": {
+    "title": "Frontend",
+    "permalink": "/wimp-wiki/docs/frontend/frontend"
+  }
+}

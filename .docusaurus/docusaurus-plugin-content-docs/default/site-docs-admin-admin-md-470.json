@@ -1,0 +1,24 @@
+{
+  "unversionedId": "admin/admin",
+  "id": "admin/admin",
+  "isDocsHomePage": false,
+  "title": "Admin Guide",
+  "description": "",
+  "source": "@site/docs/admin/admin.md",
+  "sourceDirName": "admin",
+  "slug": "/admin/admin",
+  "permalink": "/wimp-wiki/docs/admin/admin",
+  "editUrl": "https://github.com/facebook/docusaurus/edit/main/website/docs/admin/admin.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Student Guide",
+    "permalink": "/wimp-wiki/docs/student/student"
+  },
+  "next": {
+    "title": "Deploy your WIMP system",
+    "permalink": "/wimp-wiki/docs/deploy_wimp"
+  }
+}

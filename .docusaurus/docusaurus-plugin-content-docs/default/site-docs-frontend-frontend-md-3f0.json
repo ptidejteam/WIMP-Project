@@ -1,0 +1,24 @@
+{
+  "unversionedId": "frontend/frontend",
+  "id": "frontend/frontend",
+  "isDocsHomePage": false,
+  "title": "Frontend",
+  "description": "The frontend is an Express.js web server with a simple-json-db.js database management and authentication with passport.js.",
+  "source": "@site/docs/frontend/frontend.md",
+  "sourceDirName": "frontend",
+  "slug": "/frontend/frontend",
+  "permalink": "/wimp-wiki/docs/frontend/frontend",
+  "editUrl": "https://github.com/facebook/docusaurus/edit/main/website/docs/frontend/frontend.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Backend",
+    "permalink": "/wimp-wiki/docs/architecture/architecture"
+  },
+  "next": {
+    "title": "Backend",
+    "permalink": "/wimp-wiki/docs/backend/backend"
+  }
+}

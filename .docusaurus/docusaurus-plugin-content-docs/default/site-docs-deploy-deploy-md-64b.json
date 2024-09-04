@@ -1,0 +1,23 @@
+{
+  "unversionedId": "deploy/deploy",
+  "id": "deploy/deploy",
+  "isDocsHomePage": false,
+  "title": "Deploy your WIMP system",
+  "description": "This page will learn you how to deploy your WIMP system for your entity.",
+  "source": "@site/docs/deploy/deploy.md",
+  "sourceDirName": "deploy",
+  "slug": "/deploy/deploy",
+  "permalink": "/docs/deploy/deploy",
+  "editUrl": "https://github.com/facebook/docusaurus/edit/main/website/docs/deploy/deploy.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Manage Docs Versions",
+    "permalink": "/docs/admin/manage-docs-versions"
+  }
+}

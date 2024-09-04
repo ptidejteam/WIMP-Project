@@ -1,0 +1,24 @@
+{
+  "unversionedId": "backend/backend",
+  "id": "backend/backend",
+  "isDocsHomePage": false,
+  "title": "Backend",
+  "description": "",
+  "source": "@site/docs/backend/backend.md",
+  "sourceDirName": "backend",
+  "slug": "/backend/backend",
+  "permalink": "/wimp-wiki/docs/backend/backend",
+  "editUrl": "https://github.com/facebook/docusaurus/edit/main/website/docs/backend/backend.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Frontend",
+    "permalink": "/wimp-wiki/docs/frontend/frontend"
+  },
+  "next": {
+    "title": "Teacher Guide",
+    "permalink": "/wimp-wiki/docs/teacher/teacher"
+  }
+}

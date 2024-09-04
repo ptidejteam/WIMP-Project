@@ -1,0 +1,24 @@
+{
+  "unversionedId": "student/student",
+  "id": "student/student",
+  "isDocsHomePage": false,
+  "title": "Student Guide",
+  "description": "",
+  "source": "@site/docs/student/student.md",
+  "sourceDirName": "student",
+  "slug": "/student/student",
+  "permalink": "/wimp-wiki/docs/student/student",
+  "editUrl": "https://github.com/facebook/docusaurus/edit/main/website/docs/student/student.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Teacher Guide",
+    "permalink": "/wimp-wiki/docs/teacher/teacher"
+  },
+  "next": {
+    "title": "Admin Guide",
+    "permalink": "/wimp-wiki/docs/admin/admin"
+  }
+}
