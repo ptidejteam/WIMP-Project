@@ -2,14 +2,14 @@
 <rss version="2.0">
     <channel>
         <title>WIMP Wiki Blog</title>
-        <link>https://ptidejteam.github.io/wimp-wiki/blog</link>
+        <link>https://ptidejteam.github.io/blog</link>
         <description>WIMP Wiki Blog</description>
         <lastBuildDate>Thu, 11 Aug 2022 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <item>
             <title><![CDATA[Push or Pull ?]]></title>
-            <link>https://ptidejteam.github.io/wimp-wiki/blog/Push or Pull</link>
+            <link>https://ptidejteam.github.io/blog/Push or Pull</link>
             <guid>Push or Pull</guid>
             <pubDate>Thu, 11 Aug 2022 00:00:00 GMT</pubDate>
             <description><![CDATA[In progress...]]></description>
