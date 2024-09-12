@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
   title: 'WIMP Wiki',
   tagline: 'Where Is My Professor?',
   url: 'https://ptidejteam.github.io',
-  baseUrl: '/wimp-wiki/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/logo.svg',
