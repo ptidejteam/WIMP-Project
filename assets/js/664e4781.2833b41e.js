@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkexamples_classic=self.webpackChunkexamples_classic||[]).push([[323],{5107:a=>{a.exports=JSON.parse('{"allTagsPath":"/wimp-wiki/blog/tags","slug":"/wimp-wiki/blog/tags/data","name":"data","count":1,"permalink":"/wimp-wiki/blog/tags/data"}')}}]);

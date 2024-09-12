@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkexamples_classic=self.webpackChunkexamples_classic||[]).push([[993],{6521:s=>{s.exports=JSON.parse('{"allTagsPath":"/wimp-wiki/blog/tags","slug":"/wimp-wiki/blog/tags/iot","name":"iot","count":1,"permalink":"/wimp-wiki/blog/tags/iot"}')}}]);
