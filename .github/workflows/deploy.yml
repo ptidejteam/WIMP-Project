@@ -30,7 +30,7 @@ jobs:
 
       # Step to create CNAME file for redirection
       - name: Create CNAME file
-        run: echo "yourcustomdomain.com" > ./build/CNAME
+        run: echo "https://wimp.today/" > ./build/CNAME
 
       # Popular action to deploy to GitHub Pages
       - name: Deploy to GitHub Pages
