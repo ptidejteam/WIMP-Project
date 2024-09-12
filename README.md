@@ -1,6 +1,8 @@
 # WIMP-Project
 
-The WIMP-Project is a comprehensive software system designed to optimize real-time monitoring and facilitate user interaction within IoT environments, specifically focusing on teacher availability and related data processing. This project is highly modular and organized into several branches, each representing a different version or feature set.
+The WIMP-Project is a comprehensive software system designed for real-time monitoring and user interaction within IoT environments. It focuses on optimizing the availability of teachers in educational settings and processing related data efficiently. The project is modular, with several branches representing different versions or specialized features.
+
+<p align="center" style="margin: 50px 0"> <img src="./ExpressNodeRed/static/wimp-backend.png" alt="WIMP Backend Logo" style="height:200px; width:auto;"/> <p>
 
 ## Branches Overview
 
