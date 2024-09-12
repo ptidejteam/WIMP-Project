@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - wiki
+      - main
 
 jobs:
   deploy:
@@ -26,6 +26,10 @@ jobs:
 
       - name: PWD
         run: pwd
+
+      # Step to create CNAME file for redirection
+      - name: Create CNAME file
+        run: echo "wimp.today" > ./build/CNAME
 
       # Popular action to deploy to GitHub Pages
       - name: Deploy to GitHub Pages
