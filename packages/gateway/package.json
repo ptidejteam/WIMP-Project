@@ -1,11 +1,11 @@
 {
   "name": "gateway",
-  "version": "0.0.0",
-  "description": "Now I’m the model of a modern major general / The venerated Virginian veteran whose men are all / Lining up, to put me up on a pedestal / Writin’ letters to relatives / Embellishin’ my elegance and eloquence / But the elephant is in the room / The truth is in ya face when ya hear the British cannons go / BOOM",
-  "keywords": [],
+  "version": "1.0.0",
+  "description": "API gateway ",
   "author": "YahiaFellah <33671463+yahiaelfellah@users.noreply.github.com>",
+  "homepage": "https://github.com/ptidejteam/WIMP-Project#readme",
   "license": "ISC",
-  "main": "lib/index.js",
+  "main": "lib/gateway.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -13,19 +13,21 @@
   "files": [
     "lib"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptidejteam/WIMP-Project.git"
+  },
   "scripts": {
-    "dev": "nodemon ./lib/index.js",
-    "start": "node ./lib/index.js",
-    "test": "mocha ./__tests__/gateway.test.js",
-    "build:webpack": "webpack --mode production"
+    "test": "node ./__tests__/gateway.test.js",
+    "start": "node ./lib/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/ptidejteam/WIMP-Project/issues"
   },
   "dependencies": {
-    "@grpc-web/proxy": "^0.1.0",
-    "express-rate-limit": "^7.1.1",
-    "express-session": "^1.17.3",
-    "http-proxy-middleware": "^2.0.6",
+    "express-rate-limit": "^7.4.0",
+    "http-proxy-middleware": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
-    "security": "file:../security"
+    "keycloak-connect": "^25.0.6"
   }
 }

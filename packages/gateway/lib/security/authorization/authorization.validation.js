@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken'),
     crypto = require('crypto');
 const refresh_secret = require('../env.config.js').refresh_secret;
-const cert = require('security')();
-
+const fs = require('fs');
+const cert = "";
 exports.validJWTNeeded = (req, res, next) => {
     if (req.headers['authorization']) {
         try {
@@ -25,7 +25,8 @@ exports.validJWTNeeded = (req, res, next) => {
 };
 
 exports.verifyRefreshBodyField = (req, res, next) => {
-    if (req?.body?.refreshToken) {
+    console.log(req.body);
+    if (req.body && req.body.refreshToken) {
         return next();
     } else {
         return res.status(400).send({ error: 'need to pass refreshToken field' });

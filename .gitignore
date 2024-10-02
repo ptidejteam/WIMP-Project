@@ -1,7 +1,5 @@
-# Exclude the 'dist' folder
-dist/
+node_modules/
 
-# Exclude the 'node_modules' directory
-/node_modules
-packages/protos/lib/google/*
-packages/*/vendor
+
+.nx/cache
+.nx/workspace-data

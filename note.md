@@ -1,0 +1,1 @@
+When trying to add A new dependencie to the packages , use npm install <dependency> -w <package>

@@ -1,3 +1,4 @@
+const Keycloak = require("keycloak-connect");
 const session = require("express-session");
 const {
   minimumPermissionLevelRequired,
@@ -18,6 +19,30 @@ const Member = config.permissionLevels.Member;
  * @param {*} app
  * @param {*} routes
  */
+exports.setupAuth = (app, routes) => {
+  var memoryStore = new session.MemoryStore();
+  var keycloak = new Keycloak({ store: memoryStore });
+
+  app.use(
+    session({
+      secret:config.session ,
+      resave: false,
+      saveUninitialized: true,
+      store: memoryStore,
+    })
+  );
+
+  app.use(keycloak.middleware());
+
+  routes.forEach((r) => {
+    if (r.auth) {
+      app.use(r.url, [keycloak.protect()], function (req, res, next) {
+        next();
+      });
+    }
+  });
+};
+
 exports.setupAuthentication = (app, routes) => {
   const memoryStore = new session.MemoryStore();
   app.use(
@@ -28,6 +53,7 @@ exports.setupAuthentication = (app, routes) => {
       store: memoryStore,
     })
   );
+  // app.use(keycloak.middleware());
    routes.forEach((route) => {
     if (route.authenticationRequired) {
       app.use(

@@ -1,5 +1,4 @@
 const express = require("express");
-const { setupLogging } = require("./utils/logging");
 const { setupProxies } = require("./utils/proxy");
 const { setupAuthentication } = require("./security/index.security");
 const { routes } = require("./routes/routes");
@@ -31,7 +30,7 @@ app.use(function (req, res, next) {
 });
 
 // Setting up the logging
-setupLogging(app);
+// setupLogging(app);
 // Setting up the Authentication for the gateway
 setupAuthentication(app, routes);
 // Setting up the rate Limit for the gateway
