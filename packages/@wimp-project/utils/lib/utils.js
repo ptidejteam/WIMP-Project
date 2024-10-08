@@ -1,20 +1,20 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-module.exports = {
+export default {
   readSecurityFile
 }
 
 function readSecurityFile() {
   // Use path.join to create the correct relative path
-  const privateKeyPath = path.join(__dirname, '../tls/private.key');
+  const privateKeyPath = join(__dirname, '../tls/private.key');
   try {
-    return fs.readFileSync(privateKeyPath, { encoding: 'utf-8' });
+    return readFileSync(privateKeyPath, { encoding: 'utf-8' });
   } catch (error) {
     // Handle any errors that might occur during file reading, e.g., the file doesn't exist.
-    console.error('Error reading private.key:', error.message);
-    return null; // You can choose to return an appropriate value or throw an error here.
+   // console.error('Error reading private.key:', error.message);
+    throw Error("Can't read the file private.key" + error.message);
   }
 }

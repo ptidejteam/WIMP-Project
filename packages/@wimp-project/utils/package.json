@@ -22,5 +22,8 @@
   },
   "bugs": {
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4"
   }
 }

@@ -21,15 +21,12 @@ exports.onlySameUserOrAdminCanDoThisAction = (req, res, next) => {
 
     let user_permission_level = parseInt(req.jwt.roles);
     let userId = req.jwt.userId;
-    if (req?.params && req.params.userId && userId === req.params.userId) {
+    if (req?.params?.userId && userId === req.params.userId || user_permission_level & Master ) {
         return next();
-    } else {
-        if (user_permission_level & Master) {
-            return next();
-        } else {
-            return res.status(403).send();
-        }
-    }
+    } 
+    return res.status(403).send({
+        err: 'You are not authorized to perfom this action'
+    });
 
 };
 
