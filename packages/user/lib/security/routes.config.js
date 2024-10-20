@@ -3,7 +3,7 @@ const Authenticator = require('./authentication/authentication.handler');
 
 
 exports.routesConfig = function (app) {
-    app.post('/auth', [
+    app.post('/login', [
         IdentityChecker.hasAuthValidFields,
         IdentityChecker.isPasswordAndUserMatch,
         Authenticator.login
