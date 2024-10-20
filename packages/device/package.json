@@ -1,0 +1,26 @@
+{
+  "name": "device",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "YahiaFellah <33671463+yahiaelfellah@users.noreply.github.com>",
+  "homepage": "https://github.com/ptidejteam/WIMP-Project#readme",
+  "license": "ISC",
+  "main": "lib/device.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptidejteam/WIMP-Project.git"
+  },
+  "scripts": {
+    "test": "node ./__tests__/device.test.js"
+  },
+  "bugs": {
+    "url": "https://github.com/ptidejteam/WIMP-Project/issues"
+  }
+}
