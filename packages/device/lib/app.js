@@ -1,5 +1,6 @@
 const express = require("express");
 const DeviceRouter = require("./routes/routes.config");
+const bodyParser = require('body-parser');
 
 // Define the express object
 const app = express();
