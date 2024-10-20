@@ -1,14 +1,5 @@
 const IdentityModel = require("../models/identity.model");
-const crypto = require("crypto");
-
-// Utility function to hash the password
-const hashPassword = (password) => {
-  let salt = crypto.randomBytes(16).toString("base64");
-  let hash = crypto
-    .scryptSync(password, salt, 64, { N: 16384 })
-    .toString("base64");
-  return `${salt}$${hash}`;
-};
+const { hashPassword } = require("@wimp-project/utils");
 
 // Insert a new identity
 exports.insert = async (req, res) => {
