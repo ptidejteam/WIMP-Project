@@ -4,7 +4,7 @@ const { setupAuthentication } = require("./security/index.security");
 const { routes } = require("./routes/routes");
 const { setupRateLimit } = require("./utils/rateLimit");
 const { setupBodyParser } = require("./utils/bodyparser");
-const config = require("dotenv").config();
+require("dotenv").config();
 /**
  * Declaration of Express object
  */
@@ -43,4 +43,5 @@ setupBodyParser(app, routes);
 app.get("/healthcheck", (_req, res) => {
   res.status(200).send(" Gateway is runnning");
 });
+
 module.exports = app;

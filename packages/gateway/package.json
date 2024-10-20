@@ -19,7 +19,8 @@
   },
   "scripts": {
     "test": "node ./__tests__/gateway.test.js",
-    "start": "node ./lib/index.js"
+    "start": "node ./lib/index.js",
+    "dev":"nodemon ./lib/index.js"
   },
   "bugs": {
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"

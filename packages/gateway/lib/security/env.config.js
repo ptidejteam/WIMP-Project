@@ -1,4 +1,4 @@
-export default {
+module.exports = {
     "refresh_secret": "Oh!42My@Go6*d9753!",
     "jwtValidityTimeInSeconds": 4080,
     "actualRefreshSecret": null,

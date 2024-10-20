@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken'),
     crypto = require('crypto');
 const refresh_secret = require('../env.config.js').refresh_secret;
-const cert = require("@wimp-project/utils").default.readSecurityFile();
+const cert = require("@wimp-project/utils").readSecurityFile();
 exports.validJWTNeeded = (req, res, next) => {
     if (req.headers['authorization']) {
         try {
