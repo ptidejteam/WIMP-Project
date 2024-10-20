@@ -18,7 +18,7 @@
     "url": "git+https://github.com/ptidejteam/WIMP-Project.git"
   },
   "scripts": {
-    "test": "npx mocha test/device.routes.test.js",
+    "test": "npx jest",
     "build": "webpack --config webpack.config.js --watch",
     "dev": "nodemon ./lib/index.js"
 
