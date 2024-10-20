@@ -2,11 +2,20 @@ const mongoose = require("mongoose");
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
-mongoose.connect(process.env.MONGODB_URL || "mongodb://localhost:27017/WIMPv2_users", {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
-  autoCreate:true,
-});
+const connect = async() => {
+   try {
+     await mongoose.connect(process.env.MONGODB_URL, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    autoCreate:true,
+  });
+  console.log("Successfully connected to the database.");
+} catch(err){
+  console.error("Failed to connect to the database :",err);
+  process.exit(1);
+};
+}
+connect();
 
 const Schema = mongoose.Schema;
 
@@ -18,11 +27,7 @@ const identiySchema = new Schema(
     userName: String,
     password: String,
     permissionLevel: Number,
-    departement: String,
     isActive : Boolean,
-    status: Array,
-    noderedInstance: Boolean,
-    flowExists : Boolean
   },
   { timestamps: true }
 );

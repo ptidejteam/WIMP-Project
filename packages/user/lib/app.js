@@ -8,9 +8,6 @@ const { setupLogging } = require("./utils/logging");
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env' )});
 
-
-
-const PORT = process.env.PORT || 3001;
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin',"*" );
     res.header('Access-Control-Allow-Methods', 'GET,GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');

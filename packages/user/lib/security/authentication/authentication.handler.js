@@ -1,7 +1,7 @@
 const { refresh_secret, jwtValidityTimeInSeconds } = require('../env.config.js');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { readSecurityFile } = require("@wimp-project/utils").default;
+const { readSecurityFile } = require("@wimp-project/utils");
 const cert = readSecurityFile();
 
 exports.login = (req, res) => {
