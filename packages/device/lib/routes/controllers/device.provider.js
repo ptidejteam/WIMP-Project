@@ -60,7 +60,6 @@ exports.removeById = async (req, res) => {
     if (!result) {
       return res.status(404).send({ message: "Device not found" });
     }
-    
     res.status(204).send({});
   } catch (error) {
     console.error("Error removing device by ID:", error);
@@ -78,6 +77,55 @@ exports.getByUserId = async (req, res) => {
     res.status(200).send(result);
   } catch (error) {
     console.error("Error retrieving devices by user ID:", error);
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
+// Add IoT data to a device
+exports.addIoTData = async (req, res) => {
+  try {
+    const newData = {
+      dataType: req.body.dataType,
+      value: req.body.value,
+      timestamp: req.body.timestamp || Date.now(),
+    };
+    
+    const result = await DeviceModel.addIoTDataToDevice(req.params.deviceId, newData);
+    
+    if (!result) {
+      return res.status(404).send({ message: "Device not found" });
+    }
+
+    res.status(200).send(result);
+  } catch (error) {
+    console.error("Error adding IoT data:", error);
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
+// Retrieve IoT data for a device
+exports.getIoTData = async (req, res) => {
+  try {
+    const { startTime, endTime } = req.query;
+
+    let result;
+    if (startTime && endTime) {
+      result = await DeviceModel.getIoTDataByTimeRange(
+        req.params.deviceId,
+        new Date(startTime),
+        new Date(endTime)
+      );
+    } else {
+      result = await DeviceModel.getIoTDataForDevice(req.params.deviceId);
+    }
+
+    if (!result) {
+      return res.status(404).send({ message: "Device or data not found" });
+    }
+
+    res.status(200).send(result);
+  } catch (error) {
+    console.error("Error retrieving IoT data:", error);
     res.status(500).send({ message: "Internal Server Error" });
   }
 };

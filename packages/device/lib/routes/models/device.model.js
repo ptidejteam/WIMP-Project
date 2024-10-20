@@ -46,6 +46,22 @@ const deviceSchema = new Schema(
       ref: "User", // Assuming there is a User model to reference the user
       required: true,
     },
+    data: [
+      {
+        dataType: {
+          type: String, // Example: temperature, humidity, etc.
+          required: true,
+        },
+        value: {
+          type: Number,
+          required: true,
+        },
+        timestamp: {
+          type: Date,
+          default: Date.now, // Automatically set the timestamp to the current date/time
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -135,4 +151,32 @@ exports.removeById = (id) => {
         reject(err);
       });
   });
+};
+
+// Add new IoT data to a device
+exports.addIoTDataToDevice = (deviceId, newData) => {
+  return Device.findOneAndUpdate(
+    { deviceId: deviceId },
+    { 
+      $push: { data: newData }, // Add the new data object to the 'data' array
+      $set: { lastUpdated: Date.now() } // Optionally update lastUpdated field
+    },
+    { new: true, useFindAndModify: false }
+  );
+};
+
+// Retrieve all IoT data for a device
+exports.getIoTDataForDevice = (deviceId) => {
+  return Device.findOne({ deviceId: deviceId }, "data").lean();
+};
+
+// Retrieve data for a device within a specified time range
+exports.getIoTDataByTimeRange = (deviceId, startTime, endTime) => {
+  return Device.findOne(
+    {
+      deviceId: deviceId,
+      "data.timestamp": { $gte: startTime, $lte: endTime }, // Querying nested fields
+    },
+    "data.$"
+  );
 };
