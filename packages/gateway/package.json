@@ -19,20 +19,17 @@
   },
   "scripts": {
     "test": "node ./__tests__/gateway.test.js",
-    "dev":"nodemon ./lib/index.js",
+    "dev": "nodemon ./lib/index.js",
     "build": "webpack --config webpack.config.js --watch"
-
-
   },
   "bugs": {
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"
   },
   "dependencies": {
+    "@wimp-project/utils": "^0.0.1",
     "express-rate-limit": "^7.4.0",
     "http-proxy-middleware": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
-    "keycloak-connect": "^25.0.6",
-    "@wimp-project/utils": "^0.0.1"
-
+    "keycloak-connect": "^26.0.1"
   }
 }

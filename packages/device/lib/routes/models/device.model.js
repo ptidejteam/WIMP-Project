@@ -53,18 +53,32 @@ const deviceSchema = new Schema(
           required: true,
         },
         value: {
-          type: Number,
+          type: Object,
           required: true,
         },
         timestamp: {
           type: Date,
           default: Date.now, // Automatically set the timestamp to the current date/time
         },
+        location: {
+          type: {
+            type: String, 
+            default: "Point", // GeoJSON format for type
+            enum: ["Point"], // Limit to "Point"
+          },
+          coordinates: {
+            type: [Number], // Array of numbers [longitude, latitude]
+            required: true,
+          },
+        },
       },
     ],
   },
   { timestamps: true }
 );
+
+// Create a 2dsphere index for geospatial queries (if needed in the future)
+deviceSchema.index({ "data.location": "2dsphere" });
 
 // Virtual field for ID
 deviceSchema.virtual("id").get(function () {
