@@ -14,12 +14,12 @@ if (!DEVICE_URL) {
 }
 exports.routes = [
   {
-    url: `/${API_PREFIX}/login`,
+    url: `/${API_PREFIX}/auth`,
     proxy: {
-      target: `${USER_URL}/login`,
+      target: `${USER_URL}/auth`,
       changeOrigin: true,
       pathRewrite: {
-        [`^/${API_PREFIX}/login`]: "",
+        [`^/${API_PREFIX}/auth`]: "",
       },
     },
   },
@@ -41,24 +41,24 @@ exports.routes = [
     },
   },
   {
-    url: `/${API_PREFIX}/users`,
+    url: `/${API_PREFIX}/user`,
     authenticationRequired: true,
     proxy: {
-      target: `${USER_URL}/users`,
+      target: `${USER_URL}/user`,
       changeOrigin: true,
       pathRewrite: {
-        [`^/${API_PREFIX}/users`]: "",
+        [`^/${API_PREFIX}/user`]: "",
       },
     },
   },
   {
-    url: `/${API_PREFIX}/devices`,
+    url: `/${API_PREFIX}/device`,
     authenticationRequired: true,
     proxy: {
-      target: `${DEVICE_URL}/devices`,
+      target: `${DEVICE_URL}/device`,
       changeOrigin: true,
       pathRewrite: {
-        [`^/${API_PREFIX}/devices`]: "",
+        [`^/${API_PREFIX}/device`]: "",
       },
     },
   },

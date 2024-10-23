@@ -1,0 +1,47 @@
+[2024-10-23T20:54:21.527Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-23T20:54:21.543Z] INFO: user service running on port :9999
+[2024-10-23T20:54:21.726Z] INFO: Successfully connected to the database.
+[2024-10-23T20:54:32.060Z] INFO: ::1 - - [23/Oct/2024:20:54:32 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:55:57.397Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-23T20:55:57.417Z] INFO: user service running on port :9999
+[2024-10-23T20:55:57.463Z] INFO: Successfully connected to the database.
+[2024-10-23T20:55:59.013Z] INFO: undefined
+[2024-10-23T20:55:59.013Z] ERROR: User not found, please check the database or contact the admin.
+[2024-10-23T20:55:59.023Z] INFO: ::1 - - [23/Oct/2024:20:55:59 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:56:12.571Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-23T20:56:12.584Z] INFO: user service running on port :9999
+[2024-10-23T20:56:12.620Z] INFO: Successfully connected to the database.
+[2024-10-23T20:56:14.797Z] INFO: null
+[2024-10-23T20:56:14.797Z] ERROR: User not found, please check the database or contact the admin.
+[2024-10-23T20:56:14.806Z] INFO: ::1 - - [23/Oct/2024:20:56:14 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:56:32.485Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-23T20:56:32.505Z] INFO: user service running on port :9999
+[2024-10-23T20:56:32.589Z] INFO: Successfully connected to the database.
+[2024-10-23T20:56:33.172Z] INFO: admin
+[2024-10-23T20:56:33.172Z] ERROR: User not found, please check the database or contact the admin.
+[2024-10-23T20:56:33.187Z] INFO: ::1 - - [23/Oct/2024:20:56:33 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:57:08.605Z] INFO: admin
+[2024-10-23T20:57:08.606Z] ERROR: User not found, please check the database or contact the admin.
+[2024-10-23T20:57:08.608Z] INFO: ::1 - - [23/Oct/2024:20:57:08 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:57:18.778Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-23T20:57:18.796Z] INFO: user service running on port :9999
+[2024-10-23T20:57:18.860Z] INFO: Successfully connected to the database.
+[2024-10-23T20:57:19.945Z] INFO: [object Object]
+[2024-10-23T20:57:19.945Z] ERROR: User not found, please check the database or contact the admin.
+[2024-10-23T20:57:19.960Z] INFO: ::1 - - [23/Oct/2024:20:57:19 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:57:33.841Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-23T20:57:33.856Z] INFO: user service running on port :9999
+[2024-10-23T20:57:33.908Z] INFO: Successfully connected to the database.
+[2024-10-23T20:57:36.141Z] INFO: {"username":"admin","password":"adminpass"}
+[2024-10-23T20:57:36.142Z] ERROR: User not found, please check the database or contact the admin.
+[2024-10-23T20:57:36.156Z] INFO: ::1 - - [23/Oct/2024:20:57:36 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:57:58.911Z] INFO: {"username":"admin","password":"adminpass"}
+[2024-10-23T20:57:58.911Z] ERROR: User not found, please check the database or contact the admin.
+[2024-10-23T20:57:58.913Z] INFO: ::1 - - [23/Oct/2024:20:57:58 +0000] "POST /auth/ HTTP/1.1" 404 63 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:59:45.503Z] INFO: {"username":"admin_user","password":"admin_password"}
+[2024-10-23T20:59:45.611Z] INFO: ::1 - - [23/Oct/2024:20:59:45 +0000] "POST /auth/ HTTP/1.1" 201 1125 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T20:59:45.652Z] INFO: {"username":"admin_user","password":"admin_password"}
+[2024-10-23T20:59:45.751Z] INFO: ::1 - - [23/Oct/2024:20:59:45 +0000] "POST /auth/ HTTP/1.1" 201 1125 "-" "PostmanRuntime/7.37.0"
+[2024-10-23T21:00:41.894Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-23T21:00:41.910Z] INFO: user service running on port :9999
+[2024-10-23T21:00:41.952Z] INFO: Successfully connected to the database.

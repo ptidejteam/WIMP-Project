@@ -14,7 +14,8 @@
     "morgan": "^1.10.0",
     "uuid": "^10.0.0",
     "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "winston": "^3.15.0"
   },
   "scripts": {
     "webpack": "lerna run webpack",

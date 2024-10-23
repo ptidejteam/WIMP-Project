@@ -29,6 +29,7 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
     try {
         const user = await IdentityModel.findByUserName(req.body.username);
         if (!user) {
+            console.error("User not found, please check the database or contact the admin.")
             return res.status(404).send("User not found, please check the database or contact the admin.");
         }
 
@@ -62,7 +63,7 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
 // Middleware to check if the user still exists with the same privileges
 exports.isUserStillExistsWithSamePrivileges = async (req, res, next) => {
     try {
-        const user = await IdentityModel.findByEmail(req.body.sub);
+        const user = await IdentityModel.findByUserName(req.body.sub) ;
         if (!user || !user[0]) {
             return res.status(404).send("User not found, please check the database or contact the admin.");
         }

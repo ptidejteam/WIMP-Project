@@ -107,6 +107,7 @@ const seedDatabase = async () => {
 };
 
 // Conditionally seed the database
+// Careful the seed gonna disconnect the ORM 
 if (process.env.SEED_DB === "true") {
   seedDatabase();
 }
