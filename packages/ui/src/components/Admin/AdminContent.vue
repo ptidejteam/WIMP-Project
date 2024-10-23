@@ -149,9 +149,7 @@
         <el-icon><Cellphone /></el-icon> Flow Management</el-divider
       >
     </transition>
-    <transition name="el-fade-in-linear">
-      <FlowManager v-if="currentRow" :userId="currentRow._id" />
-    </transition>
+
   </div>
 </template>
 
@@ -160,7 +158,6 @@ import { User, Cellphone, Plus } from "@element-plus/icons-vue";
 import { userService } from "../../services/user.service";
 import { ElMessage } from "element-plus";
 import UserForm from "./AdminUserForms.vue";
-import FlowManager from "./AdminFlowManager.vue";
 import { Role } from "../../helpers/roles";
 import AdminStaticsVue from "./AdminStatics.vue";
 import { AuthenticationService } from "@/services/auth.service";
@@ -181,7 +178,6 @@ export default {
     Cellphone,
     Plus,
     UserForm,
-    FlowManager,
     AdminStaticsVue,
   },
 

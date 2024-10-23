@@ -13,7 +13,6 @@
   <script>
 import AnalyticsCard from "../Cards/AnalyticsCards.vue"; // Adjust the path as needed
 import { userService } from "../../services/user.service";
-import { flowService } from "../../services/flow.service";
 
 export default {
   name: "AnalyticsDashboard",
@@ -99,15 +98,10 @@ export default {
       // This will automatically trigger a re-render of the view
       setInterval(async () => {
         const userData = await userService.getAll();
-        const flowData = await flowService.getAll();
         const newData = [
           {
             newVal: userData.data.length,
             pastVal: userData.data.length - 1,
-          },
-          {
-            newVal: flowData.data.filter((o) => o.isRunning).length,
-            pastVal: flowData.data.length,
           }
         ];
 
