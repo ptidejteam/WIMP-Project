@@ -32,6 +32,11 @@ const deviceSchema = new Schema(
       type: String,
       required: true,
     },
+    deviceType: {
+      type: String,
+      required: true,
+      enum: ["sensor", "actuator", "gateway", "controller"], // Example device types
+    },
     status: {
       type: String,
       enum: ["online", "offline", "maintenance"],
@@ -193,4 +198,14 @@ exports.getIoTDataByTimeRange = (deviceId, startTime, endTime) => {
     },
     "data.$"
   );
+};
+
+// Get possible status values
+exports.getPossibleStatusValues = () => {
+  return deviceSchema.path('status').enumValues;
+};
+
+// Get possible deviceType values
+exports.getPossibleDeviceTypes = () => {
+  return deviceSchema.path('deviceType').enumValues;
 };

@@ -1,6 +1,17 @@
+const path = require("path");
+require('dotenv').config({ path: path.resolve(__dirname, '../.env' )});
+
 const API_PREFIX = "api/v1";
 const USER_URL = process.env.USER_URL;
-const DEVICE_URL = process.env.FLOW_URL;
+const DEVICE_URL = process.env.DEVICE_URL;
+
+if (!USER_URL) {
+  throw  new Error("USER_URL is undefined. Check if it is set in the .env file.");
+}
+
+if (!DEVICE_URL) {
+  throw new Error("DEVICE_URL is undefined. Check if it is set in the .env file.");
+}
 exports.routes = [
   {
     url: `/${API_PREFIX}/login`,

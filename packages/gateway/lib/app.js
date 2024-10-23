@@ -4,7 +4,9 @@ const { setupAuthentication } = require("./security/index.security");
 const { routes } = require("./routes/routes");
 const { setupRateLimit } = require("./utils/rateLimit");
 const { setupBodyParser } = require("./utils/bodyparser");
-require("dotenv").config();
+const {setupLogging } = require("./utils/logging");
+const path = require("path");
+require('dotenv').config({ path: path.resolve(__dirname, '.env' )});
 /**
  * Declaration of Express object
  */
@@ -30,7 +32,7 @@ app.use(function (req, res, next) {
 });
 
 // Setting up the logging
-// setupLogging(app);
+setupLogging(app);
 // Setting up the Authentication for the gateway
 setupAuthentication(app, routes);
 // Setting up the rate Limit for the gateway
