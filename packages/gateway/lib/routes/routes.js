@@ -41,13 +41,13 @@ exports.routes = [
     },
   },
   {
-    url: `/${API_PREFIX}/user`,
+    url: `/${API_PREFIX}/users`,
     authenticationRequired: true,
     proxy: {
-      target: `${USER_URL}/user`,
+      target: `${USER_URL}/users`,
       changeOrigin: true,
       pathRewrite: {
-        [`^/${API_PREFIX}/user`]: "",
+        [`^/${API_PREFIX}/users`]: "",
       },
     },
   },

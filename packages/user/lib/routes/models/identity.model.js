@@ -102,7 +102,7 @@ const seedDatabase = async () => {
   } catch (error) {
     console.error("Error seeding the database:", error);
   } finally {
-    mongoose.disconnect();
+    //mongoose.disconnect();
   }
 };
 
