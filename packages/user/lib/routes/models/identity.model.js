@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const path = require("path");
+const UserAvailability = require("./availability.model"); // Import the UserAvailability model
+
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const { hashPassword } = require("@wimp-project/utils");
 
@@ -31,6 +33,8 @@ const identitySchema = new Schema(
     password: { type: String, required: true },
     permissionLevel: { type: Number, default: 1 },
     isActive: { type: Boolean, default: true },
+    position: { type: String, default : "Student" }, // New field for the user's position/job title
+    avatar: { type: String,default:"images/face-1.jpg" }, // Field to store avatar image path or URL
   },
   { timestamps: true }
 );
@@ -40,7 +44,7 @@ identitySchema.virtual("id").get(function () {
   return this._id.toHexString();
 });
 
-// Ensure virtual fields are serialised
+// Ensure virtual fields are serialized
 identitySchema.set("toJSON", { virtuals: true });
 
 // Static method for finding by ID (corrected)
@@ -65,8 +69,15 @@ exports.findById = async (id) => {
 
 exports.findByUserName = (userName) => Identity.findOne({ userName }).lean().exec();
 
-exports.createIdentity = (userData) => new Identity(userData).save();
+exports.createIdentity = async (userData) => {
+  const identity = new Identity(userData);
+  await identity.save(); // Save the identity first
+  console.log(identity.id)
+  // Create the default UserAvailability record
+  await UserAvailability.findOrCreate(identity.id); // Using the newly created identity's id
 
+  return identity; // Return the created identity
+};
 exports.list = (perPage = 10, page = 0) =>
   Identity.find()
     .limit(perPage)
@@ -80,7 +91,7 @@ exports.updateById = (id, data) =>
 exports.removeById = (id) => Identity.deleteOne({ _id: id }).exec();
 
 // Seed data and function
-const seedIdentities = [
+const seedIdentities = 
   {
     firstName: "Admin",
     lastName: "Admin",
@@ -89,25 +100,22 @@ const seedIdentities = [
     password: hashPassword("admin_password"), // Hashed password
     permissionLevel: 1,
     isActive: true,
-  },
-];
+  }
+;
 
 const seedDatabase = async () => {
   try {
     await Identity.deleteMany({});
     console.log("Existing identities cleared.");
 
-    await Identity.insertMany(seedIdentities);
+    this.createIdentity(seedIdentities);
     console.log("Database seeded successfully.");
   } catch (error) {
     console.error("Error seeding the database:", error);
-  } finally {
-    //mongoose.disconnect();
   }
 };
 
 // Conditionally seed the database
-// Careful the seed gonna disconnect the ORM 
 if (process.env.SEED_DB === "true") {
   seedDatabase();
 }
