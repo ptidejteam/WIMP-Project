@@ -1,5 +1,6 @@
 const express = require("express");
 const DeviceRouter = require("./routes/routes.config");
+const LocationRouter = require("./services/routes.config");
 const bodyParser = require('body-parser');
 
 // Define the express object
@@ -22,5 +23,7 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json());
 // Config device router
 DeviceRouter.routesConfig(app);
+
+LocationRouter.routesConfig(app);
 
 module.exports = app;

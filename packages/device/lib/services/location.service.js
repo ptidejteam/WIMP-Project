@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const haversine = require('haversine');
-const DeviceModel = require('./models/device'); // Import your device model
+const DeviceModel = require('../routes/models/device.model'); // Import your device model
 
 class LocationService {
   constructor(pollingInterval = 5000) { // Poll every 5 seconds by default
@@ -22,6 +22,33 @@ class LocationService {
     console.log(`Distance to target: ${distance} km`);
     return distance <= this.radiusInKm;
   }
+
+    /**
+   * Get the device location and check if it is within the allowed radius
+   * @param {String} deviceId - The ID of the device to check
+   * @returns {Object} - Contains device location and whether it is within the radius
+   */
+    async checkDeviceWithinRadius(deviceId) {
+      try {
+        const deviceData = await DeviceModel.getIoTDataForDevice(deviceId);
+  
+        if (deviceData && deviceData.data.length > 0) {
+          const latestData = deviceData.data[deviceData.data.length - 1]; // Latest entry
+          const deviceLocation = {
+            latitude: latestData.location.coordinates[1], // [longitude, latitude]
+            longitude: latestData.location.coordinates[0]
+          };
+  
+          const isWithinRadius = this.isDeviceWithinRadius(deviceLocation);
+          return { deviceLocation, isWithinRadius };
+        } else {
+          throw new Error(`No location data found for device ${deviceId}`);
+        }
+      } catch (error) {
+        console.error(`Error checking device ${deviceId}:`, error);
+        throw error;
+      }
+    }
 
   /**
    * Poll the database for the latest IoT data and monitor the device location
