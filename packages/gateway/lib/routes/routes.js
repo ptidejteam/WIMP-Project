@@ -52,13 +52,13 @@ exports.routes = [
     },
   },
   {
-    url: `/${API_PREFIX}/device`,
+    url: `/${API_PREFIX}/devices`,
     authenticationRequired: true,
     proxy: {
-      target: `${DEVICE_URL}/device`,
+      target: `${DEVICE_URL}/devices`,
       changeOrigin: true,
       pathRewrite: {
-        [`^/${API_PREFIX}/device`]: "",
+        [`^/${API_PREFIX}/devices`]: "",
       },
     },
   },
