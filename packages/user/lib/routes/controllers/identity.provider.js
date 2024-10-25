@@ -1,32 +1,44 @@
 const IdentityModel = require("../models/identity.model");
 const { hashPassword } = require("@wimp-project/utils");
-const fs = require("fs");
-const multer = require("multer");
-const path = require("path"); // Ensure to include 'path' for file extension handling
+const nodemailer = require("nodemailer");
 
-// Configure Multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Set the destination folder
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname)); // Use original file extension
-  },
-});
-
-const upload = multer({ storage });
+// Configure the transporter for Nodemailer
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.example.com", // Replace with your SMTP server
+//   port: 587, // Common port for SMTP
+//   secure: false, // Set to true for 465, false for other ports
+//   auth: {
+//     user: "your-email@example.com", // Your email address
+//     pass: "your-email-password", // Your email password
+//   },
+// });
 
 // Insert a new identity
 exports.insert = async (req, res) => {
   try {
+    // Check if the email is already in use
+    const existingUser = await IdentityModel.findByEmail(req.body.email);
+    if (existingUser) {
+      return res.status(400).send({ message: "Email already in use" });
+    }
+
     const hashedPassword = hashPassword(req.body.password);
     req.body.password = hashedPassword;
-
+    console.log(JSON.stringify(req.body));
     const result = await IdentityModel.createIdentity(req.body);
+
+    // Send confirmation email
+    // await transporter.sendMail({
+    //   from: '"WIMP System" <your-email@example.com>', // Sender address
+    //   to: req.body.email, // Recipient address
+    //   subject: "Account Created Successfully", // Subject line
+    //   text: "Welcome to our application! Your account has been created.", // Plain text body
+    //   html: "<b>Welcome to our application!</b><br/>Your account has been created.", // HTML body
+    // });
+
     res.status(201).send({ id: result._id });
   } catch (error) {
-    console.error("Error inserting identity:", error);
+    console.error("Error inserting identity:", JSON.stringify(error));
     res.status(500).send({ message: "Internal Server Error" });
   }
 };
@@ -66,10 +78,30 @@ exports.putById = async (req, res) => {
       req.body.password = hashPassword(req.body.password);
     }
 
+    // Check if the email is being changed and already in use
+    if (req.body.email) {
+      const existingUser = await IdentityModel.findByEmail(req.body.email);
+      if (existingUser && existingUser._id.toString() !== req.params.userId) {
+        return res.status(400).send({ message: "Email already in use" });
+      }
+    }
+
     const result = await IdentityModel.updateById(req.params.userId, req.body);
     if (!result) {
       return res.status(404).send({ message: "Identity not found" });
     }
+
+    // Send update notification email
+    // if (req.body.email) {
+    //   await transporter.sendMail({
+    //     from: '"Your App Name" <your-email@example.com>', // Sender address
+    //     to: req.body.email, // Recipient address
+    //     subject: "Account Updated", // Subject line
+    //     text: "Your account details have been updated successfully.", // Plain text body
+    //     html: "<b>Your account details have been updated successfully.</b>", // HTML body
+    //   });
+    // }
+
     res.status(204).send(); // No content response
   } catch (error) {
     console.error("Error updating identity by ID:", error);

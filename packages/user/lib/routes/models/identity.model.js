@@ -30,11 +30,17 @@ const identitySchema = new Schema(
     lastName: { type: String, required: true },
     birthday: { type: Date },
     userName: { type: String, unique: true, required: true },
+    email: { type: String, unique: true },
     password: { type: String, required: true },
     permissionLevel: { type: Number, default: 1 },
     isActive: { type: Boolean, default: true },
-    position: { type: String, default : "Student" }, // New field for the user's position/job title
-    avatar: { type: String,default:"images/face-1.jpg" }, // Field to store avatar image path or URL
+    position: { type: String, default: "Student" }, // User's position/job title
+    avatar: { type: String, default: "images/face-1.jpg" }, // Avatar image path or URL
+    emailStatus: { // New field to track email sending status
+      type: String,
+      enum: ['pending', 'sent', 'failed'],
+      default: 'pending', // Default to pending when the user is created
+    },
   },
   { timestamps: true }
 );
@@ -63,6 +69,7 @@ exports.findById = async (id) => {
   if (result) {
     delete result._id;
     delete result.__v;
+    delete result.password;
   }
   return result;
 };
@@ -71,13 +78,14 @@ exports.findByUserName = (userName) => Identity.findOne({ userName }).lean().exe
 
 exports.createIdentity = async (userData) => {
   const identity = new Identity(userData);
+  console.log(JSON.stringify(identity));
   await identity.save(); // Save the identity first
-  console.log(identity.id)
   // Create the default UserAvailability record
   await UserAvailability.findOrCreate(identity.id); // Using the newly created identity's id
 
   return identity; // Return the created identity
 };
+
 exports.list = (perPage = 10, page = 0) =>
   Identity.find()
     .limit(perPage)
@@ -86,7 +94,8 @@ exports.list = (perPage = 10, page = 0) =>
     .exec();
 
 exports.updateById = (id, data) =>
-  Identity.findByIdAndUpdate(id, data, { new: true }).lean().exec();
+  // Don't update the password
+  Identity.findByIdAndUpdate(id, data, { new: false }).lean().exec();
 
 exports.removeById = (id) => Identity.deleteOne({ _id: id }).exec();
 
@@ -100,6 +109,7 @@ const seedIdentities =
     password: hashPassword("admin_password"), // Hashed password
     permissionLevel: 1,
     isActive: true,
+    emailStatus: 'sent' // Set default email status for seed data if needed
   }
 ;
 
@@ -108,7 +118,7 @@ const seedDatabase = async () => {
     await Identity.deleteMany({});
     console.log("Existing identities cleared.");
 
-    this.createIdentity(seedIdentities);
+    await this.createIdentity(seedIdentities);
     console.log("Database seeded successfully.");
   } catch (error) {
     console.error("Error seeding the database:", error);

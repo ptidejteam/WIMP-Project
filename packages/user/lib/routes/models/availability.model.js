@@ -1,5 +1,3 @@
-// models/UserAvailability.js
-
 const mongoose = require('mongoose');
 
 const UserAvailabilitySchema = new mongoose.Schema({
@@ -11,6 +9,7 @@ const UserAvailabilitySchema = new mongoose.Schema({
   displayToOthers: { type: Boolean, default: true }
 });
 
+// Static method to find or create a user availability
 UserAvailabilitySchema.statics.findOrCreate = async function (userId) {
   return await this.findOneAndUpdate(
     { userId },
@@ -19,10 +18,26 @@ UserAvailabilitySchema.statics.findOrCreate = async function (userId) {
   );
 };
 
+// Static method to list user availabilities with pagination
+UserAvailabilitySchema.statics.list = function (perPage = 10, page = 0) {
+  return this.find()
+    .limit(perPage)
+    .skip(perPage * page)
+    .lean()
+    .exec();
+};
+
+// Static method to get user availability by userId
+UserAvailabilitySchema.statics.getById = async function (userId) {
+  return await this.findOne({ userId }).lean().exec();
+};
+
+// Static method to update user availability by userId
 UserAvailabilitySchema.statics.updateById = async function (userId, updateData) {
   return await this.findOneAndUpdate({ userId }, updateData, { new: true });
 };
 
+// Static method to remove user availability by userId
 UserAvailabilitySchema.statics.removeById = async function (userId) {
   return await this.deleteOne({ userId });
 };
