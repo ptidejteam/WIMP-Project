@@ -16,14 +16,14 @@ exports.routesConfig = (app) => {
   app.delete("/users/:userId", [IdentityProvider.removeById]);
 
   // Define routes using the UserAvailabilityController
-  app.post("/api/users/availability", AvailabilityProvider.insertOrUpdate);
-  app.get("/api/users/availability", AvailabilityProvider.list);
-  app.get("/api/users/availability/:userId", AvailabilityProvider.getById); // Retrieve user availability by ID
-  app.patch("/api/users/availability/status", AvailabilityProvider.setUserStatus); // Update user online status
-  app.patch("/api/users/availability/tracking", AvailabilityProvider.setTrackingOption); // Update offline mode
-  app.patch("/api/users/availability", AvailabilityProvider.setAvailabilityStatus); // Update availability status
-  app.patch("/api/users/availability/message", AvailabilityProvider.setCustomMessage); // Update custom message
-  app.patch("/api/users/availability/display", AvailabilityProvider.setDisplayOption); // Update display option
-  app.delete("/api/users/availability/:userId", AvailabilityProvider.removeById); // Remove availability by ID
+  app.post("/availability", AvailabilityProvider.insertOrUpdate);
+  app.get("/availability", AvailabilityProvider.list);
+  app.get("/availability/:userId", AvailabilityProvider.getById); // Retrieve user availability by ID
+  app.patch("/availability", AvailabilityProvider.updateAvailability); // Update user online status
+  // app.patch("/availability/tracking", AvailabilityProvider.setTrackingOption); // Update offline mode
+  // app.patch("/availability", AvailabilityProvider.setAvailabilityStatus); // Update availability status
+  // app.patch("/availability/message", AvailabilityProvider.setCustomMessage); // Update custom message
+  // app.patch("/availability/display", AvailabilityProvider.setDisplayOption); // Update display option
+  app.delete("/availability/:userId", AvailabilityProvider.removeById); // Remove availability by ID
   
 };

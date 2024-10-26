@@ -6,12 +6,13 @@ const USER_URL = process.env.USER_URL;
 const DEVICE_URL = process.env.DEVICE_URL;
 
 if (!USER_URL) {
-  throw  new Error("USER_URL is undefined. Check if it is set in the .env file.");
+  throw new Error("USER_URL is undefined. Check if it is set in the .env file.");
 }
 
 if (!DEVICE_URL) {
   throw new Error("DEVICE_URL is undefined. Check if it is set in the .env file.");
 }
+
 exports.routes = [
   {
     url: `/${API_PREFIX}/auth`,
@@ -40,17 +41,41 @@ exports.routes = [
       },
     },
   },
+  // Allow access to /api/v1/users and its sub-paths
   {
-    url: `/${API_PREFIX}/users`,
+    url: `/${API_PREFIX}/users`,  // This will allow /users and all its sub-paths
     authenticationRequired: true,
     proxy: {
-      target: `${USER_URL}/users`,
+      target: `${USER_URL}/users`, 
       changeOrigin: true,
       pathRewrite: {
         [`^/${API_PREFIX}/users`]: "",
       },
     },
   },
+  // Allow access to /api/v1/availability and its sub-paths
+  {
+    url: `/${API_PREFIX}/availability*`, // This will allow /availability and all its sub-paths
+    authenticationRequired: true,
+    proxy: {
+      target: `${USER_URL}/availability`, 
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/${API_PREFIX}/availability`]: "",
+      },
+    },
+  },
+  // {
+  //   url: `/${API_PREFIX}/availability/*`, // This will allow /availability and all its sub-paths
+  //   authenticationRequired: true,
+  //   proxy: {
+  //     target: `${USER_URL}/availability/*`, 
+  //     changeOrigin: true,
+  //     pathRewrite: {
+  //       [`^/${API_PREFIX}/availability/*`]: "",
+  //     },
+  //   },
+  // },
   {
     url: `/${API_PREFIX}/devices`,
     authenticationRequired: true,

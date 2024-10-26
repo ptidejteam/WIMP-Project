@@ -13,10 +13,9 @@ exports.list = async (req, res) => {
   }
 };
 
-// Insert or find user availability
 exports.insertOrUpdate = async (req, res) => {
   try {
-    const userId = req.body.userId;
+    const { userId } = req.body;
     if (!userId) {
       return res.status(400).send({ message: "User ID is required." });
     }
@@ -29,86 +28,33 @@ exports.insertOrUpdate = async (req, res) => {
   }
 };
 
-// Update user status
-exports.setUserStatus = async (req, res) => {
+// Unified update function
+exports.updateAvailability = async (req, res) => {
   try {
-    const { userId, isOnline } = req.body;
-    const result = await AvailabilityModel.updateById(userId, { isOnline });
+    const { userId, ...updates } = req.body;
+    if (!userId) {
+      return res.status(400).send({ message: "User ID is required." });
+    }
+    
+    // Check for empty updates
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).send({ message: "No update fields provided." });
+    }
+
+    const result = await AvailabilityModel.updateById(userId, updates);
     if (!result) {
       return res.status(404).send({ message: "User availability not found." });
     }
-    res.status(200).send({ message: "User status updated successfully.", settings: result });
+    res.status(200).send({ message: "User availability updated successfully.", settings: result });
   } catch (error) {
-    console.error("Error updating user status:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not update user status." });
+    console.error("Error updating user availability:", error);
+    res.status(500).send({ message: "Internal Server Error. Could not update user availability." });
   }
 };
 
-// Update offline mode
-exports.setTrackingOption = async (req, res) => {
-  try {
-    const { userId, allowOfflineMode } = req.body;
-    const result = await AvailabilityModel.updateById(userId, { allowOfflineMode });
-    if (!result) {
-      return res.status(404).send({ message: "User availability not found." });
-    }
-    res.status(200).send({ message: "Offline mode updated successfully.", settings: result });
-  } catch (error) {
-    console.error("Error updating offline mode:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not update offline mode." });
-  }
-};
-
-// Update availability status
-exports.setAvailabilityStatus = async (req, res) => {
-  try {
-    const { userId, availabilityStatus } = req.body;
-    const result = await AvailabilityModel.updateById(userId, { availabilityStatus });
-    if (!result) {
-      return res.status(404).send({ message: "User availability not found." });
-    }
-    res.status(200).send({ message: "Availability status updated successfully.", settings: result });
-  } catch (error) {
-    console.error("Error updating availability status:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not update availability status." });
-  }
-};
-
-// Update custom message
-exports.setCustomMessage = async (req, res) => {
-  try {
-    const { userId, customMessage } = req.body;
-    const result = await AvailabilityModel.updateById(userId, { customMessage });
-    if (!result) {
-      return res.status(404).send({ message: "User availability not found." });
-    }
-    res.status(200).send({ message: "Custom message updated successfully.", settings: result });
-  } catch (error) {
-    console.error("Error updating custom message:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not update custom message." });
-  }
-};
-
-// Update display option
-exports.setDisplayOption = async (req, res) => {
-  try {
-    const { userId, displayToOthers } = req.body;
-    const result = await AvailabilityModel.updateById(userId, { displayToOthers });
-    if (!result) {
-      return res.status(404).send({ message: "User availability not found." });
-    }
-    res.status(200).send({ message: "Display option updated successfully.", settings: result });
-  } catch (error) {
-    console.error("Error updating display option:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not update display option." });
-  }
-};
-
-// Get user availability by ID
 exports.getById = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    const result = await AvailabilityModel.getById(userId);
+    const result = await AvailabilityModel.getById(req.params.userId);
     if (!result) {
       return res.status(404).send({ message: "User availability not found." });
     }
@@ -119,12 +65,11 @@ exports.getById = async (req, res) => {
   }
 };
 
-// Remove user availability by user ID
 exports.removeById = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const { userId } = req.params;
     const result = await AvailabilityModel.removeById(userId);
-    if (!result.deletedCount) {
+    if (!result || !result.deletedCount) {
       return res.status(404).send({ message: "User availability not found." });
     }
     res.status(204).send(); // No content response

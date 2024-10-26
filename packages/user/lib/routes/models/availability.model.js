@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const UserAvailabilitySchema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
-  isOnline: { type: Boolean, default: true },
-  allowOfflineMode: { type: Boolean, default: true },
-  availabilityStatus: { type: String, default: 'Available' },
-  customMessage: { type: String, default: '' },
+  userId: { type: String, required: true, unique: true, index: true }, // Ensure userId is unique and indexed
+  isOnline: { type: Boolean, default: false },
+  allowOfflineMode: { type: Boolean, default: false },
+  availabilityStatus: { type: String, default: "available" },
+  customMessage: { type: String, default: "" }, // Ensure correct type
   displayToOthers: { type: Boolean, default: true }
 });
 
@@ -32,9 +32,12 @@ UserAvailabilitySchema.statics.getById = async function (userId) {
   return await this.findOne({ userId }).lean().exec();
 };
 
-// Static method to update user availability by userId
 UserAvailabilitySchema.statics.updateById = async function (userId, updateData) {
-  return await this.findOneAndUpdate({ userId }, updateData, { new: true });
+  return this.findOneAndUpdate(
+    { userId },
+    { $set: updateData },
+    { new: true, useFindAndModify: false }
+  );
 };
 
 // Static method to remove user availability by userId
@@ -42,4 +45,19 @@ UserAvailabilitySchema.statics.removeById = async function (userId) {
   return await this.deleteOne({ userId });
 };
 
-module.exports = mongoose.model('UserAvailability', UserAvailabilitySchema);
+// Define and export the model
+const UserAvailability = mongoose.model('UserAvailability', UserAvailabilitySchema);
+// // Check if a document with this userId exists and is unique
+// // const userCheck =  UserAvailability.find({ userId: "671b0c4f3a4433f3cf9c93d6" });
+// // console.log(userCheck._id);
+
+// (async () => {
+//   try {
+//     const result = await UserAvailability.updateById("671b0c4f3a4433f3cf9c93d6", { customMessage: "Something Message" });
+//     console.log("Update result:", JSON.stringify(result));
+//   } catch (error) {
+//     console.error("Direct update error:", error);
+//   }
+// })();
+
+module.exports = UserAvailability;
