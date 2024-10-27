@@ -4,6 +4,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env' )});
 const API_PREFIX = "api/v1";
 const USER_URL = process.env.USER_URL;
 const DEVICE_URL = process.env.DEVICE_URL;
+const MEETING_URL = process.env.MEETING_URL;
 
 if (!USER_URL) {
   throw new Error("USER_URL is undefined. Check if it is set in the .env file.");
@@ -84,6 +85,17 @@ exports.routes = [
       changeOrigin: true,
       pathRewrite: {
         [`^/${API_PREFIX}/devices`]: "",
+      },
+    },
+  },
+  {
+    url: `/${API_PREFIX}/meetings`,
+    authenticationRequired: true,
+    proxy: {
+      target: `${DEVICE_URL}/meetings`,
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/${API_PREFIX}/meetings`]: "",
       },
     },
   },
