@@ -66,17 +66,6 @@ exports.routes = [
       },
     },
   },
-  // {
-  //   url: `/${API_PREFIX}/availability/*`, // This will allow /availability and all its sub-paths
-  //   authenticationRequired: true,
-  //   proxy: {
-  //     target: `${USER_URL}/availability/*`, 
-  //     changeOrigin: true,
-  //     pathRewrite: {
-  //       [`^/${API_PREFIX}/availability/*`]: "",
-  //     },
-  //   },
-  // },
   {
     url: `/${API_PREFIX}/devices`,
     authenticationRequired: true,
@@ -92,7 +81,7 @@ exports.routes = [
     url: `/${API_PREFIX}/meetings`,
     authenticationRequired: true,
     proxy: {
-      target: `${DEVICE_URL}/meetings`,
+      target: `${MEETING_URL}/meetings`,
       changeOrigin: true,
       pathRewrite: {
         [`^/${API_PREFIX}/meetings`]: "",
