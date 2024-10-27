@@ -8,10 +8,12 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.21.0",
+    "express-session": "^1.18.1",
     "haversine": "^1.1.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.8.2",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "uuid": "^10.0.0",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
@@ -23,10 +25,8 @@
     "version": "npx lerna version --no-private"
   },
   "devDependencies": {
-    "chai": "^5.1.1",
     "jest": "^29.7.0",
     "lerna": "^8.1.8",
-    "mocha": "^10.7.3",
     "nodemon": "^3.1.7",
     "nx": "19.8.2",
     "supertest": "^7.0.0"
