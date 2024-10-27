@@ -34,13 +34,26 @@ const identitySchema = new Schema(
     password: { type: String, required: true },
     permissionLevel: { type: Number, default: 1 },
     isActive: { type: Boolean, default: true },
-    position: { type: String, default: "Student" }, // User's position/job title
-    avatar: { type: String, default: "images/face-1.jpg" }, // Avatar image path or URL
-    emailStatus: { // New field to track email sending status
+    position: { type: String, default: "Student" },
+    avatar: { type: String, default: "images/face-1.jpg" },
+    emailStatus: {
       type: String,
-      enum: ['pending', 'sent', 'failed'],
-      default: 'pending', // Default to pending when the user is created
+      enum: ["pending", "sent", "failed"],
+      default: "pending",
     },
+    googleAccessToken: { type: String }, // Token for Google Calendar API
+    googleAccessTokenExpiry: { type: Date }, // Expiry time for the access token
+    googleCalendarEvents: [
+      {
+        eventId: { type: String, required: true },
+        summary: { type: String },
+        description: { type: String },
+        start: { type: Date },
+        end: { type: Date },
+        location: { type: String },
+        status: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -53,11 +66,6 @@ identitySchema.virtual("id").get(function () {
 // Ensure virtual fields are serialized
 identitySchema.set("toJSON", { virtuals: true });
 
-// Static method for finding by ID (corrected)
-identitySchema.statics.findByIdCustom = function (id) {
-  return this.findOne({ _id: id }).lean().exec();
-};
-
 // Model
 const Identity = mongoose.model("Users", identitySchema);
 
@@ -65,7 +73,7 @@ const Identity = mongoose.model("Users", identitySchema);
 exports.findByEmail = (email) => Identity.findOne({ email }).lean().exec();
 
 exports.findById = async (id) => {
-  const result = await Identity.findByIdCustom(id);
+  const result = await Identity.findOne({ _id: id }).lean().exec();
   if (result) {
     delete result._id;
     delete result.__v;
@@ -74,11 +82,11 @@ exports.findById = async (id) => {
   return result;
 };
 
-exports.findByUserName = (userName) => Identity.findOne({ userName }).lean().exec();
+exports.findByUserName = (userName) =>
+  Identity.findOne({ userName }).lean().exec();
 
 exports.createIdentity = async (userData) => {
   const identity = new Identity(userData);
-  console.log(JSON.stringify(identity));
   await identity.save(); // Save the identity first
   // Create the default UserAvailability record
   await UserAvailability.findOrCreate(identity.id); // Using the newly created identity's id
@@ -99,20 +107,51 @@ exports.updateById = (id, data) =>
 
 exports.removeById = (id) => Identity.deleteOne({ _id: id }).exec();
 
-// Seed data and function
-const seedIdentities = 
-  {
-    firstName: "Admin",
-    lastName: "Admin",
-    userName: "admin_user",
-    birthday: new Date(),
-    password: hashPassword("admin_password"), // Hashed password
-    permissionLevel: 1,
-    isActive: true,
-    emailStatus: 'sent' // Set default email status for seed data if needed
-  }
-;
+// Save or update Google Calendar token and its expiry
+exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
+  const expiryDate = new Date(Date.now() + expiresIn * 1000); // Calculate expiry time from now
 
+  return Identity.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        googleAccessToken: accessToken,
+        googleAccessTokenExpiry: expiryDate,
+      },
+    },
+    { new: true, useFindAndModify: false }
+  )
+    .lean()
+    .exec();
+};
+
+// Retrieve Google Calendar token and check if it's expired
+exports.getGoogleToken = async (userId) => {
+  const user = await Identity.findById(
+    userId,
+    "googleAccessToken googleAccessTokenExpiry"
+  )
+    .lean()
+    .exec();
+
+  if (user && user.googleAccessTokenExpiry > new Date()) {
+    return user.googleAccessToken;
+  } else {
+    return null; // Token is expired or doesn't exist
+  }
+};
+
+// Seed data and function
+const seedIdentities = {
+  firstName: "Admin",
+  lastName: "Admin",
+  userName: "admin_user",
+  birthday: new Date(),
+  password: hashPassword("admin_password"), // Hashed password
+  permissionLevel: 1,
+  isActive: true,
+  emailStatus: "sent", // Set default email status for seed data if needed
+};
 const seedDatabase = async () => {
   try {
     await Identity.deleteMany({});

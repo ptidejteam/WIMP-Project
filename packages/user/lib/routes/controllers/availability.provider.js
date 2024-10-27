@@ -28,6 +28,9 @@ exports.insertOrUpdate = async (req, res) => {
   }
 };
 
+
+
+
 // Unified update function
 exports.updateAvailability = async (req, res) => {
   try {
