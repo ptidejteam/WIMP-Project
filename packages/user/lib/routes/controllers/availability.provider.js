@@ -57,7 +57,8 @@ exports.updateAvailability = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const result = await AvailabilityModel.getById(req.params.userId);
+    const { userId } = req.params;
+    const result = await AvailabilityModel.getById(userId);
     if (!result) {
       return res.status(404).send({ message: "User availability not found." });
     }

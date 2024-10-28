@@ -11249,3 +11249,30 @@
 [2024-10-26T15:27:42.054Z] INFO: ::ffff:127.0.0.1 - - [26/Oct/2024:15:27:42 +0000] "GET /availability/ HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
 [2024-10-26T15:27:42.070Z] INFO: ::ffff:127.0.0.1 - - [26/Oct/2024:15:27:42 +0000] "GET /users/671b0c4f3a4433f3cf9c93d6 HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
 [2024-10-26T15:27:42.073Z] INFO: ::ffff:127.0.0.1 - - [26/Oct/2024:15:27:42 +0000] "GET /users/671b7c0c946fca87c1a553ec HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:21:09.009Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-27T23:21:11.406Z] INFO: user service running on port :9999
+[2024-10-27T23:21:11.422Z] INFO: Successfully connected to the database.
+[2024-10-27T23:21:33.697Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-27T23:21:35.154Z] INFO: user service running on port :9999
+[2024-10-27T23:21:35.172Z] INFO: Successfully connected to the database.
+[2024-10-27T23:21:44.772Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-27T23:21:46.823Z] INFO: user service running on port :9999
+[2024-10-27T23:21:46.840Z] INFO: Successfully connected to the database.
+[2024-10-27T23:22:45.505Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:22:45 +0000] "GET /availability/ HTTP/1.1" 200 438 "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:22:45.527Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:22:45 +0000] "GET /users/671b0c4f3a4433f3cf9c93d6 HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:22:45.531Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:22:45 +0000] "GET /users/671b7c0c946fca87c1a553ec HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:02.964Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-27T23:23:05.019Z] INFO: user service running on port :9999
+[2024-10-27T23:23:05.047Z] INFO: Successfully connected to the database.
+[2024-10-27T23:23:11.944Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:11 +0000] "GET /availability/ HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:11.985Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:11 +0000] "GET /users/671b0c4f3a4433f3cf9c93d6 HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:11.989Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:11 +0000] "GET /users/671b7c0c946fca87c1a553ec HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:13.647Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:13 +0000] "GET /availability/ HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:13.676Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:13 +0000] "GET /users/671b0c4f3a4433f3cf9c93d6 HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:13.680Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:13 +0000] "GET /users/671b7c0c946fca87c1a553ec HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:18.657Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:18 +0000] "GET /availability/ HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:18.679Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:18 +0000] "GET /users/671b0c4f3a4433f3cf9c93d6 HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:18.683Z] INFO: ::ffff:127.0.0.1 - - [27/Oct/2024:23:23:18 +0000] "GET /users/671b7c0c946fca87c1a553ec HTTP/1.1" 304 - "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+[2024-10-27T23:23:26.332Z] INFO: HTTP request logging is enabled with Morgan and Winston.
+[2024-10-27T23:23:28.285Z] INFO: user service running on port :9999
+[2024-10-27T23:23:28.301Z] INFO: Successfully connected to the database.

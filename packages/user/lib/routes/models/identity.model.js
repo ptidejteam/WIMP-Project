@@ -69,6 +69,19 @@ identitySchema.set("toJSON", { virtuals: true });
 // Model
 const Identity = mongoose.model("Users", identitySchema);
 
+exports.findIfTokenExists = () => {
+  return Identity.find({ googleAccessToken: { $exists: true } })
+    .lean()
+    .exec();
+};
+
+exports.findByIdAndUpdateEvents = (userId, eventRecords) =>
+  Identity.findByIdAndUpdate(
+    userId,
+    { $set: { googleCalendarEvents: eventRecords } },
+    { new: true, useFindAndModify: false }
+  ).exec();
+
 // Methods
 exports.findByEmail = (email) => Identity.findOne({ email }).lean().exec();
 
