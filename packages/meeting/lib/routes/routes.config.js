@@ -31,7 +31,7 @@ const checkUserAvailability = async (req, res, next) => {
 
 exports.routesConfig = (app) => {
   // Meeting routes
-  app.post("/meetings", [checkUserAvailability, MeetingProvider.insert]); // Create a new meeting with availability check
+  app.post("/meetings", [MeetingProvider.insert]); // Create a new meeting with availability check
   app.get("/meetings", [MeetingProvider.list]); // List all meetings with pagination
   app.get("/meetings/:meetingId", [MeetingProvider.getById]); // Retrieve a meeting by ID
   app.patch("/meetings", [MeetingProvider.updateById]); // Update a meeting by ID
