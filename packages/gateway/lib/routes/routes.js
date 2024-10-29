@@ -67,7 +67,7 @@ exports.routes = [
     },
   },
   {
-    url: `/${API_PREFIX}/devices`,
+    url: `/${API_PREFIX}/devices*`,
     authenticationRequired: true,
     proxy: {
       target: `${DEVICE_URL}/devices`,
@@ -78,7 +78,7 @@ exports.routes = [
     },
   },
   {
-    url: `/${API_PREFIX}/meetings`,
+    url: `/${API_PREFIX}/meetings*`,
     authenticationRequired: true,
     proxy: {
       target: `${MEETING_URL}/meetings`,
