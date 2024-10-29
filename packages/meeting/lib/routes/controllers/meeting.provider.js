@@ -68,6 +68,18 @@ exports.getById = async (req, res) => {
     res.status(500).send({ message: "Internal Server Error. Could not retrieve meeting." });
   }
 };
+exports.getById = async (req, res) => {
+  try {
+    const result = await MeetingModel.findByRequesterOrRequestedUserId(req.params.userId);
+    if (!result) {
+      return res.status(404).send({ message: "Meeting not found." });
+    }
+    res.status(200).send(result);
+  } catch (error) {
+    console.error("Error retrieving meeting by ID:", error);
+    res.status(500).send({ message: "Internal Server Error. Could not retrieve meeting." });
+  }
+};
 
 // Remove meeting by ID
 exports.removeById = async (req, res) => {

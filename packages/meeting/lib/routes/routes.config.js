@@ -33,7 +33,7 @@ exports.routesConfig = (app) => {
   // Meeting routes
   app.post("/meetings", [MeetingProvider.insert]); // Create a new meeting with availability check
   app.get("/meetings", [MeetingProvider.list]); // List all meetings with pagination
-  app.get("/meetings/:meetingId", [MeetingProvider.getById]); // Retrieve a meeting by ID
+  app.get("/meetings/:userId", [MeetingProvider.getById]); // Retrieve a meeting by ID
   app.patch("/meetings", [MeetingProvider.updateById]); // Update a meeting by ID
   app.delete("/meetings/:meetingId", [MeetingProvider.removeById]); // Remove a meeting by ID
 };

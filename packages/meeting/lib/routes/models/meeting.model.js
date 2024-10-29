@@ -58,6 +58,10 @@ const Meeting = mongoose.model("Meetings", meetingSchema);
 exports.findByRequesterId = (requesterId) => 
   Meeting.find({ requesterId }).lean().exec();
 
+
+exports.findByRequesterOrRequestedUserId = (userId) => 
+  Meeting.find({ $or: [{ requesterId: userId }, { requestedUserId: userId }] }).lean().exec();
+
 // Find a specific meeting by ID
 exports.findById = async (id) => {
   const result = await Meeting.findByIdCustom(id);
