@@ -35,7 +35,7 @@ const deviceSchema = new Schema(
     deviceType: {
       type: String,
       required: true,
-      enum: ["sensor", "actuator", "gateway", "controller"], // Example device types
+      enum: ["sensor", "actuator", "gateway", "controller","wearable"], // Example device types
     },
     status: {
       type: String,

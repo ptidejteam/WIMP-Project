@@ -1,11 +1,13 @@
 const app = require("./app")
 require('dotenv').config()
 const PORT = process.env.PORT;
+const { listenToDeviceLocation } = require("./services/location.service");
 
 
 // listening
 app.listen(PORT ,()=> {
     console.log("Device service running on port :" + PORT);
+    listenToDeviceLocation()
 })
 
 

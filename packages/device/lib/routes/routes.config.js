@@ -23,7 +23,7 @@ exports.routesConfig = (app) => {
     ]);
 
     // Routes to manage devices by user ID
-    app.get('/users/:userId/devices', [
+    app.get('/devices/users/:userId', [
         DeviceProvider.getByUserId
     ]);
 

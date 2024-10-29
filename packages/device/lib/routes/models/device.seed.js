@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose"); 
 const path = require("path");
 const DeviceModel = require("./device.model"); // Adjust the path as necessary
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
@@ -22,65 +22,44 @@ const connect = async () => {
 const seedDatabase = async () => {
   try {
     // Clear the existing devices
-    // await DeviceModel.deleteMany({});
+   // await DeviceModel.deleteMany({}); // Deletes all devices in the collection
 
-    // Sample device data
-    const devices = [
-      {
-        deviceId: "device_001",
-        name: "Temperature Sensor",
-        deviceType: "sensor",
-        status: "online",
-        userId: "64d0f68c5135f66f46069f8b", // Replace with actual User ID
-        data: [
-          {
-            dataType: "temperature",
-            value: { value: 22, unit: "C" },
-            timestamp: new Date(),
-            location: {
-              type: "Point",
-              coordinates: [-74.005974, 40.712776], // [longitude, latitude]
-            },
+    // Only add the Fitbit device
+    const fitbitDevice = {
+      deviceId: "fitbit_001",
+      name: "Fitbit Device",
+      deviceType: "wearable",
+      status: "online",
+      userId: "64d0f68c5135f66f46069f8b", // Replace with actual User ID
+      data: [
+        {
+          dataType: "heart_rate",
+          value: { value: 75, unit: "bpm" },
+          timestamp: new Date(),
+          location: {
+            type: "Point",
+            coordinates: [-74.005974, 40.712776], // [longitude, latitude]
           },
-        ],
-      },
-      {
-        deviceId: "device_002",
-        name: "Humidity Sensor",
-        deviceType: "sensor",
-        status: "offline",
-        userId: "64d0f68c5135f66f46069f8b", // Replace with actual User ID
-        data: [
-          {
-            dataType: "humidity",
-            value: { value: 60, unit: "%" },
-            timestamp: new Date(),
-            location: {
-              type: "Point",
-              coordinates: [-74.005974, 40.712776], // [longitude, latitude]
-            },
+        },
+        {
+          dataType: "steps",
+          value: { value: 5000, unit: "steps" },
+          timestamp: new Date(),
+          location: {
+            type: "Point",
+            coordinates: [-74.005974, 40.712776], // [longitude, latitude]
           },
-        ],
-      },
-      {
-        deviceId: "device_003",
-        name: "Gateway Device",
-        deviceType: "gateway",
-        status: "maintenance",
-        userId: "64d0f68c5135f66f46069f8b", // Replace with actual User ID
-      },
-    ];
+        },
+      ],
+    };
 
-    // Insert devices into the database
-   devices.forEach(async (element) => {
-    await DeviceModel.createDevice(element);
-
-   });
-    console.log("Database seeded successfully.");
+    // Insert the Fitbit device into the database
+    await DeviceModel.createDevice(fitbitDevice);
+    console.log("Fitbit device seeded successfully.");
   } catch (error) {
     console.error("Error seeding database:", error);
   } finally {
-    //mongoose.connection.close();
+    await mongoose.connection.close(); // Ensure the connection is closed
   }
 };
 
