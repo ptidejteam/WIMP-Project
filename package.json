@@ -1,0 +1,38 @@
+{
+  "name": "WIMP System",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "homepage": "https://demos.creative-tim.com/muse-ant-design-dashboard/",
+  "repository": "https://github.com/creativetimofficial/muse-ant-design-dashboard",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --open",
+    "build": "cross-env CI=false cross-env PUBLIC_URL=/ vue-cli-service build",
+    "dev": "npm run serve"
+  },
+  "dependencies": {
+    "@fawmi/vue-google-maps": "^0.9.79",
+    "ant-design-vue": "1.7.6",
+    "axios": "^1.7.7",
+    "chart.js": "3.4.1",
+    "core-js": "^3.38.1",
+    "dotenv": "^16.4.5",
+    "dotenv-webpack": "^8.0.1",
+    "leaflet": "^1.9.4",
+    "rxjs": "^7.8.1",
+    "vue": "2.6.14",
+    "vue-github-buttons": "^3.1.0",
+    "vue-router": "3.5.2",
+    "vue3-leaflet": "^1.0.50"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "4.5.13",
+    "@vue/cli-plugin-router": "4.5.13",
+    "@vue/cli-service": "4.5.13",
+    "cross-env": "^7.0.3",
+    "node-sass": "^9.0.0",
+    "sass-loader": "^10",
+    "vue-template-compiler": "2.6.14"
+  }
+}
