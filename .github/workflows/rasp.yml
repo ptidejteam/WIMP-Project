@@ -1,0 +1,50 @@
+name: Setup Raspberry Pi with Node.js and MongoDB
+
+on:
+  push:
+    branches:
+      - main  # Run when code is pushed to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.PI_SSH_KEY }}
+
+    - name: Connect and setup Raspberry Pi
+      env:
+        PI_USER: ${{ secrets.PI_USER }}
+        PI_HOST: ${{ secrets.PI_HOST }}
+      run: |
+        # Install Node.js and MongoDB on the Raspberry Pi
+        ssh -o StrictHostKeyChecking=no $PI_USER@$PI_HOST << 'EOF'
+          # Update the system
+          sudo apt-get update && sudo apt-get upgrade -y
+          
+          # Install Node.js (LTS version)
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          
+          # Verify Node.js and npm installation
+          node -v
+          npm -v
+          
+          # Install MongoDB
+          sudo apt-get install -y mongodb
+          
+          # Start MongoDB and enable it to start on boot
+          sudo systemctl start mongodb
+          sudo systemctl enable mongodb
+          
+          # Confirm MongoDB installation
+          mongo --version
+          
+          echo "Node.js and MongoDB installation complete on Raspberry Pi!"
+        EOF
