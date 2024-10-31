@@ -1,7 +1,42 @@
-# Exclude the 'dist' folder
-dist/
+node_modules/
 
-# Exclude the 'node_modules' directory
-/node_modules
-packages/protos/lib/google/*
-packages/*/vendor
+package-lock.json
+
+.nx/cache
+.nx/workspace-data
+
+
+dist
+
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+*.log
+
+
+.DS_Store
+node_modules
+/dist
+package-lock.json
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

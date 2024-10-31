@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken'),
     crypto = require('crypto');
 const refresh_secret = require('../env.config.js').refresh_secret;
-const cert = require('security')();
-
+const cert = require("@wimp-project/utils").readSecurityFile();
 exports.validJWTNeeded = (req, res, next) => {
     if (req.headers['authorization']) {
         try {
@@ -16,19 +15,18 @@ exports.validJWTNeeded = (req, res, next) => {
                 return next();
             }
         } catch (err) {
-            console.log('here validJWTNeed');
             return res.status(403).send(err);
         }
     } else {
-        return res.status(401).send({err:'valid JWT is Needed'});
+        return res.status(401).send({err:'Valid JWT is Needed'});
     }
 };
 
 exports.verifyRefreshBodyField = (req, res, next) => {
-    if (req?.body?.refreshToken) {
+    if (req.body?.refreshToken) {
         return next();
     } else {
-        return res.status(400).send({ error: 'need to pass refreshToken field' });
+        return res.status(400).send({ error: 'You need to pass refreshToken field' });
     }
 };
 

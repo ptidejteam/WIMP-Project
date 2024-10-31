@@ -1,0 +1,28 @@
+{
+  "name": "meeting",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "YahiaFellah <33671463+yahiaelfellah@users.noreply.github.com>",
+  "homepage": "https://github.com/ptidejteam/WIMP-Project#readme",
+  "license": "ISC",
+  "main": "lib/meeting.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptidejteam/WIMP-Project.git"
+  },
+  "scripts": {
+    "test": "npx jest",
+    "dev": "nodemon ./lib/index.js",
+    "build": "webpack --config webpack.config.js --watch"
+  },
+  "bugs": {
+    "url": "https://github.com/ptidejteam/WIMP-Project/issues"
+  }
+}

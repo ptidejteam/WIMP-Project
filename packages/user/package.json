@@ -1,9 +1,9 @@
 {
-  "name": "y",
-  "version": "0.0.0",
-  "description": "> TODO: description",
+  "name": "user",
+  "version": "0.0.1",
+  "description": "User management microservice",
   "author": "YahiaFellah <33671463+yahiaelfellah@users.noreply.github.com>",
-  "homepage": "https://github.com/ptidejteam/WIMPv2#readme",
+  "homepage": "https://github.com/ptidejteam/WIMP-Project#readme",
   "license": "ISC",
   "main": "lib/index.js",
   "directories": {
@@ -15,18 +15,19 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ptidejteam/WIMPv2.git"
+    "url": "git+https://github.com/ptidejteam/WIMP-Project.git"
   },
   "scripts": {
-    "start": "node ./lib/index.js",
-    "dev":"nodemon ./lib/index.js",
-    "test": "node ./__tests__/user.test.js"
+    "test": "npx jest",
+    "dev": "nodemon ./lib/index.js",
+    "build": "webpack --config webpack.config.js --watch"
+
   },
   "bugs": {
-    "url": "https://github.com/ptidejteam/WIMPv2/issues"
+    "url": "https://github.com/ptidejteam/WIMP-Project/issues"
   },
   "dependencies": {
-    "google-protobuf": "^3.21.2",
-    "nodemon": "^3.0.2"
+    "@wimp-project/utils": "^0.0.1"
+
   }
 }
