@@ -13,6 +13,7 @@ const connect = async () => {
       useNewUrlParser: true,
       autoCreate: true,
     });
+    await mongoose.connection.db.admin().command({ ping: 1 });
     console.log("Successfully connected to the database.");
   } catch (err) {
     console.error("Failed to connect to the database:", err);

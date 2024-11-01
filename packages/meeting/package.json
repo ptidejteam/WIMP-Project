@@ -20,7 +20,9 @@
   "scripts": {
     "test": "npx jest",
     "dev": "nodemon ./lib/index.js",
-    "build": "webpack --config webpack.config.js --watch"
+    "build": "webpack --config webpack.config.js --watch",
+    "prod":"node ./dist/server.js"
+
   },
   "bugs": {
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"
