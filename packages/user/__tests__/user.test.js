@@ -1,7 +1,6 @@
 const request = require('supertest');
 const express = require('express');
 const { routesConfig } = require('../lib/routes/routes.config'); // Adjust the path accordingly
-const IdentityProvider = require('../lib/routes/controllers/identity.provider');
 const IdentityModel = require('../lib/routes/models/identity.model'); // Adjust the path accordingly
 
 // Mock the IdentityModel methods
@@ -97,21 +96,21 @@ describe('User API Endpoints', () => {
     });
 
     it('should update user by ID (PUT /users/:userId)', async () => {
-        IdentityModel.putIdentity.mockResolvedValue(mockUser);
+        IdentityModel.updateById.mockResolvedValue(mockUser);
 
         const updatedUser = { ...mockUser, firstName: 'Jane' };
         
         const response = await request(app).put('/users/1').send(updatedUser);
 
         expect(response.statusCode).toBe(204);
-        expect(IdentityModel.putIdentity).toHaveBeenCalledWith('1', {
+        expect(IdentityModel.updateById).toHaveBeenCalledWith('1', {
             ...updatedUser,
             password: expect.any(String), // Password should be hashed if updated
         });
     });
 
     it('should return 404 when updating a non-existent user (PUT /users/:userId)', async () => {
-        IdentityModel.putIdentity.mockResolvedValue(null);
+        IdentityModel.updateById.mockResolvedValue(null);
 
         const updatedUser = { ...mockUser, firstName: 'Jane' };
         
@@ -122,7 +121,7 @@ describe('User API Endpoints', () => {
     });
 
     it('should return 500 when updating fails (PUT /users/:userId)', async () => {
-        IdentityModel.putIdentity.mockRejectedValue(new Error('Database Error'));
+        IdentityModel.updateById.mockRejectedValue(new Error('Database Error'));
 
         const updatedUser = { ...mockUser, firstName: 'Jane' };
 
