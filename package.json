@@ -24,13 +24,15 @@
   "scripts": {
     "webpack": "lerna run webpack",
     "dev": "lerna run dev --stream",
-    "version": "npx lerna version --no-private"
+    "prod": "lerna run prod --stream",
+    "version": "npx lerna version --no-private",
+    "build": "npx nx run-many --target=build --all"
   },
   "devDependencies": {
     "jest": "^29.7.0",
     "lerna": "^8.1.8",
     "nodemon": "^3.1.7",
-    "nx": "19.8.2",
+    "nx": "20.0.6",
     "supertest": "^7.0.0"
   }
 }

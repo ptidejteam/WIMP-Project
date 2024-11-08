@@ -10,9 +10,9 @@ package-lock.json
 dist/
 
 # Environment variables
-.env
-.env.*
-*.env.local
+# .env
+# .env.*
+# .env.local
 
 # Log files
 *.log
