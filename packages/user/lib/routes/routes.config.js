@@ -9,6 +9,7 @@ exports.routesConfig = (app) => {
     IdentityProvider.putById, // Then update the user
   ]);
   app.delete("/users/:userId", [IdentityProvider.removeById]);
+  app.put("/users/:userId/privacy",[IdentityProvider.updatePrivacy])
   // Define routes using the UserAvailabilityController
   app.post("/availability", [AvailabilityProvider.insertOrUpdate]);
   app.get("/availability", [AvailabilityProvider.list]);

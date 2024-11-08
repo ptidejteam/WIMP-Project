@@ -46,7 +46,10 @@ exports.insert = async (req, res) => {
 // List identities with pagination
 exports.list = async (req, res) => {
   try {
-    const limit = Math.min(req.query.limit ? parseInt(req.query.limit) : 10, 100);
+    const limit = Math.min(
+      req.query.limit ? parseInt(req.query.limit) : 10,
+      100
+    );
     const page = Math.max(req.query.page ? parseInt(req.query.page) : 0, 0);
 
     const result = await IdentityModel.list(limit, page);
@@ -90,18 +93,6 @@ exports.putById = async (req, res) => {
     if (!result) {
       return res.status(404).send({ message: "Identity not found" });
     }
-
-    // Send update notification email
-    // if (req.body.email) {
-    //   await transporter.sendMail({
-    //     from: '"Your App Name" <your-email@example.com>', // Sender address
-    //     to: req.body.email, // Recipient address
-    //     subject: "Account Updated", // Subject line
-    //     text: "Your account details have been updated successfully.", // Plain text body
-    //     html: "<b>Your account details have been updated successfully.</b>", // HTML body
-    //   });
-    // }
-
     res.status(204).send(); // No content response
   } catch (error) {
     console.error("Error updating identity by ID:", error);
@@ -113,18 +104,24 @@ exports.putById = async (req, res) => {
 exports.uploadAvatar = (req, res) => {
   upload.single("avatar")(req, res, async (err) => {
     if (err) {
-      return res.status(500).json({ message: "Failed to upload avatar", error: err });
+      return res
+        .status(500)
+        .json({ message: "Failed to upload avatar", error: err });
     }
     if (req.file) {
       const avatarPath = `/uploads/${req.file.filename}`; // Path to the uploaded file
 
       // Update the user's avatar in the database
       try {
-        const result = await IdentityModel.updateById(req.params.userId, { avatar: avatarPath });
+        const result = await IdentityModel.updateById(req.params.userId, {
+          avatar: avatarPath,
+        });
         if (!result) {
           return res.status(404).json({ message: "User not found" });
         }
-        res.status(200).json({ message: "Avatar uploaded successfully", avatarPath });
+        res
+          .status(200)
+          .json({ message: "Avatar uploaded successfully", avatarPath });
       } catch (error) {
         console.error("Error updating avatar:", error);
         res.status(500).json({ message: "Error updating avatar", error });
@@ -151,9 +148,7 @@ exports.removeById = async (req, res) => {
   }
 };
 
-
-exports.saveGoogleToken = async(req,res) => { 
-
+exports.saveGoogleToken = async (req, res) => {
   try {
     const { userId } = req.body;
     if (!userId) {
@@ -164,7 +159,29 @@ exports.saveGoogleToken = async(req,res) => {
     res.status(201).send({ id: result._id });
   } catch (error) {
     console.error("Error inserting or updating user availability:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not insert or update user availability." });
+    res
+      .status(500)
+      .send({
+        message:
+          "Internal Server Error. Could not insert or update user availability.",
+      });
   }
+};
 
-}
+exports.updatePrivacy = async (req, res) => {
+  try {
+    const userId = req.params.userId || req.body?.userId;
+    if (!userId)
+      return res.status(400).send({ message: "User ID is required." });
+    const result = await IdentityModel.removeGoogleToken(userId);
+    res.status(200).send({ message: "Account Privacy has been cleared" });
+  } catch (error) {
+    console.error("Error inserting or updating user privacy:", error);
+    res
+      .status(500)
+      .send({
+        message:
+          "Internal Server Error. Could not insert or update user privacy.",
+      });
+  }
+};

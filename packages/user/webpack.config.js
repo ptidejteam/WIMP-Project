@@ -14,12 +14,27 @@ module.exports = {
     publicPath: "/",
     filename: "[name].js",
   },
-  target: "node", // Use a string instead of an array
+  target: "node",
   node: {
     __dirname: false,
     __filename: false,
   },
-  externals: [nodeExternals()], // Needed to avoid errors when working with Express
+  externals: [
+    nodeExternals({
+      allowlist: [], // allowlist any modules you need to include in the bundle
+      additionalModuleDirs: [], // additional directories for module resolution if needed
+      // Exclude specific optional dependencies to avoid warnings
+      modulesFromFile: true, // Use dependencies in package.json if necessary
+    }),
+    // Add exclusions directly here
+    {
+      kerberos: "commonjs kerberos",
+      snappy: "commonjs snappy",
+      "mongodb-client-encryption": "commonjs mongodb-client-encryption",
+      "aws-crt": "commonjs aws-crt",
+      "zstd":"commonjs zstd"
+    },
+  ],
 
   optimization: {
     minimizer: [

@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const path = require("path");
 const UserAvailability = require("./availability.model"); // Import the UserAvailability model
-
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
+const role = require("../../security/env.config")
 const { hashPassword } = require("@wimp-project/utils");
 
 // Database connection
@@ -42,6 +42,7 @@ const identitySchema = new Schema(
       enum: ["pending", "sent", "failed"],
       default: "pending",
     },
+    workSpaces : { type:Array , default:[]},
     googleAccessToken: { type: String }, // Token for Google Calendar API
     googleAccessTokenExpiry: { type: Date }, // Expiry time for the access token
     googleCalendarEvents: [
@@ -139,6 +140,44 @@ exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
     .exec();
 };
 
+
+
+
+
+// Save or update Google Calendar token and its expiry in the calendarConnections array
+// exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
+//   const expiryDate = new Date(Date.now() + expiresIn * 1000); // Calculate expiry time from now
+
+//   return Identity.findOneAndUpdate(
+//     { _id: userId, "calendarConnections.provider": "google" },
+//     {
+//       $set: {
+//         "calendarConnections.$.accessToken": accessToken,
+//         "calendarConnections.$.tokenExpiry": expiryDate,
+//       },
+//     },
+//     { new: true, useFindAndModify: false }
+//   )
+//     .lean()
+//     .exec();
+// };
+
+
+exports.removeGoogleToken = async (userId) => {
+  return Identity.findByIdAndUpdate(
+    userId,
+    {
+      $pull:  {
+        googleAccessToken,
+        googleAccessTokenExpiry,
+      },
+    },
+    { new: true, useFindAndModify: false }
+  )
+    .lean()
+    .exec();
+};
+
 // Retrieve Google Calendar token and check if it's expired
 exports.getGoogleToken = async (userId) => {
   const user = await Identity.findById(
@@ -155,15 +194,18 @@ exports.getGoogleToken = async (userId) => {
   }
 };
 
+
+
 // Seed data and function
 const seedIdentities = {
   firstName: "Admin",
   lastName: "Admin",
   userName: "admin_user",
   birthday: new Date(),
-  password: hashPassword("admin_password"), // Hashed password
-  permissionLevel: 1,
+  password: hashPassword("adminpassword"), // Hashed password
+  permissionLevel: role.permissionLevels.Master,
   isActive: true,
+  postion:"Master",
   emailStatus: "sent", // Set default email status for seed data if needed
 };
 const seedDatabase = async () => {
@@ -179,6 +221,6 @@ const seedDatabase = async () => {
 };
 
 // Conditionally seed the database
-if (process.env.SEED_DB === "true") {
+if (process.env.SEED_DB === true) {
   seedDatabase();
 }

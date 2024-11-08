@@ -19,7 +19,9 @@ describe('User API Endpoints', () => {
         userName: 'johndoe', 
         password: 'securepassword',
         permissionLevel: 1,
-        isActive: true
+        isActive: true,
+        googleAccessToken: "google-access-token", // Token for Google Calendar API
+        googleAccessTokenExpiry: "google-access-token-expiry", // Expiry time for the access token
     };
 
     afterEach(() => {
@@ -156,5 +158,12 @@ describe('User API Endpoints', () => {
 
         expect(response.statusCode).toBe(500);
         expect(response.body).toEqual({ message: "Internal Server Error" });
+    });
+
+
+    it('should save Google token correctly', async() => { 
+        IdentityModel.getGoogleToken.mockResolvedValue(mockUser);
+
+        const response = await request(app).put()
     });
 });
