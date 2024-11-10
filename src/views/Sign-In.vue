@@ -1,5 +1,5 @@
 <template>
-	<div class="sign-in">
+	<div class="sign-in" >
 	  <a-row type="flex" :gutter="[24, 24]" justify="space-around" align="middle">
 		<!-- Sign In Form Column -->
 		<a-col :span="24" :md="12" :lg="{ span: 12, offset: 0 }" :xl="{ span: 6, offset: 2 }" class="col-form">
@@ -20,7 +20,7 @@
 			</a-form-item>
   
 			<a-form-item>
-			  <a-button type="primary" block html-type="submit" class="login-form-button" :loading="loading">
+			  <a-button type="primary" block html-type="submit" class="login-form-button" :loading="loading" :class="{ 'shake-animation': connectionFailed }">
 				SIGN IN
 			  </a-button>
 			</a-form-item>
@@ -46,42 +46,56 @@
   export default {
 	data() {
 	  return {
-		rememberMe: true, // Model property for the "Remember Me" switch
-		loading: false,   // To handle loading state during login
-		message: ''       // To store any error message from the login attempt
+		rememberMe: true,
+		loading: false,
+		message: '',
+		connectionFailed: false // New data property to trigger the shake animation
 	  };
 	},
 	beforeCreate() {
-	  // Creates the form and adds to it component's "form" property.
 	  this.form = this.$form.createForm(this, { name: 'normal_login' });
 	},
 	methods: {
 	  handleSubmit(e) {
 		e.preventDefault();
+		this.connectionFailed = false; // Reset the animation state
   
 		this.form.validateFields((err, values) => {
 		  if (!err) {
-			this.loading = true; // Start loading indicator
-			console.log(values);
+			this.loading = true;
 			AuthenticationService.login(values)
 			  .then(() => {
-				this.loading = false; // Stop loading indicator
-				router.push("/"); // Redirect to dashboard after successful login
+				this.loading = false;
+				router.push('/');
 			  })
 			  .catch((error) => {
-				this.loading = false; // Stop loading if there's an error
-				this.message = (error.response && error.response.data) || error.message; // Handle error message
+				this.loading = false;
+				this.connectionFailed = true; // Trigger the shake animation
+				this.$notification['error']({ message : 'Authentication Error', description: error.response.data.errors });
 			  });
 		  }
 		});
-	  },
+	  }
 	}
   };
   </script>
   
   <style lang="scss">
-  body {
+
+	body {
 	background-color: #ffffff;
+  	}
+  /* Add CSS for shake animation */
+  @keyframes shake {
+	0% { transform: translateX(0); }
+	25% { transform: translateX(-5px); }
+	50% { transform: translateX(5px); }
+	75% { transform: translateX(-5px); }
+	100% { transform: translateX(0); }
+  }
+  
+  .shake-animation {
+	animation: shake 0.5s ease;
   }
   </style>
   
