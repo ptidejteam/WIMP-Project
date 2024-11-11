@@ -29,20 +29,20 @@ describe('User API Endpoints', () => {
     });
 
     it('should create a new user (POST /users)', async () => {
-        IdentityModel.createIdentity.mockResolvedValue({ _id: '1', ...mockUser });
+        IdentityModel.create.mockResolvedValue({ _id: '1', ...mockUser });
 
         const response = await request(app).post('/users').send(mockUser);
 
         expect(response.statusCode).toBe(201);
         expect(response.body).toEqual({ id: '1' });
-        expect(IdentityModel.createIdentity).toHaveBeenCalledWith({
+        expect(IdentityModel.create).toHaveBeenCalledWith({
             ...mockUser,
             password: expect.any(String), // Password should be hashed
         });
     });
 
     it('should return 500 when inserting fails (POST /users)', async () => {
-        IdentityModel.createIdentity.mockRejectedValue(new Error('Database Error'));
+        IdentityModel.create.mockRejectedValue(new Error('Database Error'));
 
         const response = await request(app).post('/users').send(mockUser);
 
@@ -161,9 +161,5 @@ describe('User API Endpoints', () => {
     });
 
 
-    it('should save Google token correctly', async() => { 
-        IdentityModel.getGoogleToken.mockResolvedValue(mockUser);
 
-        const response = await request(app).put()
-    });
 });
