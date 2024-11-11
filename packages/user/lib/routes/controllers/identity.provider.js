@@ -1,17 +1,7 @@
 const IdentityModel = require("../models/identity.model");
 const { hashPassword } = require("@wimp-project/utils");
-const nodemailer = require("nodemailer");
 
-// Configure the transporter for Nodemailer
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.example.com", // Replace with your SMTP server
-//   port: 587, // Common port for SMTP
-//   secure: false, // Set to true for 465, false for other ports
-//   auth: {
-//     user: "your-email@example.com", // Your email address
-//     pass: "your-email-password", // Your email password
-//   },
-// });
+
 
 // Insert a new identity
 exports.insert = async (req, res) => {
@@ -21,21 +11,10 @@ exports.insert = async (req, res) => {
     if (existingUser) {
       return res.status(400).send({ message: "Email already in use" });
     }
-
     const hashedPassword = hashPassword(req.body.password);
     req.body.password = hashedPassword;
     console.log(JSON.stringify(req.body));
-    const result = await IdentityModel.createIdentity(req.body);
-
-    // Send confirmation email
-    // await transporter.sendMail({
-    //   from: '"WIMP System" <your-email@example.com>', // Sender address
-    //   to: req.body.email, // Recipient address
-    //   subject: "Account Created Successfully", // Subject line
-    //   text: "Welcome to our application! Your account has been created.", // Plain text body
-    //   html: "<b>Welcome to our application!</b><br/>Your account has been created.", // HTML body
-    // });
-
+    const result = await IdentityModel.create(req.body);
     res.status(201).send({ id: result._id });
   } catch (error) {
     console.error("Error inserting identity:", JSON.stringify(error));

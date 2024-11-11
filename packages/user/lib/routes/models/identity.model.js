@@ -2,8 +2,6 @@ const mongoose = require("mongoose");
 const path = require("path");
 const UserAvailability = require("./availability.model"); // Import the UserAvailability model
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
-const role = require("../../security/env.config")
-const { hashPassword } = require("@wimp-project/utils");
 
 // Database connection
 const connect = async () => {
@@ -31,7 +29,7 @@ const identitySchema = new Schema(
     lastName: { type: String, required: true },
     birthday: { type: Date },
     userName: { type: String, unique: true, required: true },
-    email: { type: String, unique: true },
+    email: { type: String, unique: false },
     password: { type: String, required: true },
     permissionLevel: { type: Number, default: 1 },
     isActive: { type: Boolean, default: true },
@@ -43,6 +41,9 @@ const identitySchema = new Schema(
       default: "pending",
     },
     workSpaces : { type:Array , default:[]},
+    // Define the default message for the each user 
+    // TODO : Add fonctionnality that 
+    defaultMessages : {type : Array , default: []},
     googleAccessToken: { type: String }, // Token for Google Calendar API
     googleAccessTokenExpiry: { type: Date }, // Expiry time for the access token
     googleCalendarEvents: [
@@ -97,10 +98,9 @@ exports.findById = async (id) => {
   return result;
 };
 
-exports.findByUserName = (userName) =>
-  Identity.findOne({ userName }).lean().exec();
+exports.findByUserName = (userName) => Identity.findOne({ userName }).lean().exec();
 
-exports.createIdentity = async (userData) => {
+exports.create = async (userData) => {
   const identity = new Identity(userData);
   await identity.save(); // Save the identity first
   // Create the default UserAvailability record
@@ -116,11 +116,11 @@ exports.list = (perPage = 10, page = 0) =>
     .lean()
     .exec();
 
-exports.updateById = (id, data) =>
-  // Don't update the password
-  Identity.findByIdAndUpdate(id, data, { new: false }).lean().exec();
+exports.updateById = (id, data) => Identity.findByIdAndUpdate(id, data, { new: false }).lean().exec();
 
 exports.removeById = (id) => Identity.deleteOne({ _id: id }).exec();
+
+exports.deleteMany = () => Identity.deleteMany({}).exec();
 
 // Save or update Google Calendar token and its expiry
 exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
@@ -141,26 +141,6 @@ exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
 };
 
 
-
-
-
-// Save or update Google Calendar token and its expiry in the calendarConnections array
-// exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
-//   const expiryDate = new Date(Date.now() + expiresIn * 1000); // Calculate expiry time from now
-
-//   return Identity.findOneAndUpdate(
-//     { _id: userId, "calendarConnections.provider": "google" },
-//     {
-//       $set: {
-//         "calendarConnections.$.accessToken": accessToken,
-//         "calendarConnections.$.tokenExpiry": expiryDate,
-//       },
-//     },
-//     { new: true, useFindAndModify: false }
-//   )
-//     .lean()
-//     .exec();
-// };
 
 
 exports.removeGoogleToken = async (userId) => {
@@ -193,34 +173,3 @@ exports.getGoogleToken = async (userId) => {
     return null; // Token is expired or doesn't exist
   }
 };
-
-
-
-// Seed data and function
-const seedIdentities = {
-  firstName: "Admin",
-  lastName: "Admin",
-  userName: "admin_user",
-  birthday: new Date(),
-  password: hashPassword("adminpassword"), // Hashed password
-  permissionLevel: role.permissionLevels.Master,
-  isActive: true,
-  postion:"Master",
-  emailStatus: "sent", // Set default email status for seed data if needed
-};
-const seedDatabase = async () => {
-  try {
-    await Identity.deleteMany({});
-    console.log("Existing identities cleared.");
-
-    await this.createIdentity(seedIdentities);
-    console.log("Database seeded successfully.");
-  } catch (error) {
-    console.error("Error seeding the database:", error);
-  }
-};
-
-// Conditionally seed the database
-if (process.env.SEED_DB === true) {
-  seedDatabase();
-}
