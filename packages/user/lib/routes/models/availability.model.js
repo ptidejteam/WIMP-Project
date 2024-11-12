@@ -16,7 +16,7 @@ availabilitySchema.virtual("id").get(() => this._id.toHexString());
 availabilitySchema.set("toJSON", { virtuals: true });
 
 
-const Availability = mongoose.model("UserAvailability", availabilitySchema);
+const Availability = mongoose.model("Availability", availabilitySchema);
 
 
 // Static method to find or create a user availability
@@ -54,4 +54,18 @@ exports.updateById = async function (userId, updateData) {
 exports.removeById = async function (userId) {
   return await Availability.deleteOne({ userId });
 };
+
+const seedDatabase = async () => {
+  try {
+    await Availability.deleteMany({});
+    console.log("Availability has been removed successfully.");
+  } catch (error) {
+    console.error("Error seeding the database:", error);
+  }
+};
+
+// Conditionally seed the database
+if (process.env.SEED_DB === 'true') {
+  seedDatabase();
+}
 
