@@ -209,3 +209,8 @@ exports.getPossibleStatusValues = () => {
 exports.getPossibleDeviceTypes = () => {
   return deviceSchema.path('deviceType').enumValues;
 };
+
+
+
+
+

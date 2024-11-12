@@ -64,10 +64,7 @@ const seedDatabase = async () => {
 };
 
 // Main function to run the script
-const main = async () => {
+exports.runSeed = async () => {
   await connect();
   await seedDatabase();
 };
-
-// Execute the script
-main();

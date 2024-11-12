@@ -21,9 +21,18 @@ app.use(function (req, res, next) {
   }
 });
 app.use(bodyParser.json());
+
+
+
+
 // Config device router
 DeviceRouter.routesConfig(app);
-
 LocationRouter.routesConfig(app);
+
+/// Check if we need to seed the database or not 
+/// Beware this will delete all the old data that exists in the database 
+if(process.env.SEED_DB === 'true') { 
+  runSeed()
+}
 
 module.exports = app;
