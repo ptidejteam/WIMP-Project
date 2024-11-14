@@ -7,7 +7,14 @@ const availabilitySchema = new mongoose.Schema({
   availabilityStatus: { type: String, default: "available" },
   // Define the default message for the each user
   // TODO : Add fonctionnality that
-  defaultMessages: { type: Array, default: [] },
+  defaultMessages: { type: Array, default: [
+    'I am currently busy. Please leave a message.',
+    'I will get back to you shortly.',
+    'Out for lunch, please leave a message.',
+    'Currently in a meeting, please do not disturb.',
+    'On a break, will respond soon.'
+  ] },
+  userMessages: { type : Array , default: []},
   customMessage: { type: String, default: "" }, // Ensure correct type
   displayToOthers: { type: Boolean, default: true }
 });

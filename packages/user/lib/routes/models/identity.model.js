@@ -40,13 +40,7 @@ const identitySchema = new Schema(
       enum: ["pending", "sent", "failed"],
       default: "pending",
     },
-    workSpaces: { type: Array, default: [
-      'I am currently busy. Please leave a message.',
-      'I will get back to you shortly.',
-      'Out for lunch, please leave a message.',
-      'Currently in a meeting, please do not disturb.',
-      'On a break, will respond soon.'
-    ] },
+    workSpaces: { type: Array},
 
     googleAccessToken: { type: String }, // Token for Google Calendar API
     googleAccessTokenExpiry: { type: Date }, // Expiry time for the access token
