@@ -56,7 +56,7 @@ exports.routes = [
   },
   // Allow access to /api/v1/availability and its sub-paths
   {
-    url: `/${API_PREFIX}/availability*`, // This will allow /availability and all its sub-paths
+    url: `/${API_PREFIX}/availability`, // This will allow /availability and all its sub-paths
     authenticationRequired: true,
     proxy: {
       target: `${USER_URL}/availability`, 
