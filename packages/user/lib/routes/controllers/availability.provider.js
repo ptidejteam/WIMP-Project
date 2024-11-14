@@ -55,6 +55,23 @@ exports.updateAvailability = async (req, res) => {
   }
 };
 
+
+exports.updateDefaultMessage = async (req,res) => { 
+
+  try { 
+    const result = await AvailabilityModel.updateDefaultMessages(req.body);
+    if(!result) { 
+      return res.status(406).send({message : "the update could not be performed correctly"})
+    }
+    res.status(200).send({ message: "Users default messages has been updated successfully.", settings: result });
+
+  }catch (error) {
+    res.status(500).send({message: 'Could not update messages'});
+  }
+
+}
+
+
 exports.getById = async (req, res) => {
   try {
     const { userId } = req.params;

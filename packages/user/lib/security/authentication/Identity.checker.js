@@ -42,8 +42,6 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
             req.body = {
                 iss: 'urn:yahia.xyz',
                 aud: 'urn:' + (req.get('origin') ? req.get('origin') : "yahia.xyz"),
-                sub: user.email,
-                name: user.firstName + ' ' + user.lastName,
                 userId: user._id,
                 roles: user.permissionLevel,
                 jti: uuid.v4(),
@@ -56,7 +54,7 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
         }
     } catch (error) {
         console.error("Error during password and user matching:", error);
-        return res.status(500).send({ errors: ['Internal Server Error'] });
+        return res.status(500).send({ errors: ['Internal Server Error', "Error during password and user matching:" , error] });
     }
 };
 
@@ -72,6 +70,6 @@ exports.isUserStillExistsWithSamePrivileges = async (req, res, next) => {
         return next();
     } catch (error) {
         console.error("Error checking user privileges:", error);
-        return res.status(500).send({ errors: ['Internal Server Error'] });
+        return res.status(500).send({ errors: ['Internal Server Error', "Error checking user privileges:", error] });
     }
 };

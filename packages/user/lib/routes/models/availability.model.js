@@ -5,6 +5,9 @@ const availabilitySchema = new mongoose.Schema({
   isOnline: { type: Boolean, default: false },
   allowOfflineMode: { type: Boolean, default: false },
   availabilityStatus: { type: String, default: "available" },
+  // Define the default message for the each user
+  // TODO : Add fonctionnality that
+  defaultMessages: { type: Array, default: [] },
   customMessage: { type: String, default: "" }, // Ensure correct type
   displayToOthers: { type: Boolean, default: true }
 });
@@ -49,6 +52,11 @@ exports.updateById = async function (userId, updateData) {
     { new: true, useFindAndModify: false }
   );
 };
+
+
+exports.updateDefaultMessages = async function(data) { 
+  return Availability.updateMany({}, { $set: { defaultMessages: data } }, { useFindAndModify: false }); 
+}
 
 // Static method to remove user availability by userId
 exports.removeById = async function (userId) {

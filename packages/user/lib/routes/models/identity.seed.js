@@ -72,7 +72,7 @@ const seedDatabase = async () => {
         email: "alice.johnson@example.com",
         birthday: new Date("1988-01-10"),
         password: hashPassword("alice_password"),
-        permissionLevel: role.permissionLevels.Admin,
+        permissionLevel: role.permissionLevels.Member,
         isActive: true,
         position: "Admin",
         emailStatus: "sent",

@@ -29,7 +29,7 @@ const identitySchema = new Schema(
     lastName: { type: String, required: true },
     birthday: { type: Date },
     userName: { type: String, unique: true, required: true },
-    email: { type: String, unique: false },
+    email: { type: String, unique: false }, // Simple email validation
     password: { type: String, required: true },
     permissionLevel: { type: Number, default: 1 },
     isActive: { type: Boolean, default: true },
@@ -40,10 +40,14 @@ const identitySchema = new Schema(
       enum: ["pending", "sent", "failed"],
       default: "pending",
     },
-    workSpaces : { type:Array , default:[]},
-    // Define the default message for the each user 
-    // TODO : Add fonctionnality that 
-    defaultMessages : {type : Array , default: []},
+    workSpaces: { type: Array, default: [
+      'I am currently busy. Please leave a message.',
+      'I will get back to you shortly.',
+      'Out for lunch, please leave a message.',
+      'Currently in a meeting, please do not disturb.',
+      'On a break, will respond soon.'
+    ] },
+
     googleAccessToken: { type: String }, // Token for Google Calendar API
     googleAccessTokenExpiry: { type: Date }, // Expiry time for the access token
     googleCalendarEvents: [
@@ -98,7 +102,8 @@ exports.findById = async (id) => {
   return result;
 };
 
-exports.findByUserName = (userName) => Identity.findOne({ userName }).lean().exec();
+exports.findByUserName = (userName) =>
+  Identity.findOne({ userName }).lean().exec();
 
 exports.create = async (userData) => {
   const identity = new Identity(userData);
@@ -116,7 +121,8 @@ exports.list = (perPage = 10, page = 0) =>
     .lean()
     .exec();
 
-exports.updateById = (id, data) => Identity.findByIdAndUpdate(id, data, { new: false }).lean().exec();
+exports.updateById = (id, data) =>
+  Identity.findByIdAndUpdate(id, data, { new: false }).lean().exec();
 
 exports.removeById = (id) => Identity.deleteOne({ _id: id }).exec();
 
@@ -140,14 +146,11 @@ exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
     .exec();
 };
 
-
-
-
 exports.removeGoogleToken = async (userId) => {
   return Identity.findByIdAndUpdate(
     userId,
     {
-      $pull:  {
+      $pull: {
         googleAccessToken,
         googleAccessTokenExpiry,
       },
