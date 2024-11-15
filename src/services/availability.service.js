@@ -10,6 +10,7 @@ export const availabilityService = {
   setAvailabilityStatus,
   setCustomMessage,
   setDisplayOption,
+  setDefaultMessages,
   getAvailabilityById,
   getAllWithAvailability
 };
@@ -29,7 +30,6 @@ async function getAllWithAvailability() {
 function getAvailabilityById(userId) { 
   return axios.get(`${API_URL}/availability/${userId}`,requestOptions.header());
 }
-
 
 function setUserStatus(userId, isOnline) {
   return axios.patch(`${API_URL}/availability/status`, { userId, isOnline },requestOptions.header());
@@ -51,4 +51,7 @@ function setCustomMessage(userId, customMessage) {
 }
 function setDisplayOption(userId, displayToOthers) {
   return axios.patch(`${API_URL}/availability`, { userId, displayToOthers },requestOptions.header());
+}
+function setDefaultMessages(data) {
+  return axios.patch(`${API_URL}/availability/defaultMessages`,data ,requestOptions.header());
 }

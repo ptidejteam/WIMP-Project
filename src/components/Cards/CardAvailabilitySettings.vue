@@ -3,23 +3,29 @@
   <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{ paddingTop: 0, paddingBottom: 0 }">
     <template #title>
       <div class="header-group">
-        <h6 class="font-semibold m-0">Connectivity Availability</h6>
+        <h6 class="font-semibold m-0">Availability Control Panel</h6>
         <a-button @click="resetSettings" icon="redo">Reset</a-button>
       </div>
+      <a-divider />
+
     </template>
-    <ul class="list settings-list">
+    <template v-if="!availability">
+      <a-skeleton />
+    </template>
+
+    <ul v-else class="list settings-list">
       <li>
-        <h6 class="list-header text-sm text-muted">NETWORK STATUS</h6>
-      </li>
-      <li>
-        <a-switch v-model="notifyDisconnection" @change="toggleNotification" />
-        <span>Notify me on disconnection</span>
+        <p class="list-header text-sm text-muted">Manage and display your network connection status and availability
+          settings for others to view. Set your current availability, add custom messages, and control message
+          visibility
+        </p>
       </li>
       <li>
         <h6 class="list-header text-sm text-muted m-0">AVAILABILITY STATUS</h6>
       </li>
       <li>
-        <a-select v-model="availabilityStatus" @change="updateAvailabilityStatus" placeholder="Select availability status" style="width: 100%;">
+        <a-select v-model="availability.availabilityStatus" @change="updateAvailabilityStatus"
+          placeholder="Select availability status" style="width: 100%;">
           <a-select-option value="available">Available</a-select-option>
           <a-select-option value="away">Away</a-select-option>
           <a-select-option value="do-not-disturb">Do Not Disturb</a-select-option>
@@ -31,25 +37,48 @@
       </li>
       <li>
         <div class="message-group">
-          <a-input v-model="customMessage" placeholder="Enter your custom message" @blur="updateAvailabilityBasedOnMessage"/>
-          <a-button type="default" @click="updateCustomMessage(customMessage, true)" icon="message"></a-button> 
+          <a-input v-model="availability.customMessage" placeholder="Enter your custom message"
+            @blur="updateAvailabilityBasedOnMessage" />
+          <!-- <a-button type="primary" @click="updateCustomMessage(customMessage, true)" icon="plane"></a-button> -->
         </div>
       </li>
       <li>
         <h6 class="list-header text-sm text-muted m-0">CLICKABLE DEFAULT MESSAGES</h6>
       </li>
       <li>
-        <div class="tag-container">
-          <a-tag v-for="(message, index) in defaultMessages" :key="index" color="blue" class="clickable-tag" @click="updateCustomMessage(message)">
+        <div>
+          <!-- Instruction text for the user -->
+          <p v-if="userRole === Role.Master" class="instruction-text">
+            Click on any default message to customize it, or add a new message by clicking the "New default message" tag
+            below.
+          </p>
+
+          <!-- Existing tag and input components -->
+          <a-tag v-for="(message, index) in availability.defaultMessages" :key="index" color="blue"
+            class="clickable-tag" @click="updateCustomMessage(message)"
+            :closable="userRole === Role.Master" @close="userRole === Role.Master ? handleClose(message) : null">
             {{ message }}
           </a-tag>
+
+          <a-input v-if="inputVisible && userRole === Role.Master" ref="input" type="text" size="small"
+            :value="inputValue" @change="handleInputChange" @blur="handleInputConfirm"
+            @keyup.enter="handleInputConfirm" />
+
+          <a-tag v-else-if="userRole === Role.Master" style="background: #fff; border-style: dashed;"
+            @click="showInput">
+            <a-icon type="plus" /> New default message
+          </a-tag>
         </div>
+
+
+
       </li>
+
       <li>
         <h6 class="list-header text-sm text-muted m-0">DISPLAY MESSAGE TO OTHERS</h6>
       </li>
       <li>
-        <a-switch v-model="displayToOthers" @change="updateDisplayOption" />
+        <a-switch v-model="availability.displayToOthers" @change="updateDisplayOption" />
         <span>Show message to others</span>
       </li>
     </ul>
@@ -60,33 +89,18 @@
 <script>
 import { availabilityService } from "../../services/availability.service"; // Import the availability service
 import { AuthenticationService } from "../../services/auth.service"; // Import the authentication service
-
+import { Role } from "../../helpers/roles";
 export default {
-  
-  props: {
-    availabilityStatus: {
-      type: String,
-      required: true,
-      default: 'available'
-    }
-  },
+
+
   data() {
     return {
-      notifyDisconnection: true,
-      localavailabilityStatus: this.availabilityStatus, // Default availability status
-      customMessage: 'I am currently busy. Please leave a message.', // Default custom message
-      displayToOthers: false, // Default not displaying message
-      userId: '', // Will be set to the current user's ID
-
-      // Predefined default messages
-      defaultMessages: [
-        'I am currently busy. Please leave a message.',
-        'I will get back to you shortly.',
-        'Out for lunch, please leave a message.',
-        'Currently in a meeting, please do not disturb.',
-        'On a break, will respond soon.'
-      ],
-
+      availability: null,
+      userId: AuthenticationService.currentUserValue["userId"], // Will be set to the current user's ID
+      userRole: AuthenticationService.currentUserValue["roles"],
+      Role: Role,
+      inputVisible: false,
+      inputValue: '',
       // Original values for reset functionality
       originalSettings: {
         notifyDisconnection: true,
@@ -97,37 +111,69 @@ export default {
     };
   },
   async created() {
-    this.userId = AuthenticationService.currentUserValue["userId"]; // Get current user ID
-    // Get the information for the backend to populate with the right informations 
-    const availability = await availabilityService.getAvailabilityById(this.userId)
+    this.availability = (await availabilityService.getAvailabilityById(this.userId)).data;
   },
-  watch: {
-    availabilityStatus(newValue, oldValue) {
-      console.log('Availability status changed from', oldValue, 'to', newValue);
-      this.localAvailabilityStatus = newValue; // Sync prop with local data
-    }
-  },
+
   methods: {
+
+    showInput() {
+      this.inputVisible = true;
+      this.$nextTick(function () {
+        this.$refs.input.focus();
+      });
+    },
+
+    handleInputChange(e) {
+      this.inputValue = e.target.value;
+    },
+
+    async handleClose(removedTag) {
+      const defaultMessages = this.availability.defaultMessages.filter(tag => tag !== removedTag);
+      try {
+        await availabilityService.setDefaultMessages({ defaultMessages });
+        this.inputVisible = false;
+      } catch (error) {
+        this.$notification['error']({ message: 'Error updating default messages', description: error.response.data.message });
+
+      }
+    },
+
+    async handleInputConfirm() {
+      const inputValue = this.inputValue;
+      if (inputValue && this.availability.defaultMessages.indexOf(inputValue) === -1) {
+        const defaultMessages = [...this.availability.defaultMessages, inputValue];
+        try {
+          await availabilityService.setDefaultMessages({ defaultMessages });
+          this.inputVisible = false;
+        } catch (error) {
+          this.$notification['error']({ message: 'Error updating default messages', description: error.response.data.message });
+
+        }
+      }
+    },
     async updateAvailabilityStatus() {
       try {
-        await availabilityService.setAvailabilityStatus(this.userId, this.availabilityStatus);
+        await availabilityService.setAvailabilityStatus(this.userId, this.availability.availabilityStatus);
+        //await availabilityService.updateAvailability(this.availability);
+
       } catch (error) {
-        console.error('Error updating availability status:', error);
+        this.$notification['error']({ message: 'Error updating availability status', description: error.response.data.message });
       }
     },
     async updateCustomMessage(message, isCustomInput = false) {
-      this.customMessage = message; // Update custom message with the clicked message
-      await availabilityService.setCustomMessage(this.userId, this.customMessage);
+      this.availability.customMessage = message; // Update custom message with the clicked message
+      await availabilityService.setCustomMessage(this.userId, this.availability.customMessage);
       // If the input is not a custom input, update the availability status based on the selected message
-      if (!isCustomInput) { 
+      if (!isCustomInput) {
         this.setAvailabilityBasedOnMessage(message);
       }
     },
     async updateDisplayOption() {
       try {
-        await availabilityService.setDisplayOption(this.userId, this.displayToOthers);
+        await availabilityService.setDisplayOption(this.userId, this.availability.displayToOthers);
       } catch (error) {
-        console.error('Error updating display option:', error);
+        this.$notification['error']({ message: 'Error updating display option', description: error.response.data.message });
+
       }
     },
     toggleNotification() {
@@ -135,12 +181,10 @@ export default {
     },
     resetSettings() {
       // Reset to original values
-      this.notifyDisconnection = this.originalSettings.notifyDisconnection;
-      this.availabilityStatus = this.originalSettings.availabilityStatus;
-      this.customMessage = this.originalSettings.customMessage; // Reset to default message
-      this.displayToOthers = this.originalSettings.displayToOthers;
-
-      // Optional: show a reset message
+      this.availability = {
+        ...this.availability,
+        ...this.originalSettings
+      }
       this.$message.info('Settings have been reset to default values.');
     },
     setAvailabilityBasedOnMessage(message) {
@@ -173,9 +217,9 @@ export default {
 }
 
 .header-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .tag-container {
