@@ -4,7 +4,7 @@
     <template #title>
       <div class="header-group">
         <h6 class="font-semibold m-0">Availability Control Panel</h6>
-        <a-button @click="resetSettings" icon="redo">Reset</a-button>
+        <a-button @click="resetSettings" icon="redo" type="link">Reset</a-button>
       </div>
       <a-divider />
 
@@ -13,15 +13,15 @@
       <a-skeleton />
     </template>
 
-    <ul v-else class="list settings-list">
+    <ul v-else class="settings-list">
       <li>
-        <p class="list-header text-sm text-muted">Manage and display your network connection status and availability
+        <p class="instruction-text">Manage and display your network connection status and availability
           settings for others to view. Set your current availability, add custom messages, and control message
           visibility
         </p>
       </li>
       <li>
-        <h6 class="list-header text-sm text-muted m-0">AVAILABILITY STATUS</h6>
+        <h6 class="text-sm text-muted m-0">AVAILABILITY STATUS</h6>
       </li>
       <li>
         <a-select v-model="availability.availabilityStatus" @change="updateAvailabilityStatus"
@@ -37,8 +37,7 @@
       </li>
       <li>
         <div class="message-group">
-          <a-input v-model="availability.customMessage" placeholder="Enter your custom message"
-            @blur="updateAvailabilityBasedOnMessage" />
+          <a-input v-model="availability.customMessage" placeholder="Enter your custom message" />
           <!-- <a-button type="primary" @click="updateCustomMessage(customMessage, true)" icon="plane"></a-button> -->
         </div>
       </li>
@@ -54,15 +53,34 @@
           </p>
 
           <!-- Existing tag and input components -->
-          <a-tag v-for="(message, index) in availability.defaultMessages" :key="index" color="blue"
-            class="clickable-tag" @click="updateCustomMessage(message)"
-            :closable="userRole === Role.Master" @close="userRole === Role.Master ? handleClose(message) : null">
-            {{ message }}
+          <a-tag v-for="(message, index) in availability.defaultMessages" :key="index" :color="getColor(message.status)"
+            class="clickable-tag" @click="updateCustomMessage(message)" :closable="userRole === Role.Master"
+            @close="userRole === Role.Master ? handleClose(message.text) : null">
+            {{ message.text }}
           </a-tag>
+          
+          <p v-if="inputVisible && userRole === Role.Master" class="instruction-text">
+              Customize your availability message and select the status. Press Enter or click Save to confirm.
+            </p>
+          <div v-if="inputVisible && userRole === Role.Master" class="input-container"
+            style="display: flex; gap: 8px; align-items: center;">
+            <a-input ref="input" type="text" size="small" v-model="inputValue.text" @change="handleInputChange"
+              @keyup.enter="handleInputConfirm" placeholder="Press Enter ⏎ to save your custom message"
+              style="flex: 1;" />
 
-          <a-input v-if="inputVisible && userRole === Role.Master" ref="input" type="text" size="small"
-            :value="inputValue" @change="handleInputChange" @blur="handleInputConfirm"
-            @keyup.enter="handleInputConfirm" />
+            <a-select v-model="inputValue.status" placeholder="Select availability status" style="min-width: 150px;">
+              <a-select-option value="available">Available</a-select-option>
+              <a-select-option value="away">Away</a-select-option>
+              <a-select-option value="do-not-disturb">Do Not Disturb</a-select-option>
+              <a-select-option value="offline">Offline</a-select-option>
+            </a-select>
+
+            <a-button type="primary" icon="save" @click="handleInputConfirm" style="padding: 0 8px;">
+            </a-button>
+
+          </div>
+
+
 
           <a-tag v-else-if="userRole === Role.Master" style="background: #fff; border-style: dashed;"
             @click="showInput">
@@ -77,10 +95,19 @@
       <li>
         <h6 class="list-header text-sm text-muted m-0">DISPLAY MESSAGE TO OTHERS</h6>
       </li>
-      <li>
-        <a-switch v-model="availability.displayToOthers" @change="updateDisplayOption" />
-        <span>Show message to others</span>
+      <li class="display-option-item">
+        <a-tooltip
+          :title="availability.displayToOthers ? 'Message is visible to others' : 'Message is hidden from others'">
+          <span class="display-option-label">Show message : </span>
+
+          <a-switch v-model="availability.displayToOthers" @change="updateDisplayOption" checked-children="Enabled"
+            un-checked-children="Disabled">
+            <a-icon slot="checkedChildren" type="check" />
+            <a-icon slot="unCheckedChildren" type="close" />
+          </a-switch>
+        </a-tooltip>
       </li>
+
     </ul>
   </a-card>
   <!-- / Connectivity Availability Card -->
@@ -100,7 +127,7 @@ export default {
       userRole: AuthenticationService.currentUserValue["roles"],
       Role: Role,
       inputVisible: false,
-      inputValue: '',
+      inputValue: { text: '', status: 'available' },
       // Original values for reset functionality
       originalSettings: {
         notifyDisconnection: true,
@@ -124,11 +151,11 @@ export default {
     },
 
     handleInputChange(e) {
-      this.inputValue = e.target.value;
+      this.inputValue.text = e.target.value;
     },
 
     async handleClose(removedTag) {
-      const defaultMessages = this.availability.defaultMessages.filter(tag => tag !== removedTag);
+      const defaultMessages = this.availability.defaultMessages.filter(tag => tag.text !== removedTag);
       try {
         await availabilityService.setDefaultMessages({ defaultMessages });
         this.inputVisible = false;
@@ -144,12 +171,12 @@ export default {
         const defaultMessages = [...this.availability.defaultMessages, inputValue];
         try {
           await availabilityService.setDefaultMessages({ defaultMessages });
-          this.inputVisible = false;
         } catch (error) {
           this.$notification['error']({ message: 'Error updating default messages', description: error.response.data.message });
 
         }
       }
+      this.inputVisible = false;
     },
     async updateAvailabilityStatus() {
       try {
@@ -160,13 +187,11 @@ export default {
         this.$notification['error']({ message: 'Error updating availability status', description: error.response.data.message });
       }
     },
-    async updateCustomMessage(message, isCustomInput = false) {
-      this.availability.customMessage = message; // Update custom message with the clicked message
+    async updateCustomMessage(message) {
+      this.availability.customMessage = message.text; // Update custom message with the clicked message
       await availabilityService.setCustomMessage(this.userId, this.availability.customMessage);
-      // If the input is not a custom input, update the availability status based on the selected message
-      if (!isCustomInput) {
-        this.setAvailabilityBasedOnMessage(message);
-      }
+      this.availability.availabilityStatus = message.status;
+      this.updateAvailabilityStatus(); // Call method to update availability status
     },
     async updateDisplayOption() {
       try {
@@ -187,22 +212,22 @@ export default {
       }
       this.$message.info('Settings have been reset to default values.');
     },
-    setAvailabilityBasedOnMessage(message) {
-      // Update availability status based on message content
-      if (message.includes('busy') || message.includes('do not disturb')) {
-        this.availabilityStatus = 'do-not-disturb';
-      } else if (message.includes('away') || message.includes('out for lunch')) {
-        this.availabilityStatus = 'away';
-      } else if (message.includes('offline')) {
-        this.availabilityStatus = 'offline';
-      } else {
-        this.availabilityStatus = 'available';
+    getColor(status) {
+      switch (status) {
+        case "available":
+          return "#27ae6066";
+        case "away":
+          return "#e67e2266";
+        case "do-not-disturb":
+          return "#e74c3c66";
+        case "offline":
+          return "gray";
+        default:
+          return "blue";
       }
-      this.updateAvailabilityStatus(); // Call method to update availability status
     },
-    updateAvailabilityBasedOnMessage() {
-      this.setAvailabilityBasedOnMessage(this.customMessage);
-    }
+
+
   },
 };
 </script>
@@ -212,9 +237,6 @@ export default {
   padding: 0;
 }
 
-.list-header {
-  margin-bottom: 5px;
-}
 
 .header-group {
   display: flex;
@@ -225,16 +247,32 @@ export default {
 .tag-container {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .clickable-tag {
-  margin: 5px;
+  margin: 1%;
   cursor: pointer;
   font-size: inherit;
 }
 
 .message-group {
   display: flex;
+}
+
+.settings-list>li span {
+  margin-left: 0;
+}
+
+.display-option-item {
+  display: flex;
+  align-items: center;
+  /* Space between the switch and the label */
+}
+
+.display-option-label {
+  font-size: 14px;
+  color: #595959;
+  /* Subtle color for the label */
 }
 </style>

@@ -53,7 +53,7 @@
 
 			<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8" class="mb-24">
 				<!-- Availability Card -->
-				<CardAvailabilitySettings :availabilityStatus="availabilityStatus"></CardAvailabilitySettings>
+				<CardAvailabilitySettings></CardAvailabilitySettings>
 				<!-- / Availability Card -->
 			</a-col>
 
