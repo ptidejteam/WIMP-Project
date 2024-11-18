@@ -58,10 +58,10 @@
             @close="userRole === Role.Master ? handleClose(message.text) : null">
             {{ message.text }}
           </a-tag>
-          
+
           <p v-if="inputVisible && userRole === Role.Master" class="instruction-text">
-              Customize your availability message and select the status. Press Enter or click Save to confirm.
-            </p>
+            Customize your availability message and select the status. Press Enter or click Save to confirm.
+          </p>
           <div v-if="inputVisible && userRole === Role.Master" class="input-container"
             style="display: flex; gap: 8px; align-items: center;">
             <a-input ref="input" type="text" size="small" v-model="inputValue.text" @change="handleInputChange"
@@ -74,9 +74,13 @@
               <a-select-option value="do-not-disturb">Do Not Disturb</a-select-option>
               <a-select-option value="offline">Offline</a-select-option>
             </a-select>
+            <a-button-group>
 
-            <a-button type="primary" icon="save" @click="handleInputConfirm" style="padding: 0 8px;">
+            <a-button link icon="save" @click="handleInputConfirm" style="padding: 0 8px;">
             </a-button>
+            <a-button type="danger" icon="close" @click="inputVisible = false" style="padding: 0 8px;">
+            </a-button>
+          </a-button-group>
 
           </div>
 
