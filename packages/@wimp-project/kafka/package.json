@@ -18,7 +18,8 @@
     "url": "git+https://github.com/ptidejteam/WIMP-Project.git"
   },
   "scripts": {
-    "test": "node ./__tests__/kafka.test.js"
+    "test": "node ./__tests__/kafka.test.js",
+    "run":"docker run -d --name redpanda -p 9092:9092 docker.redpanda.com/vectorized/redpanda:latest redpanda start --overprovisioned --smp 1 --memory 512M --reserve-memory 0M"
   },
   "bugs": {
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"
