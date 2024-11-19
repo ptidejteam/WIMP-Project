@@ -21,8 +21,7 @@
     "test": "node ./__tests__/gateway.test.js",
     "dev": "nodemon ./lib/index.js",
     "build": "webpack --config webpack.config.js",
-    "prod":"node ./dist/server.js"
-
+    "prod": "node ./dist/server.js"
   },
   "bugs": {
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"
@@ -32,6 +31,7 @@
     "express-rate-limit": "^7.4.0",
     "http-proxy-middleware": "^3.0.2",
     "jsonwebtoken": "9.0.2",
-    "keycloak-connect": "^26.0.2"
+    "keycloak-connect": "^26.0.2",
+    "@wimp-project/utils": "^0.0.1"
   }
 }

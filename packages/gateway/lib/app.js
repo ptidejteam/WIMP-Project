@@ -4,7 +4,8 @@ const { setupAuthentication } = require("./security/index.security");
 const { routes } = require("./routes/routes");
 const { setupRateLimit } = require("./utils/rateLimit");
 const { setupBodyParser } = require("./utils/bodyparser");
-const {setupLogging } = require("./utils/logging");
+const { setupLogging } = require("./utils/logging");
+const wss = require("./utils/ws.proxy");
 const path = require("path");
 require('dotenv').config({ path: path.resolve(__dirname, '.env' )});
 /**
