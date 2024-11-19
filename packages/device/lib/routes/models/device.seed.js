@@ -22,7 +22,7 @@ const connect = async () => {
 const seedDatabase = async () => {
   try {
     // Clear the existing devices
-   // await DeviceModel.deleteMany({}); // Deletes all devices in the collection
+    await DeviceModel.deleteMany({}); // Deletes all devices in the collection
 
     // Only add the Fitbit device
     const fitbitDevice = {
@@ -34,7 +34,6 @@ const seedDatabase = async () => {
       data: [
         {
           dataType: "heart_rate",
-          value: { value: 75, unit: "bpm" },
           timestamp: new Date(),
           location: {
             type: "Point",
@@ -43,7 +42,6 @@ const seedDatabase = async () => {
         },
         {
           dataType: "steps",
-          value: { value: 5000, unit: "steps" },
           timestamp: new Date(),
           location: {
             type: "Point",
@@ -58,9 +56,10 @@ const seedDatabase = async () => {
     console.log("Fitbit device seeded successfully.");
   } catch (error) {
     console.error("Error seeding database:", error);
-  } finally {
-    await mongoose.connection.close(); // Ensure the connection is closed
   }
+  // } finally {
+  //   await mongoose.connection.close(); // Ensure the connection is closed
+  // }
 };
 
 // Main function to run the script

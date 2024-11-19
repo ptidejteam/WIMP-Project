@@ -7,7 +7,7 @@ const { listenToDeviceLocation } = require("./services/location.service");
 // listening
 app.listen(PORT ,()=> {
     console.log("Device service running on port :" + PORT);
-    listenToDeviceLocation()
+    //listenToDeviceLocation()
 })
 
 

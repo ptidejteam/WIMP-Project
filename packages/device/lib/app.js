@@ -2,6 +2,7 @@ const express = require("express");
 const DeviceRouter = require("./routes/routes.config");
 const LocationRouter = require("./services/routes.config");
 const bodyParser = require('body-parser');
+const { runSeed } = require("./routes/models/device.seed");
 
 // Define the express object
 const app = express();

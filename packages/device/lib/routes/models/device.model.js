@@ -55,11 +55,11 @@ const deviceSchema = new Schema(
       {
         dataType: {
           type: String, // Example: temperature, humidity, etc.
-          required: true,
+          required: false,
         },
         value: {
           type: Object,
-          required: true,
+          required: false,
         },
         timestamp: {
           type: Date,
@@ -159,6 +159,7 @@ exports.updateDevice = (id, data) => {
   });
 };
 
+exports.deleteMany = () => Device.deleteMany({});
 // Remove a device by ID
 exports.removeById = (id) => {
   return new Promise((resolve, reject) => {
