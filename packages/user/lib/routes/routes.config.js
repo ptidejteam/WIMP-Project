@@ -18,6 +18,6 @@ exports.routesConfig = (app) => {
   app.get("/availability/:userId", [AvailabilityProvider.getById]); // Retrieve user availability by ID
   app.post("/availability", [AvailabilityProvider.insertOrUpdate]);
   app.patch("/availability", [AvailabilityProvider.updateAvailability]); // Update user online status
-  app.put("/availablity",[minimumPermissionLevelRequired(Master),AvailabilityProvider.updateDefaultMessage]) // Update the default 
+  app.patch("/availability/defaultMessages",[minimumPermissionLevelRequired(Master),AvailabilityProvider.updateDefaultMessage]) // Update the default 
   app.delete("/availability/:userId", [AvailabilityProvider.removeById]); // Remove availability by ID
 };
