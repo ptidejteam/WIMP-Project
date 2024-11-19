@@ -58,7 +58,7 @@ exports.updateById = async (req, res) => {
 // Get meeting by ID
 exports.getById = async (req, res) => {
   try {
-    const result = await MeetingModel.findById(req.params.meetingId);
+    const result = await MeetingModel.findByEventId(req.params.eventId);
     if (!result) {
       return res.status(404).send({ message: "Meeting not found." });
     }
