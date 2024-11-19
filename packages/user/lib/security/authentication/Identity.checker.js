@@ -52,9 +52,8 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
         } else {
             return res.status(400).send({ errors: ['Invalid username or password'] });
         }
-    } catch (error) {
-        console.error("Error during password and user matching:", error);
-        return res.status(500).send({ errors: ['Internal Server Error', "Error during password and user matching:" , error] });
+    } catch (err) {
+        return res.status(500).send({ errors: [err.message] });
     }
 };
 
@@ -69,7 +68,6 @@ exports.isUserStillExistsWithSamePrivileges = async (req, res, next) => {
         req.body.roles = user[0].permissionLevel;
         return next();
     } catch (error) {
-        console.error("Error checking user privileges:", error);
-        return res.status(500).send({ errors: ['Internal Server Error', "Error checking user privileges:", error] });
+        return res.status(500).send({ errors: [`Internal Server Error ${error.message}`] });
     }
 };

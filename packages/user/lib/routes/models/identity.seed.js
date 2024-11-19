@@ -74,7 +74,7 @@ const seedDatabase = async () => {
         password: hashPassword("alice_password"),
         permissionLevel: role.permissionLevels.Member,
         isActive: true,
-        position: "Admin",
+        position: "Teacher",
         emailStatus: "sent",
       },
     ];
@@ -87,9 +87,12 @@ const seedDatabase = async () => {
     console.log("Database seeded successfully with multiple users.");
   } catch (error) {
     console.error(`Error seeding database:${error}`);
-  } finally {
-    await mongoose.connection.close(); // Ensure the connection is closed
-  }
+  } 
+  // STOP DOING THIS SHIT DONT CLOSE THE CONNECTION PLS
+  // For you to learn u peice of shit 
+  // finally {
+  //  await mongoose.connection.close(); // Ensure the connection is closed
+  // }
 };
 
 // Main function to run the script

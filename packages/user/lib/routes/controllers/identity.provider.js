@@ -80,6 +80,7 @@ exports.putById = async (req, res) => {
 };
 
 // Avatar upload function
+// TODO : Fix this one 
 exports.uploadAvatar = (req, res) => {
   upload.single("avatar")(req, res, async (err) => {
     if (err) {
@@ -146,7 +147,7 @@ exports.saveGoogleToken = async (req, res) => {
       });
   }
 };
-
+/// TODO : I need to test this one 
 exports.updatePrivacy = async (req, res) => {
   try {
     const userId = req.params.userId || req.body?.userId;
