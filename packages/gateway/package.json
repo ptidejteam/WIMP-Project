@@ -20,7 +20,9 @@
   "scripts": {
     "test": "node ./__tests__/gateway.test.js",
     "dev": "nodemon ./lib/index.js",
-    "build": "webpack --config webpack.config.js --watch"
+    "build": "webpack --config webpack.config.js",
+    "prod":"node ./dist/server.js"
+
   },
   "bugs": {
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"
