@@ -55,40 +55,52 @@ async function publish(topic, message) {
 
 /**
  * Subscribes to a Kafka topic with a specified consumer group.
- * Invokes a callback function for every message received.
+ * Processes messages in batches for better performance.
  * @async
  * @param {string} topic - The Kafka topic to subscribe to.
  * @param {string} groupId - The consumer group ID.
- * @param {function} callback - A function invoked with the message content as a string.
- * @throws Will log an error if the consumer fails to connect or process messages.
  */
-async function subscribe(topic, groupId, callback) {
-  if (!consumers[groupId]) {
-    const consumer = kafka.consumer({ groupId });
-
-    try {
-      await consumer.connect();
-      await consumer.subscribe({ topic, fromBeginning: true });
-      console.log(`Subscribed to topic ${topic} with groupId ${groupId}`);
-
-      consumers[groupId] = consumer;
-
-      await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-          try {
-            callback(message.value.toString());
-          } catch (error) {
-            console.error('Error processing message:', error.message);
-          }
-        },
-      });
-    } catch (error) {
-      console.error(`Error subscribing to topic ${topic}:`, error.message);
-    }
-  } else {
+async function subscribe(topic, groupId) {
+  // If the consumer already exists, log and exit.
+  if (consumers[groupId]) {
     console.log(`Consumer for groupId ${groupId} already exists.`);
+    return;
+  }
+
+  const consumer = kafka.consumer({ groupId });
+
+  try {
+    await consumer.connect();
+    await consumer.subscribe({ topic, fromBeginning: true });
+    console.log(`Subscribed to topic ${topic} with groupId ${groupId}`);
+
+    consumers[groupId] = consumer;
+
+    await consumer.run({
+      eachBatch: async ({ batch }) => {
+        try {
+          // Extract and process all messages in the batch
+          const messages = batch.messages.map((msg) => msg.value.toString());
+
+          // Execute the callback with the entire batch of messages
+          //callback(messages);
+        } catch (error) {
+          console.error('Error processing batch of messages:', error.message);
+        }
+      },
+    });
+  } catch (error) {
+    console.error(`Error subscribing to topic ${topic} with groupId ${groupId}:`, error.message);
+
+    // Clean up consumer if initialization fails.
+    if (consumers[groupId]) {
+      await consumer.disconnect();
+      delete consumers[groupId];
+    }
   }
 }
+
+
 
 /**
  * Closes all active Kafka connections, including producers and consumers.
