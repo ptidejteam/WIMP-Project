@@ -1,11 +1,12 @@
-const WebSocket = require('ws');
-const kafkaService = require('@wimp-project/kafka'); // The Kafka service you provided earlier
+const WebSocket = require("ws");
+// const service = require('@wimp-project/kafka'); // The Kafka service you provided earlier
+const service = require("@wimp-project/rabbitmq");
 const PORT = process.env.WS_PORT || 3000;
 
 // Create a WebSocket server
 const wss = new WebSocket.Server({ port: PORT }, () => {
-    console.log(`WebSocket server started on ws://localhost:${PORT}`);
-  });
+  console.log(`WebSocket server started on ws://localhost:${PORT}`);
+});
 
 // Track connected WebSocket clients
 const clients = new Set();
@@ -30,14 +31,21 @@ function broadcastToClients(message) {
     }
   }
 }
-
-// Subscribe to Kafka topic and relay messages to WebSocket clients
+// Subscribe to RabbitMQ queue and relay messages to WebSocket clients
 (async () => {
-  const topic = 'refresh';
-  const groupId = 'wimp-system-id';
+  const queue = "refresh"; // Get the queue name from environment variables
+  const exchange = "front"; // Exchange name
+  const routingKey = "wimp-system"; // Routing key
 
-  await kafkaService.subscribe(topic, groupId, (message) => {
-    console.log('Received message from Kafka:', message);
+  // Message handler function for processing the incoming message
+  const messageHandler = (message) => {
+    console.log("Received message from RabbitMQ:", message);
     broadcastToClients(message); // Relay Kafka message to WebSocket clients
+  };
+
+  // Set up the subscription to the RabbitMQ queue with the specific exchange and routing key
+  await service.subscribe(queue, messageHandler, {
+    exchange, // The exchange to bind the queue to
+    routingKey, // The routing key for binding
   });
 })();
