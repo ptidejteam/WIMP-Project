@@ -28,7 +28,8 @@
     "url": "https://github.com/ptidejteam/WIMP-Project/issues"
   },
   "dependencies": {
-    "@wimp-project/utils": "^0.0.1"
+    "@wimp-project/utils": "^0.0.1",
+    "@wimp-project/rabbitmq": "^0.0.1"
 
   }
 }
