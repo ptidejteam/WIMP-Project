@@ -4,6 +4,8 @@ const amqp = require('amqplib');
 
 let connection = null;
 let channel = null;
+let runTimeQueues = [];
+const DEFAULT_TIMEOUT = 1800000; // Default timeout in ms (30 minutes)
 
 /**
  * Initializes the RabbitMQ connection and channel with retries.
@@ -20,6 +22,21 @@ async function initializeRabbitMQ(url = 'amqp://localhost', retryCount = 5) {
       connection = await amqp.connect(url);
       channel = await connection.createChannel();
       console.log('Connected to RabbitMQ');
+      
+      // Set prefetch to avoid overloading the consumer
+      channel.prefetch(1);
+      
+      // Handle channel close or error events
+      channel.on('error', (err) => {
+        console.error('Channel error:', err.message);
+      });
+
+      channel.on('close', () => {
+        console.log('Channel closed, attempting to reconnect...');
+        connection = null;
+        channel = null;
+      });
+
       return;
     } catch (error) {
       console.error(`Attempt ${attempt} to connect to RabbitMQ failed:`, error.message);
@@ -43,12 +60,14 @@ async function publish(exchange, routingKey, message, exchangeType = 'direct') {
 
   try {
     const formattedMessage = typeof message === 'object' ? JSON.stringify(message) : message;
-    console.log(`Assert Exchange: ${exchange}`);
 
     await channel.assertExchange(exchange, exchangeType, { durable: true });
-    console.log('Exchange asserted');
 
-    channel.publish(exchange, routingKey, Buffer.from(formattedMessage));
+    channel.publish(exchange, routingKey, Buffer.from(formattedMessage), {
+      persistent: true, // Ensure messages are persistent
+      expiration: DEFAULT_TIMEOUT.toString(), // Message expiration
+    });
+
     console.log(`Message sent to exchange "${exchange}" with routingKey "${routingKey}":`, formattedMessage);
   } catch (error) {
     console.error('Error publishing message:', error.message);
@@ -67,12 +86,13 @@ async function publish(exchange, routingKey, message, exchangeType = 'direct') {
  * @param {boolean} [options.noAck=false] - Whether to auto-acknowledge messages.
  * @throws Will log an error if the subscription fails.
  */
-async function subscribe(queue,callback,options = {}) {
+async function subscribe(queue, callback, options = {}) {
   if (!channel) await initializeRabbitMQ();
 
   const { exchange, routingKey = '#', noAck = true } = options;
   try {
     await channel.assertQueue(queue, { durable: true });
+    runTimeQueues.push(queue);
 
     if (exchange) {
       await channel.assertExchange(exchange, 'direct', { durable: true });
@@ -92,9 +112,28 @@ async function subscribe(queue,callback,options = {}) {
           if (!noAck) channel.nack(msg);
         }
       }
-    });
+    }, { noAck });
   } catch (error) {
     console.error(`Error subscribing to queue "${queue}":`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Clears all messages from a RabbitMQ queue.
+ * @async
+ * @param {string} queue - The name of the queue to clear.
+ * @throws Will throw an error if the queue cannot be purged.
+ */
+async function clearQueue(queue) {
+  if (!channel) await initializeRabbitMQ();
+
+  try {
+    await channel.assertQueue(queue, { durable: true });
+    const { messageCount } = await channel.purgeQueue(queue);
+    console.log(`Cleared ${messageCount} messages from queue "${queue}"`);
+  } catch (error) {
+    console.error(`Error clearing queue "${queue}":`, error.message);
     throw error;
   }
 }
@@ -106,12 +145,8 @@ async function subscribe(queue,callback,options = {}) {
  */
 async function close() {
   try {
-    if (channel) {
-      await channel.close();
-    }
-    if (connection) {
-      await connection.close();
-    }
+    if (channel) await channel.close();
+    if (connection) await connection.close();
     console.log('RabbitMQ connection closed');
   } catch (error) {
     console.error('Error closing RabbitMQ connection:', error.message);
@@ -138,4 +173,5 @@ module.exports = {
   publish,
   subscribe,
   close,
+  clearQueue,
 };
