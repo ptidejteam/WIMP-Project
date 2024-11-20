@@ -67,16 +67,15 @@ async function publish(exchange, routingKey, message, exchangeType = 'direct') {
  * @param {boolean} [options.noAck=false] - Whether to auto-acknowledge messages.
  * @throws Will log an error if the subscription fails.
  */
-async function subscribe(queue, callback, options = {}) {
+async function subscribe(queue,callback,options = {}) {
   if (!channel) await initializeRabbitMQ();
 
-  const { exchange, routingKey = '#', noAck = false } = options;
-
+  const { exchange, routingKey = '#', noAck = true } = options;
   try {
     await channel.assertQueue(queue, { durable: true });
 
     if (exchange) {
-      await channel.assertExchange(exchange, 'topic', { durable: true });
+      await channel.assertExchange(exchange, 'direct', { durable: true });
       await channel.bindQueue(queue, exchange, routingKey);
       console.log(`Queue "${queue}" bound to exchange "${exchange}" with routing key "${routingKey}"`);
     }
