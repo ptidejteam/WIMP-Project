@@ -10,52 +10,54 @@
       </div>
     </template>
 
-    <!-- General description for the card -->
-    <!-- <div class="general-description">
-      <p class="text-muted">
-        Manage and monitor your workspaces, including live location tracking and the ability to define workspace
-        settings such as coordinates and lookout diameter.
-      </p>
-    </div> -->
-
     <div class="section">
       <div style="display: flex; justify-content: space-between;">
         <h6 class="font-semibold">Enable Workspace Tracking</h6>
-        <a-tooltip
-          :title="trackingEnabled ? 'Tracking is enabled' : 'Tracking is disabled'">
+        <a-tooltip :title="trackingEnabled ? 'Tracking is enabled' : 'Tracking is disabled'">
           <a-switch v-model="trackingEnabled" @change="updateTrackingOption" checked-children="On"
             un-checked-children="Off">
           </a-switch>
         </a-tooltip>
       </div>
-
       <p class="text-muted">
         Toggle this setting to enable or disable live location tracking for the selected workspace.
       </p>
     </div>
 
     <a-tabs default-active-key="1">
-      <!-- Tab 1: Live Location -->
       <a-tab-pane key="1" tab="Live Location">
         <div class="workspaces-section">
           <p class="text-muted description-text">
-            Select a workspace from the list to display its current location on the map. The map will automatically
-            update to show the workspace's location, making it easy to track in real-time.
+            Select a workspace from the list to display its current location on the map.
           </p>
         </div>
-
+        <div class="map-controls">
+          <a-button @click="resetView">Reset View</a-button>
+        </div>
         <div class="map-container">
-          <LMap :zoom="zoomLevel" :center="mapCenter" style="height: 300px; width: 100%;">
-            <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              :attribution="`&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors`" />
-            <LMarker v-for="workspace in workspaces" :key="workspace.id"
-              :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]">
-            </LMarker>
+          <LMap :zoom="zoomLevel" :center="mapCenter" style="height: 300px; width: 100%;" @update:zoom="onZoomChange"
+            @update:center="onCenterChange">
+            <LTileLayer :url="url" :attribution="attribution" />
+
+            <!-- Render Markers and Circles -->
+            <div v-for="workspace in workspaces" :key="workspace.id">
+              <LMarker :key="'marker-' + workspace.id" :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]"
+                @click="onMarkerClick(workspace)">
+                <LPopup>
+                  <div>
+                    <h6>{{ workspace.name }}</h6>
+                    <p>{{ workspace.description }}</p>
+                  </div>
+                </LPopup>
+              </LMarker>
+
+              <LCircle :key="'circle-' + workspace.id" :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]"
+                :radius="workspace.lookoutDiameter" :color="'blue'" :fill-opacity="0.2" />
+            </div>
           </LMap>
         </div>
       </a-tab-pane>
 
-      <!-- Tab 2: Define Workspaces -->
       <a-tab-pane key="2" tab="Define Workspaces">
         <div class="define-workspaces-section" style="min-height: 300px;">
           <p class="text-muted description-text">
@@ -63,7 +65,6 @@
             diameter to ensure proper coverage and management.
           </p>
 
-          <!-- Form to Add Workspace -->
           <div class="add-workspace">
             <a-row gutter={16}>
               <a-col :span="8">
@@ -81,7 +82,6 @@
             <a-button type="primary" @click="addWorkspace" style="margin-top: 16px;">Add Workspace</a-button>
           </div>
 
-          <!-- Scrollable Workspace List -->
           <div class="workspace-list-container" style="max-height: 300px; overflow-y: auto; margin-top: 15px;">
             <ul class="workspace-list">
               <li v-for="workspace in workspaces" :key="workspace.id" class="workspace-item">
@@ -99,17 +99,19 @@
 </template>
 
 <script>
-import { LMap, LTileLayer, LMarker } from "vue3-leaflet";
+import { LMap, LTileLayer, LMarker, LCircle } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
 import { deviceService } from "../../services/device.service";
 
 export default {
-  components: { LMap, LTileLayer, LMarker },
+  components: { LMap, LTileLayer, LMarker, LCircle },
   data() {
     return {
       devices: [],
       mapCenter: [45.4215, -75.6972],
       zoomLevel: 10,
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: `&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors`,
       lastUpdated: null,
       selectedWorkspace: null,
       workspaces: [
@@ -162,6 +164,24 @@ export default {
     updateTrackingOption() {
       console.log("Tracking enabled:", this.trackingEnabled);
     },
+    onZoomChange(newZoom) {
+      this.zoomLevel = newZoom; // Synchronize zoom level
+    },
+    onCenterChange(newCenter) {
+      this.mapCenter = newCenter; // Synchronize center coordinates
+    },
+    onMarkerClick(workspace) {
+      this.$message.info(`Clicked on ${workspace.name}`);
+    },
+    resetView() {
+      // Reset to initial view
+      this.mapCenter = [this.workspaces[0].coordinates.lat, this.workspaces[0].coordinates.lng]
+      this.zoomLevel = 15;
+    },
+    onZoomSliderChange(value) {
+      // Triggered when zoom slider changes
+      this.zoomLevel = value;
+    },
   },
 };
 </script>
@@ -205,10 +225,11 @@ export default {
   font-size: 14px;
   color: #555;
 }
+
 .section {
-	padding: 6px 20px;
-	background: #fafafa;
-	border: 1px solid #f0f0f0;
-	border-radius: 4px;
+  padding: 6px 20px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
 }
 </style>
