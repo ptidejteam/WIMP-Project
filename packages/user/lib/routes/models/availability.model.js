@@ -22,7 +22,6 @@ const availabilitySchema = new mongoose.Schema({
   displayToOthers: { type: Boolean, default: true },
 });
 
-availabilitySchema.virtual("id").get(() => this._id.toHexString());
 
 // Ensure virtual fields are serialized
 availabilitySchema.set("toJSON", {
