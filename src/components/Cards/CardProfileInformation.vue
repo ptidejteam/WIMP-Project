@@ -3,7 +3,7 @@
 		<!-- Title Section -->
 		<template #title>
 			<div class="profile-header">
-				<h6 class="font-semibold">Profile Information</h6>
+				<h6 class="font-semibold">Profile Control Panel</h6>
 				<a-button type="link" class="edit-button" @click="toggleEdit">
 					<span v-if="!isEditing">Edit</span>
 					<span v-else>Save</span>

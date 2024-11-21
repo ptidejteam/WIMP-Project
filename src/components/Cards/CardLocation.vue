@@ -2,8 +2,7 @@
   <a-card :bordered="true" :bodyStyle="{ padding: '16px' }">
     <template #title>
       <div class="header">
-        <h6 class="font-semibold m-0">Device Locations</h6>
-        <!-- Last Updated -->
+        <h6 class="font-semibold m-0">Locations Control Panel</h6>
         <div>
           <a-button @click="resetSettings" icon="redo" type="link">Refresh</a-button>
           <small style="font-style: italic;">Updated: {{ lastUpdated || "Fetching data..." }}</small>
@@ -11,35 +10,91 @@
       </div>
     </template>
 
-    <!-- Workspaces Section -->
-    <div class="workspaces-section">
-      <h6 class="font-semibold">Workspaces</h6>
-      <p class="text-muted description-text">
-        Select workspaces to display their locations on the map.
+    <!-- General description for the card -->
+    <!-- <div class="general-description">
+      <p class="text-muted">
+        Manage and monitor your workspaces, including live location tracking and the ability to define workspace
+        settings such as coordinates and lookout diameter.
       </p>
+    </div> -->
 
-      <!-- Workspaces List with Checkbox -->
-      <div class="workspace-list mt-15">
-        <!-- Dropdown for selecting workspace -->
-        <a-select v-model="selectedWorkspace" style="width: 200px" @change="centerMapOnWorkspace"
-          placeholder="Select Workspace">
-          <a-select-option v-for="workspace in workspaces" :key="workspace.id" :value="workspace">
-            {{ workspace.name }}
-          </a-select-option>
-        </a-select>
+    <div class="section">
+      <div style="display: flex; justify-content: space-between;">
+        <h6 class="font-semibold">Enable Workspace Tracking</h6>
+        <a-tooltip
+          :title="trackingEnabled ? 'Tracking is enabled' : 'Tracking is disabled'">
+          <a-switch v-model="trackingEnabled" @change="updateTrackingOption" checked-children="On"
+            un-checked-children="Off">
+          </a-switch>
+        </a-tooltip>
       </div>
+
+      <p class="text-muted">
+        Toggle this setting to enable or disable live location tracking for the selected workspace.
+      </p>
     </div>
 
-    <!-- Map Container -->
-    <div class="map-container">
-      <LMap :zoom="zoomLevel" :center="mapCenter" style="height: 100%; width: 100%;">
-        <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          :attribution="`&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors`" />
-        <LMarker v-for="workspace in workspaces" :key="workspace.id"
-          :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]">
-        </LMarker>
-      </LMap>
-    </div>
+    <a-tabs default-active-key="1">
+      <!-- Tab 1: Live Location -->
+      <a-tab-pane key="1" tab="Live Location">
+        <div class="workspaces-section">
+          <p class="text-muted description-text">
+            Select a workspace from the list to display its current location on the map. The map will automatically
+            update to show the workspace's location, making it easy to track in real-time.
+          </p>
+        </div>
+
+        <div class="map-container">
+          <LMap :zoom="zoomLevel" :center="mapCenter" style="height: 300px; width: 100%;">
+            <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              :attribution="`&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors`" />
+            <LMarker v-for="workspace in workspaces" :key="workspace.id"
+              :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]">
+            </LMarker>
+          </LMap>
+        </div>
+      </a-tab-pane>
+
+      <!-- Tab 2: Define Workspaces -->
+      <a-tab-pane key="2" tab="Define Workspaces">
+        <div class="define-workspaces-section" style="min-height: 300px;">
+          <p class="text-muted description-text">
+            Add new workspaces or modify existing ones. Here, you can define workspace coordinates and the lookout
+            diameter to ensure proper coverage and management.
+          </p>
+
+          <!-- Form to Add Workspace -->
+          <div class="add-workspace">
+            <a-row gutter={16}>
+              <a-col :span="8">
+                <a-input v-model="newWorkspaceName" placeholder="Enter workspace name" style="width: 100%;" />
+              </a-col>
+              <a-col :span="8">
+                <a-input v-model="newWorkspaceCoordinates" placeholder="Enter coordinates (lat,lng)"
+                  style="width: 100%;" />
+              </a-col>
+              <a-col :span="8">
+                <a-input v-model="newLookoutDiameter" placeholder="Enter lookout diameter (meters)"
+                  style="width: 100%;" />
+              </a-col>
+            </a-row>
+            <a-button type="primary" @click="addWorkspace" style="margin-top: 16px;">Add Workspace</a-button>
+          </div>
+
+          <!-- Scrollable Workspace List -->
+          <div class="workspace-list-container" style="max-height: 300px; overflow-y: auto; margin-top: 15px;">
+            <ul class="workspace-list">
+              <li v-for="workspace in workspaces" :key="workspace.id" class="workspace-item">
+                <span>{{ workspace.name }} - Coordinates: ({{ workspace.coordinates.lat }}, {{ workspace.coordinates.lng
+                  }})</span>
+                <span> - Lookout Diameter: {{ workspace.lookoutDiameter }} meters</span>
+                <a-button type="link" @click="removeWorkspace(workspace.id)">Remove</a-button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </a-tab-pane>
+    </a-tabs>
   </a-card>
 </template>
 
@@ -53,61 +108,59 @@ export default {
   data() {
     return {
       devices: [],
-      mapCenter: [45.4215, -75.6972], // Default map center
+      mapCenter: [45.4215, -75.6972],
       zoomLevel: 10,
       lastUpdated: null,
-      selectedWorkspace: [], // The selected workspace
+      selectedWorkspace: null,
       workspaces: [
-        { id: 1, name: 'Workspace A', coordinates: { lat: 40.7128, lng: -74.0060 } },
-        { id: 2, name: 'Workspace B', coordinates: { lat: 34.0522, lng: -118.2437 } },
-        { id: 3, name: 'Workspace C', coordinates: { lat: 51.5074, lng: -0.1278 } },
-        // Add more workspaces as needed
+        { id: 1, name: 'Workspace A', coordinates: { lat: 40.7128, lng: -74.0060 }, lookoutDiameter: 500 },
+        { id: 2, name: 'Workspace B', coordinates: { lat: 34.0522, lng: -118.2437 }, lookoutDiameter: 300 },
+        { id: 3, name: 'Workspace C', coordinates: { lat: 51.5074, lng: -0.1278 }, lookoutDiameter: 100 },
       ],
       newWorkspaceName: "",
-      showAddWorkspaceInput: false,
+      newWorkspaceCoordinates: "",
+      newLookoutDiameter: "",
+      trackingEnabled: false,
     };
   },
   methods: {
-    // Method to handle map centering based on selected workspace
     centerMapOnWorkspace() {
       if (this.selectedWorkspace) {
         const { lat, lng } = this.selectedWorkspace.coordinates;
-
-        // Assuming you are using a map library like Google Maps
-        // Example: Centering the map to selected workspace's coordinates
-        this.centerMap(lat, lng);
+        this.mapCenter = [lat, lng];
       }
     },
-
-    // This method would actually interact with your map library
-    centerMap(lat, lng) {
-      // Replace this with actual map code (e.g., using Google Maps API)
-      console.log(`Centering map to lat: ${lat}, lng: ${lng}`);
-      this.mapCenter = [lat,lng];
-      // Example for Google Maps:
-      // map.setCenter({ lat, lng });
-    },
-
-
-    async fetchDevices() {
-      try {
-        const response = await deviceService.getAll();
-        this.devices = response.data.map((device) => ({
-          id: device.id,
-          deviceName: device.name,
-          location: {
-            latitude: device.latitude,
-            longitude: device.longitude,
-          },
-          status: device.status,
-        }));
+    fetchDevices() {
+      deviceService.getAll().then((response) => {
+        this.devices = response.data;
         this.lastUpdated = new Date().toLocaleString();
-      } catch (error) {
+      }).catch(() => {
         this.$message.error("Failed to fetch device locations.");
-      }
+      });
     },
     resetSettings() {
-      this.fetchDevices(); // Refresh devices data if necessary
+      this.fetchDevices();
+    },
+    addWorkspace() {
+      if (this.newWorkspaceName && this.newWorkspaceCoordinates && this.newLookoutDiameter) {
+        const coords = this.newWorkspaceCoordinates.split(',').map(Number);
+        const newId = this.workspaces.length + 1;
+        this.workspaces.push({
+          id: newId,
+          name: this.newWorkspaceName,
+          coordinates: { lat: coords[0], lng: coords[1] },
+          lookoutDiameter: parseInt(this.newLookoutDiameter),
+        });
+        this.newWorkspaceName = "";
+        this.newWorkspaceCoordinates = "";
+        this.newLookoutDiameter = "";
+      }
+    },
+    removeWorkspace(workspaceId) {
+      this.workspaces = this.workspaces.filter(w => w.id !== workspaceId);
+    },
+    updateTrackingOption() {
+      console.log("Tracking enabled:", this.trackingEnabled);
     },
   },
 };
@@ -120,19 +173,42 @@ export default {
   justify-content: space-between;
 }
 
-.map-container {
+.general-description {
+  margin-bottom: 20px;
+}
+
+.tab-content {
   height: 400px;
+  overflow-y: auto;
+}
+
+.map-container {
   border: 1px solid #e8e8e8;
   border-radius: 4px;
   padding: 8px;
 }
 
-.workspace-checkbox {
-  margin-right: 10px;
+.define-workspaces-section .workspace-list {
+  min-height: 193px;
+  max-height: 300px;
+  list-style: none;
+  padding: 0;
 }
 
-.custom-popup h6 {
-  font-weight: bold;
-  color: #333;
+.workspace-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.description-text {
+  font-size: 14px;
+  color: #555;
+}
+.section {
+	padding: 6px 20px;
+	background: #fafafa;
+	border: 1px solid #f0f0f0;
+	border-radius: 4px;
 }
 </style>
