@@ -125,6 +125,7 @@
 import { AuthenticationService } from "../../services/auth.service";
 import { userService } from "../../services/user.service";
 import { Role } from "../../helpers/roles";
+import debounce from "lodash/debounce";
 
 export default {
 	data() {
@@ -164,13 +165,16 @@ export default {
 				const userId = AuthenticationService.currentUserValue.userId;
 				await userService.putUser(userId, this.profile);
 				this.$message.success("Profile updated successfully.");
+				this.$emit("profile-updated")
 			} catch (error) {
 				this.$message.error("Failed to save profile.");
 			}
-		},
+		}, debounceSave: debounce(function () {
+			this.saveProfile();
+		}, 300),
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
-			if (!this.isEditing) this.saveProfile();
+			if (!this.isEditing) this.debounceSave();
 		},
 		clearProfileData() {
 			this.$confirm({
@@ -233,8 +237,5 @@ export default {
 	color: red;
 }
 
-.ant-descriptions .ant-descriptions-row>th,
-.ant-descriptions .ant-descriptions-row>td {
-	padding-bottom: 0px;
-}
+
 </style>
