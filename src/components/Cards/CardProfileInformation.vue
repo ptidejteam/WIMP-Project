@@ -1,135 +1,128 @@
 <template>
-	<!-- Profile Information Card -->
-	<a-card :bordered="false" class="header-solid h-full card-profile-information"
-		:bodyStyle="{ paddingTop: 0, paddingBottom: '16px' }" :headStyle="{ paddingRight: 0 }">
+	<a-card :bodyStyle="{ padding: '16px' }" :bordered="true">
+
+		<!-- Title Section -->
 		<template #title>
-			<h6 class="font-semibold m-0">Profile Information</h6>
+			<div class="profile-header">
+				<h6 class="font-semibold">Profile Information</h6>
+				<a-button type="link" class="edit-button" @click="toggleEdit">
+					<span v-if="!isEditing">Edit</span>
+					<span v-else>Save</span>
+				</a-button>
+			</div>
+
+		</template>
+		<!-- Descriptive Text -->
+		<p class="text-muted description-text">
+			Here you can view and edit your profile information, including your username, avatar, and other personal
+			details.
+			Click the edit button to update your profile.
+		</p>
+		<template v-if="!profile">
+			<a-skeleton />
+		</template>
+		<template v-else>
+			<!-- Profile Content -->
+			<div class="info">
+				<a-descriptions :column="1" bordered>
+					<a-descriptions-item label="Avatar">
+						<div v-if="!isEditing" class="avatar-section">
+							<img :src="profile.avatar" alt="Avatar" class="avatar-image" />
+						</div>
+						<a-select v-else v-model="profile.avatar" style="width: 100%;">
+							<a-select-option v-for="avatar in avatars" :key="avatar.value" :value="avatar.value">
+								<img :src="avatar.value" alt="Avatar" class="avatar-dropdown-image" />
+								{{ avatar.label }}
+							</a-select-option>
+						</a-select>
+					</a-descriptions-item>
+
+					<a-descriptions-item label="Username">
+						<template v-if="!isEditing">{{ profile.userName || "Not Set" }}</template>
+						<a-input v-else v-model="profile.userName" placeholder="Enter your username" />
+					</a-descriptions-item>
+
+					<a-descriptions-item label="Full Name">
+						<template v-if="!isEditing">{{ profile.firstName || "N/A" }} {{ profile.lastName || ""
+							}}</template>
+						<div v-else>
+							<a-input v-model="profile.firstName" placeholder="First Name" style="margin-bottom: 8px;" />
+							<a-input v-model="profile.lastName" placeholder="Last Name" />
+						</div>
+					</a-descriptions-item>
+
+					<a-descriptions-item label="Position">
+						<template v-if="!isEditing">{{ profile.position || "Not Set" }}</template>
+						<a-input v-else v-model="profile.position" placeholder="Enter your position" />
+					</a-descriptions-item>
+
+					<a-descriptions-item label="Birthday">
+						<template v-if="!isEditing">{{ formatDate(profile.birthday) }}</template>
+						<a-date-picker v-else v-model="profile.birthday" style="width: 100%;" />
+					</a-descriptions-item>
+
+					<a-descriptions-item label="Email">
+						<template v-if="!isEditing">{{ profile.email || "Not Set" }}</template>
+						<a-input v-else v-model="profile.email" placeholder="Enter your email" />
+					</a-descriptions-item>
+
+					<a-descriptions-item label="Role">
+						<template v-if="!isEditing">
+							<a-tag :color="getTagColor(profile.permissionLevel)">
+								{{ GetPermissionLevel(profile.permissionLevel) }}
+							</a-tag>
+						</template>
+						<a-select v-else v-model="profile.permissionLevel" style="width: 100%;">
+							<a-select-option v-for="role in availableRoles" :key="role.value" :value="role.value">
+								{{ role.label }}
+							</a-select-option>
+						</a-select>
+					</a-descriptions-item>
+
+					<a-descriptions-item label="Account Status">
+						<template v-if="!isEditing">
+							<span :class="['account-status', profile.isActive ? 'active' : 'inactive']">
+								{{ profile.isActive ? "Active" : "Inactive" }}
+							</span>
+						</template>
+						<a-switch v-else v-model="profile.isActive" />
+					</a-descriptions-item>
+				</a-descriptions>
+				<!-- Connectivity Notifications Section -->
+				<div class="connectivity-notifications">
+					<h6 class="font-semibold">Connectivity Notifications</h6>
+					<p class="text-muted">
+						Manage notifications related to connectivity status. Turn this setting on to receive alerts when
+						your
+						device is offline or reconnects.
+					</p>
+					<a-switch v-model="notificationsEnabled" checked-children="On" unchecked-children="Off"
+						@change="toggleConnectivityNotifications" />
+				</div>
+				<!-- Privacy Section -->
+				<div class="privacy-section">
+					<h6 class="font-semibold">Privacy</h6>
+					<p class="text-muted">
+						By using this platform, you consent to the collection and use of your data as described in our
+						privacy
+						policy. You can review your consent status below and clear your profile data if desired.
+					</p>
+					<p>
+						<b>Consent Status:</b> {{ consentGiven ? "Given" : "Not Given" }}
+					</p>
+					<a-button type="default" class="consent-button" @click="toggleConsent">
+						{{ consentGiven ? "Revoke Consent" : "Give Consent" }}
+					</a-button>
+					<a-button type="danger" class="clear-data-button" @click="clearProfileData">
+						Clear Profile Data
+					</a-button>
+				</div>
+			</div>
+
 		</template>
 
-		<a-button type="link" slot="extra" @click="toggleEdit">
-			<svg v-if="!isEditing" width="20" height="20" viewBox="0 0 20 20" fill="none"
-				xmlns="http://www.w3.org/2000/svg">
-				<path class="fill-muted"
-					d="M13.5858 3.58579C14.3668 2.80474 15.6332 2.80474 16.4142 3.58579C17.1953 4.36683 17.1953 5.63316 16.4142 6.41421L15.6213 7.20711L12.7929 4.37868L13.5858 3.58579Z"
-					fill="#111827" />
-				<path class="fill-muted" d="M11.3787 5.79289L3 14.1716V17H5.82842L14.2071 8.62132L11.3787 5.79289Z"
-					fill="#111827" />
-			</svg>
-			<svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path class="fill-muted" d="M15 5H5V15H15V5Z" fill="#111827" />
-			</svg>
-		</a-button>
-		<!-- 
-		<p class="text-dark my-2">
-			Hi, I’m {{ profile.fullName }}. {{ profile.description }}
-		</p> -->
-		<hr class="my-25">
-
-		<a-descriptions title="" :column="1" bordered>
-			<a-descriptions-item label="Avatar">
-				<template v-if="!isEditing">
-					<img :src="profile.avatar" alt="Avatar" class="avatar-image" />
-				</template>
-				<template v-else>
-					<a-select v-model="profile.avatar" style="width: 100%;">
-						<a-select-option v-for="avatar in avatars" :key="avatar.value" :value="avatar.value">
-							<img :src="avatar.value" alt="Avatar" class="avatar-dropdown-image"
-								style="width: 20px; height: 20px; margin-right: 8px;" />
-							{{ avatar.label }}
-						</a-select-option>
-					</a-select>
-				</template>
-			</a-descriptions-item>
-			<a-descriptions-item label="Username">
-				<template v-if="!isEditing">{{ profile.userName }}</template>
-				<template v-else>
-					<a-input style="width: 100%;" v-model="profile.userName" placeholder="Enter your username" />
-				</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="First Name">
-				<template v-if="!isEditing">{{ profile.firstName }}</template>
-				<template v-else>
-					<a-input style="width: 100%;" v-model="profile.firstName" placeholder="Enter your first name" />
-				</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="Last Name">
-				<template v-if="!isEditing">{{ profile.lastName }}</template>
-				<template v-else>
-					<a-input style="width: 100%;" v-model="profile.lastName" placeholder="Enter your last name" />
-				</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="Position">
-				<template v-if="!isEditing">{{ profile.position }}</template>
-				<template v-else>
-					<a-input style="width: 100%;" v-model="profile.position" placeholder="Enter your position" />
-				</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="Birthday">
-				<template v-if="!isEditing">{{ formatDate(profile.birthday) }}</template>
-				<template v-else>
-					<a-date-picker style="width: 100%;" v-model="profile.birthday" />
-				</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="Email Status">
-				<template v-if="!isEditing">
-					{{ profile.email }}
-				</template>
-				<template v-else>
-					<a-input style="width: 100%;" v-model="profile.email" placeholder="Enter your email" />
-				</template>
-			</a-descriptions-item>
-
-
-
-			<a-descriptions-item label="Permission Level">
-				<template v-if="!isEditing">
-					<a-tag :color="getTagColor(profile.permissionLevel)">
-						{{ GetPermissionLevel(profile.permissionLevel) }}
-					</a-tag>
-				</template>
-				<template v-else>
-					<a-select v-model="profile.permissionLevel" @change="checkPermissionLevel" style="width: 100%;"
-						v-if="profile.permissionLevel === Role.Master">
-						<a-select-option v-for="role in availableRoles" :key="role.value" :value="role.value">
-							{{ role.label }}
-						</a-select-option>
-					</a-select>
-					<a-tag v-else :color="getTagColor(profile.permissionLevel)">
-						{{ GetPermissionLevel(profile.permissionLevel) }}
-					</a-tag>
-				</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="Account Status">
-				<template v-if="!isEditing">
-					<span :class="['account-status', profile.isActive ? 'active' : 'inactive']">
-						{{ profile.isActive ? 'Active' : 'Inactive' }}
-					</span>
-				</template>
-				<template v-else>
-					<a-switch v-if="profile.permissionLevel === Role.Master" v-model="profile.isActive" />
-					<span v-else :class="['account-status', profile.isActive ? 'active' : 'inactive']">
-						{{ profile.isActive ? 'Active' : 'Inactive' }}
-					</span>
-				</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="Created At">
-				<template>{{ formatDate(profile.createdAt) }}</template>
-			</a-descriptions-item>
-
-			<a-descriptions-item label="Updated At">
-				<template>{{ formatDate(profile.updatedAt) }}</template>
-			</a-descriptions-item>
-		</a-descriptions>
 	</a-card>
 </template>
-
 <script>
 import { AuthenticationService } from '../../services/auth.service';
 import { userService } from '../../services/user.service';
@@ -139,21 +132,9 @@ export default {
 	data() {
 		return {
 			isEditing: false,
-			profile: {
-				fullName: "",
-				description: "Decisions: If you can’t decide, the answer is no...",
-				userName: "",
-				firstName: "",
-				lastName: "",
-				position: "Student", // New field
-				avatar: "images/face-1.jpg", // New field
-				// emailStatus: "pending", // New field
-				birthday: null,
-				isActive: true,
-				createdAt: null,
-				updatedAt: null,
-				permissionLevel: Role.Surfer, // Default permission level
-			},
+			consentGiven: true, // Tracks consent status
+			notificationsEnabled: true, // Tracks the state of connectivity notifications
+			profile: null,
 			avatars: [
 				{ value: 'images/face-1.jpg', label: 'Face 1' },
 				{ value: 'images/face-2.jpg', label: 'Face 2' },
@@ -176,18 +157,45 @@ export default {
 
 	watch: {
 		'profile.permissionLevel'(newRole, oldRole) {
-			this.checkPermissionLevel(newRole, oldRole);
+			//this.checkPermissionLevel(newRole, oldRole);
 		},
 	},
 
 	methods: {
+
+		clearProfileData() {
+			this.$confirm({
+				title: 'Are you sure you want to clear your profile data?',
+				content: 'This action cannot be undone.',
+				okText: 'Yes',
+				okType: 'danger',
+				cancelText: 'No',
+				onOk: () => {
+					this.profile = null;
+					this.$message.success('Profile data has been cleared.');
+				},
+				onCancel() {
+					this.$message.info('Action cancelled.');
+				},
+			});
+		},
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
 			if (!this.isEditing) {
 				this.saveProfile(); // Save profile when exiting edit mode
 			}
 		},
-
+		addWorkspace() {
+			if (this.newWorkspaceName.trim()) {
+				this.workSpaces.push({
+					id: this.workSpaces.length + 1, // Simple ID generator
+					name: this.newWorkspaceName.trim(),
+				});
+				this.newWorkspaceName = ''; // Clear the input field
+			} else {
+				this.$message.error('Workspace name cannot be empty.');
+			}
+		},
 		GetPermissionLevel(permission) {
 			switch (permission) {
 				case Role.Surfer:
@@ -261,24 +269,80 @@ export default {
 					return 'gray';
 			}
 		},
-		checkPermissionLevel(newLevel) {
-			// Handle permission level changes
-			// This could involve showing/hiding certain fields or enabling/disabling features
-			console.log(`Permission level changed from ${this.profile.permissionLevel} to ${newLevel}`);
-		},
 	},
 };
 </script>
 
 <style scoped>
+.info {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.workspace-list {
+	list-style-type: none;
+	padding: 0;
+}
+
+.workspace-item {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 10px;
+}
+
+.delete-btn {
+	color: red;
+}
+
+.profile-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.edit-button {
+	color: #1890ff;
+	cursor: pointer;
+}
+
 .avatar-image {
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
 }
+.privacy-section,
+.connectivity-notifications {
+	margin-top: 24px;
+	padding: 16px;
+	background-color: #fafafa;
+	border: 1px solid #f0f0f0;
+	border-radius: 4px;
+}
 
-.account-status {
-	font-weight: bold;
+.privacy-section {
+	margin-top: 24px;
+	padding: 16px;
+	background-color: #fafafa;
+	border: 1px solid #f0f0f0;
+	border-radius: 4px;
+}
+
+.privacy-section h6 {
+	margin-bottom: 12px;
+}
+
+.clear-data-button,
+.consent-button {
+	margin-top: 12px;
+	margin-right: 8px;
+}
+
+.avatar-dropdown-image {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	margin-right: 8px;
 }
 
 .account-status.active {
@@ -287,5 +351,11 @@ export default {
 
 .account-status.inactive {
 	color: red;
+}
+
+.privacy-section {
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f0;
 }
 </style>

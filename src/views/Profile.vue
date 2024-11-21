@@ -15,64 +15,73 @@
 						<!-- Avatar Container with Overlay -->
 						<div class="avatar-container">
 							<a-avatar :size="120" shape="square" :src="user.avatar || defaultAvatar" />
-							<!-- Overlay to change picture -->
+
+							<!-- Overlay to change profile picture -->
 							<div class="avatar-overlay">
 								<label class="upload-label">
 									<input type="file" @change="onPhotoChange" accept="image/*" class="upload-input" />
-									<span class="upload-text">Change Photo</span>
+									<span class="upload-text">Change Profile Photo</span>
 								</label>
 							</div>
 						</div>
 
+						<!-- User Info Section -->
 						<div class="avatar-info">
-							<h4 class="font-semibold m-0">Welcome {{ user.name }} !</h4>
+							<h4 class="font-semibold m-0">Hello, {{ user.name }}!</h4>
 							<p>{{ user.position }}</p>
 						</div>
 					</a-col>
-					<a-col :span="24" :md="12"
-						style="display: flex; align-items: center; justify-content: flex-end"></a-col>
+					<a-col :span="24" :md="12" style="display: flex; justify-content: flex-end; align-items: center;">
+						<!-- Right-Aligned Quote and Button -->
+						<div class="quote-section">
+							<p class="quote-text">
+								<em>"The only way to do great work is to love what you do." – Steve Jobs</em>
+							</p>
+						</div>
+						<!-- Button (Example: Change Profile Photo) -->
+						<!-- <a-button type="primary" style="margin-left: 10px;">Change Photo</a-button> -->
+					</a-col>
 				</a-row>
 			</template>
 		</a-card>
 		<!-- User Profile Card -->
 
-		<a-row type="flex" :gutter="24">
+		<a-row type="flex" :gutter="24" align="stretch">
 
 			<!-- Profile Information Column Visible for Both Roles -->
-			<a-col :span="24" :md="8" class="mb-24">
+			<a-col :span="24" :md="8" class="mb-24" style="display: flex; flex-direction: column;">
 				<!-- Profile Information Card -->
-				<CardProfileInformation></CardProfileInformation>
-				<!-- / Profile Information Card -->
+				<CardProfileInformation style="flex: 1;"></CardProfileInformation>
 			</a-col>
+
 			<!-- Conditional Rendering Based on User Role -->
-			<a-col v-if="user.role === Role.Master" :span="24" :md="8" class="mb-24">
-				<!-- Platform Settings Card -->
-				<CardPlatformSettings></CardPlatformSettings>
-				<!-- / Platform Settings Card -->
-			</a-col>
-
-			<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8" class="mb-24">
+			<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8" class="mb-24"
+				style="display: flex; flex-direction: column;">
 				<!-- Availability Card -->
-				<CardAvailabilitySettings></CardAvailabilitySettings>
-				<!-- / Availability Card -->
+				<CardAvailabilitySettings style="flex: 1;"></CardAvailabilitySettings>
 			</a-col>
-
-
 
 			<!-- Conditional Rendering for Members -->
-			<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8" class="mb-24">
-				<!-- Conversations Card -->
-				<CardConversations :data="conversationsData"></CardConversations>
-				<!-- / Conversations Card -->
-			</a-col>
-			<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8" class="mb-24">
-				<!-- Conversations Card -->
-				<CardGoogleCalendar @availability-change="handleAvailabilityChange"></CardGoogleCalendar>
-				<!-- / Conversations Card -->
+			<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8" class="mb-24"
+				style="display: flex; flex-direction: column;">
+				<!-- First Row: Conversations Card -->
+				<div class="mb-24" style="flex: 1;">
+					<CardConversations :data="conversationsData"></CardConversations>
+				</div>
+
+				<!-- Second Row: Orders History Timeline Card -->
+				<div style="flex: 1;">
+					<CardLocation></CardLocation>
+				</div>
 			</a-col>
 
+			<!-- Full Calendar Card -->
+			<a-col :span="36" :md="16" class="mb-24" style="display: flex; flex-direction: column;">
+				<CardFullCalendar style="flex: 1;"></CardFullCalendar>
+			</a-col>
 
 		</a-row>
+
 
 		<!-- Table & Timeline -->
 		<a-row :gutter="24" type="flex" align="stretch">
@@ -127,6 +136,7 @@ import { userService } from "../services/user.service"
 import { AuthenticationService } from "../services/auth.service"
 import { Role } from "../helpers/roles"
 import CardGoogleCalendar from "../components/Cards/CardGoogleCalendar.vue"
+import CardFullCalendar from "../components/Cards/CardFullCalendar.vue"
 // Conversation's list data.
 const conversationsData = [
 	{
@@ -211,7 +221,8 @@ export default ({
 		CardUserTable,
 		CardUserAvailability,
 		CardDevice,
-		CardGoogleCalendar,CardLocation
+		CardGoogleCalendar, CardLocation,
+		CardFullCalendar
 	},
 
 	data() {
@@ -308,6 +319,14 @@ export default ({
 </script>
 
 <style lang="scss">
+.quote-section {
+	font-style: italic;
+	font-size: 1rem;
+	color: #6c757d;
+	/* Soft gray color */
+	text-align: center;
+}
+
 /* Avatar container with relative positioning */
 .avatar-container {
 	position: relative;

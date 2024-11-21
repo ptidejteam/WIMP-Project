@@ -82,7 +82,7 @@ export default {
     },
     mounted() {
         this.fetchUsers();
-        this.startAutoRefresh();
+        //this.startAutoRefresh();
     },
     beforeDestroy() {
         this.stopAutoRefresh();
