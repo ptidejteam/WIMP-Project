@@ -100,28 +100,24 @@
               <a-icon type="plus" /> New default message
             </a-tag>
           </div>
-
-
-
         </li>
-
-        <li>
-          <h6 class="list-header text-sm text-muted m-0">DISPLAY MESSAGE TO OTHERS</h6>
-        </li>
-        <li class="display-option-item">
-          <a-tooltip
+      </ul>
+				<div class="section">
+					<div style="display: flex;    justify-content: space-between;">
+						<h6 class="font-semibold">Display message to others</h6>
+            <a-tooltip
             :title="availability.displayToOthers ? 'Message is visible to others' : 'Message is hidden from others'">
-            <span class="display-option-label">Show message : </span>
 
-            <a-switch v-model="availability.displayToOthers" @change="updateDisplayOption" checked-children="Enabled"
-              un-checked-children="Disabled">
-              <a-icon slot="checkedChildren" type="check" />
-              <a-icon slot="unCheckedChildren" type="close" />
+            <a-switch v-model="availability.displayToOthers" @change="updateDisplayOption" checked-children="On"
+              un-checked-children="Off">
             </a-switch>
           </a-tooltip>
-        </li>
+					</div>
 
-      </ul>
+					<p class="text-muted">
+            Turn this setting on to make your message visible to others. When off, your message will remain hidden.
+					</p>
+				</div>
     </template>
 
   </a-card>
@@ -281,6 +277,14 @@ export default {
   /* Optional: Add a border */
   background: #fff;
   /* Optional: Add background for better readability */
+}
+
+.section {
+	margin-top: 24px;
+	padding: 16px;
+	background: #fafafa;
+	border: 1px solid #f0f0f0;
+	border-radius: 4px;
 }
 
 .tag-container {
