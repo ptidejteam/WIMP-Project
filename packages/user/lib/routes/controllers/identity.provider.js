@@ -1,8 +1,6 @@
 const IdentityModel = require("../models/identity.model");
 const { hashPassword } = require("@wimp-project/utils");
 
-
-
 // Insert a new identity
 exports.insert = async (req, res) => {
   try {
@@ -80,7 +78,7 @@ exports.putById = async (req, res) => {
 };
 
 // Avatar upload function
-// TODO : Fix this one 
+// TODO : Fix this one
 exports.uploadAvatar = (req, res) => {
   upload.single("avatar")(req, res, async (err) => {
     if (err) {
@@ -139,29 +137,23 @@ exports.saveGoogleToken = async (req, res) => {
     res.status(201).send({ id: result._id });
   } catch (error) {
     console.error("Error inserting or updating user availability:", error);
-    res
-      .status(500)
-      .send({
-        message:
-          "Internal Server Error. Could not insert or update user availability.",
-      });
+    res.status(500).send({
+      message:
+        "Internal Server Error. Could not insert or update user availability.",
+    });
   }
 };
-/// TODO : I need to test this one 
-exports.updatePrivacy = async (req, res) => {
+exports.clearPrivacyData = async (req, res) => {
   try {
     const userId = req.params.userId || req.body?.userId;
     if (!userId)
       return res.status(400).send({ message: "User ID is required." });
-    const result = await IdentityModel.removeGoogleToken(userId);
+    await IdentityModel.clearPrivacyData(userId);
     res.status(200).send({ message: "Account Privacy has been cleared" });
   } catch (error) {
-    console.error("Error inserting or updating user privacy:", error);
-    res
-      .status(500)
-      .send({
-        message:
-          "Internal Server Error. Could not insert or update user privacy.",
-      });
+    res.status(500).send({
+      message:
+        `[Internal Server Error]. Could not insert or update user privacy. \n ${error.message}`,
+    });
   }
 };

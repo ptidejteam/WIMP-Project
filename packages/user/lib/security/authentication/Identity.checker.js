@@ -48,6 +48,11 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
                 iat: now,
                 exp: now + validityTime
             };
+
+            // Save the last login time of the user 
+            user.lastLogin = Date.now();
+            await IdentityModel.updateById(user._id , user);
+            
             return next();
         } else {
             return res.status(400).send({ errors: ['Invalid username or password'] });

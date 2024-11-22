@@ -35,26 +35,17 @@ const identitySchema = new Schema(
     isActive: { type: Boolean, default: true },
     position: { type: String, default: "Student" },
     avatar: { type: String, default: "images/face-1.jpg" },
-    emailStatus: {
-      type: String,
-      enum: ["pending", "sent", "failed"],
-      default: "pending",
+    workSpaces: { type: Array },
+    phoneNumber: { type: String }, // Optional phone number for user
+    preferences: {
+      // User-specific settings/preferences
+      language: { type: String, default: "en" }, // Language preference
+      notifications: { type: Boolean, default: true }, // Enable/disable notifications
     },
-    workSpaces: { type: Array},
-
+    consentGiven: { type: Boolean, default: false },
+    lastLogin: { type: Date }, // Last login timestamp
     googleAccessToken: { type: String }, // Token for Google Calendar API
     googleAccessTokenExpiry: { type: Date }, // Expiry time for the access token
-    googleCalendarEvents: [
-      {
-        eventId: { type: String, required: true },
-        summary: { type: String },
-        description: { type: String },
-        start: { type: Date },
-        end: { type: Date },
-        location: { type: String },
-        status: { type: String },
-      },
-    ],
   },
   { timestamps: true }
 );
@@ -76,12 +67,12 @@ exports.findIfTokenExists = () => {
     .exec();
 };
 
-exports.findByIdAndUpdateEvents = (userId, eventRecords) =>
-  Identity.findByIdAndUpdate(
-    userId,
-    { $set: { googleCalendarEvents: eventRecords } },
-    { new: true, useFindAndModify: false }
-  ).exec();
+// exports.findByIdAndUpdateEvents = (userId, eventRecords) =>
+//   Identity.findByIdAndUpdate(
+//     userId,
+//     { $set: { googleCalendarEvents: eventRecords } },
+//     { new: true, useFindAndModify: false }
+//   ).exec();
 
 // Methods
 exports.findByEmail = (email) => Identity.findOne({ email }).lean().exec();
@@ -140,13 +131,17 @@ exports.saveGoogleToken = async (userId, accessToken, expiresIn) => {
     .exec();
 };
 
-exports.removeGoogleToken = async (userId) => {
+exports.clearPrivacyData = async (userId) => {
   return Identity.findByIdAndUpdate(
     userId,
     {
-      $pull: {
-        googleAccessToken,
-        googleAccessTokenExpiry,
+      $unset: {
+        googleAccessToken: "",
+        googleAccessTokenExpiry: "",
+        lastLogin: "",
+      },
+      $set: {
+        consentGiven: false,
       },
     },
     { new: true, useFindAndModify: false }
@@ -154,6 +149,7 @@ exports.removeGoogleToken = async (userId) => {
     .lean()
     .exec();
 };
+
 
 // Retrieve Google Calendar token and check if it's expired
 exports.getGoogleToken = async (userId) => {
