@@ -13,44 +13,41 @@
       </div>
     </template>
 
-    <!-- <div class="section">
-      <div style="display: flex; justify-content: space-between;">
-        <h6 class="font-semibold">Stay organized by connecting your Google Calendar !</h6>
-        <div v-if="events.length === 0">
-          <a-button type="default" @click="connectGoogleCalendar" style="display: flex; align-items: center;">
-            Connect to
-            <img src="images/logos/Google__G__Logo.svg.png" alt="Google Logo" style="width: 1.2rem; margin-left: 0.5rem;">
-          </a-button>
-        </div>
-      </div>
-
-      <template v-if="events.length === 0">
-        <p class="text-muted">Once connected, your upcoming events will be displayed here for easy access and management.</p>
-      </template>
-
-      <p v-else class="text-muted" style="margin-top: 0; margin-bottom: 0em;">
-        Your calendar is now synced! View and manage your upcoming events below to stay on top of your schedule effortlessly.
-      </p>
-    </div> -->
 
     <!-- Calendar View Controls -->
     <div style="margin: 16px; text-align: start;">
-  <a-radio-group v-model="view" button-style="solid">
-    <a-radio value="month">Month View</a-radio>
-    <a-radio value="week" style="margin-left: 8px;">Week View</a-radio>
-    <a-radio value="day" style="margin-left: 8px;">Day View</a-radio>
-  </a-radio-group>
-</div>
+      <!-- View Selection Dropdown -->
+      <a-select v-model="view" style="width: 200px;" placeholder="Select View">
+        <a-select-option value="month">Month View</a-select-option>
+        <a-select-option value="week">Week View</a-select-option>
+        <a-select-option value="day">Day View</a-select-option>
+      </a-select>
+
+      <!-- Additional Controls -->
+      <!-- <div style="margin-top: 16px;">
+        <a-button type="primary" @click="refreshEvents" style="margin-right: 8px;">
+          Refresh
+        </a-button>
+        <a-button type="default" @click="filterEvents">
+          Filter Events
+        </a-button>
+      </div> -->
+    </div>
 
     <!-- Calendar Component -->
     <div>
-      <a-card>
-        <template>
-          <Calendar style="height: 800px" :view="view" :use-detail-popup="false" :week="week" :calendars="calendars"
-            :events="events"/>
-        </template>
-      </a-card>
+      <a-spin :spinning="spinning">
+
+        <a-card>
+          <template>
+            <Calendar style="height: 800px" :view="view" :use-detail-popup="true" :week="week" :calendars="calendars"
+              :events="events" />
+          </template>
+        </a-card>
+      </a-spin>
+
     </div>
+
 
   </a-card>
 </template>
@@ -62,15 +59,21 @@ import { userService } from '../../services/user.service';
 import Calendar from '@toast-ui/vue-calendar';
 import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 export default {
+  props: {
+    googleCalendarConnectivity: {
+      type: Boolean,
+      default: false,
+    },
+  },
   components: {
     Calendar
   },
   data() {
     return {
       // for toast 
-      view:"month",
-      week:{
-        taskView : 'disable'
+      view: "month",
+      week: {
+        taskView: 'disable'
       },
       calendars: [{ id: 'cal1', name: 'Personal' }],
       events: [],
@@ -78,18 +81,14 @@ export default {
       googleAccessToken: null,
       tokenExpirationTime: null,
       lastUpdated: Date.now(),
+      spinning: false,
     };
   },
   async mounted() {
-    // Get the token from the backend 
-    const response = await userService.getById(this.userId);
-    this.googleAccessToken = response?.data.googleAccessToken;
-    this.tokenExpirationTime = response?.data.googleAccessTokenExpiry;
-    if (this.googleAccessToken && this.tokenExpirationTime && Date.now() < new Date(this.tokenExpirationTime).getTime()) {
-      this.fetchEvents();
-    } else {
-      this.$message.warning("Your session has expired. Please reconnect to Google Calendar.");
-      this.connectGoogleCalendar();
+  },
+  watch: {
+    googleCalendarConnectivity: function (n, o) {
+      if (n) this.fetchEvents();
     }
   },
   methods: {
@@ -120,6 +119,9 @@ export default {
     },
 
     async fetchEvents() {
+      this.spinning = true;
+      const response = await userService.getById(this.userId);
+      this.googleAccessToken = response?.data.googleAccessToken;
       try {
         const response = await fetch(
           "https://www.googleapis.com/calendar/v3/calendars/primary/events",
@@ -132,6 +134,7 @@ export default {
         );
 
         if (!response.ok) {
+          this.spinning = false;
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
@@ -144,6 +147,8 @@ export default {
         }));
 
         console.log(this.events);
+        this.spinning = false;
+
       } catch (error) {
         console.error("Error fetching Google Calendar events:", error);
         this.$message.error("Failed to load events. Please try reconnecting.");
