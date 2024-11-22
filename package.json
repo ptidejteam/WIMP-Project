@@ -17,6 +17,7 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
     "@fullcalendar/vue": "^6.1.15",
+    "@toast-ui/vue-calendar": "^2.1.3",
     "ant-design-vue": "1.7.6",
     "axios": "^1.7.7",
     "chart.js": "3.4.1",

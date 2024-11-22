@@ -1,41 +1,54 @@
 <template>
   <!-- Calendar Events Card Template -->
-  <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{ paddingTop: 0, paddingBottom: '16px' }">
+  <a-card :bordered="true" :bodyStyle="{ padding: '16px' }">
 
     <!-- Title -->
     <template #title>
-      <h6 class="font-semibold m-0">Your Calendar</h6>
+      <div class="header">
+        <h6 class="font-semibold m-0">Calendar</h6>
+        <div>
+          <a-button icon="redo" type="link" @click="fetchEvents">Refresh</a-button>
+          <small style="font-style: italic;">Updated: {{ lastUpdated || "Fetching data..." }}</small>
+        </div>
+      </div>
     </template>
 
-    <!-- User-Friendly Description -->
-    <div class="description-container">
-      <template v-if="events.length === 0">
-        <h6>Stay organized by connecting your Google Calendar !</h6>
-        <p>Once connected, your upcoming events will be displayed here
-          for
-          easy access and management.</p>
-      </template>
-      <p v-else>
-        Your calendar is now synced! View and manage your upcoming events below to stay on top of your schedule
-        effortlessly.
-      </p>
-      <!-- Connect Button -->
-      <div v-if="events.length === 0">
-        <a-button type="default" @click="connectGoogleCalendar" style="    display: flex; align-items: center;">
-
-          Connect to
-          <img src="images/logos/Google__G__Logo.svg.png" alt="Google Logo"
-            style="width: 1.2rem; margin-left: 0.5rem;">
-        </a-button>
+    <!-- <div class="section">
+      <div style="display: flex; justify-content: space-between;">
+        <h6 class="font-semibold">Stay organized by connecting your Google Calendar !</h6>
+        <div v-if="events.length === 0">
+          <a-button type="default" @click="connectGoogleCalendar" style="display: flex; align-items: center;">
+            Connect to
+            <img src="images/logos/Google__G__Logo.svg.png" alt="Google Logo" style="width: 1.2rem; margin-left: 0.5rem;">
+          </a-button>
+        </div>
       </div>
-    </div>
 
+      <template v-if="events.length === 0">
+        <p class="text-muted">Once connected, your upcoming events will be displayed here for easy access and management.</p>
+      </template>
 
+      <p v-else class="text-muted" style="margin-top: 0; margin-bottom: 0em;">
+        Your calendar is now synced! View and manage your upcoming events below to stay on top of your schedule effortlessly.
+      </p>
+    </div> -->
+
+    <!-- Calendar View Controls -->
+    <div style="margin: 16px; text-align: start;">
+  <a-radio-group v-model="view" button-style="solid">
+    <a-radio value="month">Month View</a-radio>
+    <a-radio value="week" style="margin-left: 8px;">Week View</a-radio>
+    <a-radio value="day" style="margin-left: 8px;">Day View</a-radio>
+  </a-radio-group>
+</div>
 
     <!-- Calendar Component -->
-    <div v-if="events.length !== 0">
-      <a-card :bordered="false" class="calendar-display-card">
-        <FullCalendar :events="events" :options="calendarOptions" />
+    <div>
+      <a-card>
+        <template>
+          <Calendar style="height: 800px" :view="view" :use-detail-popup="false" :week="week" :calendars="calendars"
+            :events="events"/>
+        </template>
       </a-card>
     </div>
 
@@ -43,67 +56,49 @@
 </template>
 
 <script>
-import FullCalendar from "@fullcalendar/vue";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import axios from "axios";
+import { AuthenticationService } from '../../services/auth.service';
+import { userService } from '../../services/user.service';
 
+import Calendar from '@toast-ui/vue-calendar';
+import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 export default {
   components: {
-    FullCalendar,
+    Calendar
   },
   data() {
     return {
-      events: [null],
+      // for toast 
+      view:"month",
+      week:{
+        taskView : 'disable'
+      },
+      calendars: [{ id: 'cal1', name: 'Personal' }],
+      events: [],
+      userId: AuthenticationService.currentUserValue.userId,
       googleAccessToken: null,
       tokenExpirationTime: null,
-      calendarOptions: {
-        plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-        initialView: "dayGridMonth",
-        headerToolbar: {
-          left: "today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
-        },
-        selectable: true,
-        dateClick: this.handleDateClick,
-      },
+      lastUpdated: Date.now(),
     };
   },
   async mounted() {
-    //   const response = await this.fetchGoogleAccessToken();
-    //   this.googleAccessToken = response?.access_token;
-    //   this.tokenExpirationTime = response?.expires_in
-    //     ? Date.now() + response.expires_in * 1000
-    //     : null;
-
-    //   if (this.googleAccessToken) {
-    //     this.fetchEvents();
-    //   } else {
-    //     this.$message.warning(
-    //       "Unable to connect to Google Calendar. Please try reconnecting."
-    //     );
-    //   }
+    // Get the token from the backend 
+    const response = await userService.getById(this.userId);
+    this.googleAccessToken = response?.data.googleAccessToken;
+    this.tokenExpirationTime = response?.data.googleAccessTokenExpiry;
+    if (this.googleAccessToken && this.tokenExpirationTime && Date.now() < new Date(this.tokenExpirationTime).getTime()) {
+      this.fetchEvents();
+    } else {
+      this.$message.warning("Your session has expired. Please reconnect to Google Calendar.");
+      this.connectGoogleCalendar();
+    }
   },
   methods: {
-    async fetchGoogleAccessToken() {
-      try {
-        const { data } = await axios.post("/api/google-auth/token", {
-          userId: this.$store.state.user.id,
-        });
-        return data;
-      } catch (error) {
-        console.error("Error fetching access token:", error);
-        return null;
-      }
-    },
     connectGoogleCalendar() {
-      const CLIENT_ID = process.env.VUE_APP_GOOGLE_CLIENT_ID;
-      const REDIRECT_URI = `${window.location.origin}/auth/callback`;
-      const SCOPE = "https://www.googleapis.com/auth/calendar.readonly";
+      const CLIENT_ID = process.env.VUE_APP_GOOGLE_CLIENT_ID || "656112522901-ec34iteeu8prg629oab9qbn831tbnd22.apps.googleusercontent.com";
+      const REDIRECT_URI = process.env.VUE_APP_GOOGLE_REDIRECT_URIS || "http://localhost:8080/calendar";
+      const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
 
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}&prompt=consent`;
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPE)}`;
 
       const popupWindow = window.open(
         authUrl,
@@ -116,33 +111,45 @@ export default {
           if (popupWindow.closed) {
             clearInterval(pollTimer);
             this.$message.info("Connection process completed or cancelled.");
+            this.fetchEvents();
           }
         } catch (e) {
           console.error("Error checking popup status:", e);
         }
       }, 1000);
     },
+
     async fetchEvents() {
       try {
-        const response = await axios.get(
+        const response = await fetch(
           "https://www.googleapis.com/calendar/v3/calendars/primary/events",
           {
+            method: "GET",
             headers: {
               Authorization: `Bearer ${this.googleAccessToken}`,
             },
           }
         );
 
-        this.events = response.data.items.map((event) => ({
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        this.events = data.items.map((event) => ({
           title: event.summary,
-          start: event.start.dateTime || event.start.date,
-          end: event.end.dateTime || event.end.date,
+          start: event.start?.dateTime || event.start?.date,
+          end: event.end?.dateTime || event.end?.date,
+          display: 'background'
         }));
+
+        console.log(this.events);
       } catch (error) {
         console.error("Error fetching Google Calendar events:", error);
         this.$message.error("Failed to load events. Please try reconnecting.");
       }
     },
+
     handleDateClick(info) {
       alert("Clicked on: " + info.dateStr);
     },
@@ -151,12 +158,20 @@ export default {
 </script>
 
 <style>
-.description-container {
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
+.section {
   padding: 16px;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+}
+
+.header {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+}
+
+button {
+  margin-left: 8px;
 }
 </style>
