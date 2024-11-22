@@ -13,6 +13,7 @@ export const userService = {
     putUser,
     generateTempPassword,
     sendInviteEmail,
+    deleteUserPrivacy,
 };
 
 // Define the interceptor for axios to handle response errors
@@ -38,10 +39,13 @@ function getById(id) {
 function create(body) { 
     return axios.post(`${API_URL}/users`, body, requestOptions.header());
 }
-
 function deleteUser(id) { 
     return axios.delete(`${API_URL}/users/${id}`, requestOptions.header());
 }
+function deleteUserPrivacy(id) { 
+    return axios.delete(`${API_URL}/users/${id}/privacy`, requestOptions.header());
+}
+
 
 // Generate a temporary password with customizable length and charset
 function generateTempPassword() {
