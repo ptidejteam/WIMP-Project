@@ -104,24 +104,11 @@
 					</a-col>
 					<!-- / Table -->
 
-					<!-- Timeline -->
-					<a-col :span="24" :lg="8" class="mb-24">
-
-						<!-- Orders History Timeline Card -->
-						<!-- / Orders History Timeline Card -->
-						<CardLocation></CardLocation>
-
-					</a-col>
-					<!-- / Timeline -->
 				</a-row>
 				<!-- / Table & Timeline -->
 				<a-row v-if="user.role !== Role.Member">
 					<CardUserAvailability></CardUserAvailability>
 
-				</a-row>
-				<a-row v-if="user.role === Role.Master">
-					<!-- Device Column -->
-					<CardDevice></CardDevice>
 				</a-row>
 			</template>
 
