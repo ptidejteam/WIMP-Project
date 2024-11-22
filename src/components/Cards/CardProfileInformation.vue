@@ -161,6 +161,8 @@ export default {
 	data() {
 		return {
 			isEditing: false,
+			timer: null,
+			isTokenExpired: false, // Track token expiration state
 			notificationsEnabled: true,
 			userId: AuthenticationService.currentUserValue.userId,
 			profile: null,
@@ -184,59 +186,116 @@ export default {
 			return (
 				this.profile?.googleAccessToken &&
 				tokenExpirationTime &&
-				Date.now() < new Date(tokenExpirationTime).getTime()
+				Date.now() < new Date(tokenExpirationTime).getTime() &&
+				!this.isTokenExpired // Check if token is expired
 			);
 		}
 	},
 	created() {
 		this.loadUserProfile();
-		// Check the token for the google Calendar 
 	},
 	watch: {
 		'profile.googleAccessToken': {
 			handler: 'handleCalendarConnectionChange',
 			immediate: true,
 		},
-		'profile.tokenExpirationTime': {
-			handler: 'handleCalendarConnectionChange',
-			immediate: true,
-		},
-	},
 
+		// Watch for changes in the token expiration
+		'profile.googleAccessTokenExpiry': function (expiry) {
+			// Ensure profile exists and expiry is a valid date
+			if (this.profile && expiry) {
+				if (this.timer) {
+					clearInterval(this.timer); // Clear the existing timer
+				}
+				this.startTokenExpirationCheck(new Date(expiry).getTime()); // Start a new timer if expiration time changes
+			} else {
+				// If profile is null or expiry is not valid, stop the timer
+				if (this.timer) {
+					clearInterval(this.timer); // Stop the timer if profile is unavailable
+				}
+				console.log('No valid profile or expiration time, stopping token expiration check.');
+			}
+		}
+	},
+	beforeDestroy() {
+		// Clean up the interval timer if any before destroying the component
+		if (this.timer) {
+			clearInterval(this.timer);
+		}
+	},
 	methods: {
+		// Method to start the timer to check expiration
+		startTokenExpirationCheck(expiry) {
+			// Check token expiration immediately on start
+			this.checkTokenExpiration(expiry);
+
+			// Set an interval to check the token expiration periodically
+			const checkInterval = Math.max(expiry - Date.now() - 1000, 0); // Check just before expiration
+			this.timer = setInterval(() => {
+				this.checkTokenExpiration(expiry);
+			}, checkInterval); // Schedule next check closer to expiration
+		},
+
+		// Method to check if the token is expired
+		checkTokenExpiration(expiry) {
+			if (expiry && Date.now() >= expiry) {
+				console.log('Token has expired.');
+				this.handleTokenExpiration();
+			}
+			this.isTokenExpired = false;
+		},
+
+		// Handle the token expiration (e.g., notify user or log out)
+		handleTokenExpiration() {
+			// Logic to handle token expiration (e.g., logging out user)
+			console.log('Token expired!');
+			this.isTokenExpired = true; // Set the token expired flag
+			handleCalendarConnectionChange();
+		},
+
+		// Load user profile and check the token expiration
 		async loadUserProfile() {
 			try {
 				const userProfile = await userService.getById(this.userId);
 				this.profile = { ...userProfile.data };
+
+				// Start checking the token expiration if profile exists
+				if (this.profile?.googleAccessTokenExpiry) {
+					this.startTokenExpirationCheck(new Date(this.profile.googleAccessTokenExpiry).getTime());
+				}
 			} catch (error) {
 				this.$message.error("Failed to load user profile.");
 			}
 		},
 
+		// Method to handle calendar connection change
 		handleCalendarConnectionChange() {
-			this.$emit("google-connectivity",this.isCalendarConnected)
+			this.$emit("google-connectivity", this.isCalendarConnected);
 		},
 
-
+		// Save user profile
 		async saveProfile() {
 			try {
 				await userService.putUser(this.userId, this.profile);
 				this.$message.success("Profile updated successfully.");
-				this.$emit("profile-updated")
+				this.$emit("profile-updated");
 			} catch (error) {
 				this.$message.error("Failed to save profile.");
 			}
 		},
 
+		// Debounced save profile method
 		debounceSave: debounce(function () {
 			this.saveProfile();
 		}, 300),
 
+		// Toggle editing state and save profile when editing is done
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
 			if (!this.isEditing) this.debounceSave();
 		},
 
+		// Clear user profile data
 		clearProfileData() {
 			this.$confirm({
 				title: "Clear profile data?",
@@ -245,15 +304,16 @@ export default {
 					try {
 						await userService.deleteUserPrivacy(this.userId);
 						this.$message.success("Profile data cleared.");
+						this.loadUserProfile();
 					} catch (error) {
 						console.log(error.message);
 						this.$message.error("Profile: " + error.message);
 					}
-
 				},
 			});
 		},
 
+		// Connect to Google Calendar
 		connectGoogleCalendar() {
 			const CLIENT_ID = process.env.VUE_APP_GOOGLE_CLIENT_ID || "656112522901-ec34iteeu8prg629oab9qbn831tbnd22.apps.googleusercontent.com";
 			const REDIRECT_URI = process.env.VUE_APP_GOOGLE_REDIRECT_URIS || "http://localhost:8080/calendar";
@@ -273,6 +333,7 @@ export default {
 						clearInterval(pollTimer);
 						this.$message.info("Connection process completed or cancelled.");
 						this.loadUserProfile();
+						
 					}
 				} catch (e) {
 					console.error("Error checking popup status:", e);
@@ -280,24 +341,32 @@ export default {
 			}, 1000);
 		},
 
+		// Toggle consent state
 		toggleConsent() {
 			this.profile.consentGiven = !this.profile.consentGiven;
 			this.debounceSave();
 		},
+
+		// Format date for display
 		formatDate(date) {
 			return date ? new Date(date).toLocaleDateString() : "N/A";
 		},
+
+		// Get role label based on level
 		GetPermissionLevel(level) {
 			return this.availableRoles.find((role) => role.value === level)?.label || "Unknown";
 		},
+
+		// Get the tag color based on role level
 		getTagColor(level) {
 			return {
 				[Role.Surfer]: "red",
 				[Role.Member]: "orange",
 				[Role.Master]: "green",
 			}[level] || "gray";
-		},
-	},
+		}
+	}
+
 };
 </script>
 

@@ -58,7 +58,8 @@
 					<!-- Profile Information Column Visible for Both Roles -->
 					<a-col :span="24" :md="8" class="mb-24" style="display: flex; flex-direction: column;">
 						<!-- Profile Information Card -->
-						<CardProfileInformation style="flex: 1;" @profile-updated="onProfileUpdated">
+						<CardProfileInformation style="flex: 1;" @profile-updated="onProfileUpdated"
+							@google-connectivity="onGoogleConnectivity">
 						</CardProfileInformation>
 					</a-col>
 
@@ -85,7 +86,7 @@
 
 					<!-- Full Calendar Card -->
 					<a-col :span="36" :md="16" class="mb-24" style="display: flex; flex-direction: column;">
-						<CardFullCalendar style="flex: 1;"></CardFullCalendar>
+						<CardFullCalendar style="flex: 1;" :googleCalendarConnectivity="googleConnectivity"></CardFullCalendar>
 					</a-col>
 
 				</a-row>
@@ -125,10 +126,8 @@
 import CardPlatformSettings from "../components/Cards/CardPlatformSettings"
 import CardProfileInformation from "../components/Cards/CardProfileInformation"
 import CardConversations from "../components/Cards/CardConversations"
-import CardProject from "../components/Cards/CardProject"
 import CardAvailabilitySettings from "../components/Cards/CardAvailabilitySettings.vue"
 import CardUserTable from "../components/Cards/CardUserTable.vue"
-import CardDevice from "../components/Cards/CardDevice.vue"
 import CardUserAvailability from "../components/Cards/CardUserAvailability.vue"
 import CardLocation from "../components/Cards/CardLocation.vue"
 import { userService } from "../services/user.service"
@@ -143,11 +142,9 @@ export default ({
 		CardPlatformSettings,
 		CardProfileInformation,
 		CardConversations,
-		CardProject,
 		CardAvailabilitySettings,
 		CardUserTable,
 		CardUserAvailability,
-		CardDevice,
 		CardGoogleCalendar, CardLocation,
 		CardFullCalendar
 	},
@@ -155,17 +152,14 @@ export default ({
 	data() {
 		return {
 			// Active button for the "User Profile" card's radio button group.
-			profileHeaderBtns: 'overview',
 			user: null,
 			Role: Role,
 			defaultAvatar: 'images/face-1.jpg', // Default avatar image path
-			availabilityStatus: '',
+			googleConnectivity :false,
 		}
 	},
 	watch: {
 		'user.role': function (newRole, oldRole) {
-			// This function will be called whenever user.role changes
-			console.log(`Role changed from ${oldRole} to ${newRole}`);
 			// You can add any logic here, for example:
 			if (newRole === this.Role.Master) {
 				console.log('User role is now Master!');
@@ -183,6 +177,11 @@ export default ({
 		onProfileUpdated() {
 			this.$message.info("Profile has been updated!");
 			this.fetchUserData(); // Example action
+		},
+
+
+		onGoogleConnectivity(value) {
+			this.googleConnectivity = value
 		},
 
 		async fetchUserData() {
