@@ -99,12 +99,12 @@
 </template>
 
 <script>
-import { LMap, LTileLayer, LMarker, LCircle } from "vue2-leaflet";
+import { LMap, LTileLayer, LMarker, LCircle, LPopup } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
 import { deviceService } from "../../services/device.service";
 
 export default {
-  components: { LMap, LTileLayer, LMarker, LCircle },
+  components: { LMap, LTileLayer, LMarker, LCircle , LPopup},
   data() {
     return {
       devices: [],
@@ -227,7 +227,7 @@ export default {
 }
 
 .section {
-  padding: 6px 20px;
+  padding: 16px;
   background: #fafafa;
   border: 1px solid #f0f0f0;
   border-radius: 4px;
