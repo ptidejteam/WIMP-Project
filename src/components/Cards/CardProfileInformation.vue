@@ -87,34 +87,64 @@
 						<a-switch v-else v-model="profile.isActive" />
 					</a-descriptions-item>
 				</a-descriptions>
+				<div class="section"
+					style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px;">
+					<div style="display: flex; align-items: center;">
+						<a-badge :dot="!isCalendarConnected" style="margin-right: 1rem;">
+							<h6 class="font-semibold" style="margin: 0;">Google Calendar Integration</h6>
+						</a-badge>
+
+					</div>
+					<a-button v-if="!isCalendarConnected" type="default" @click="connectGoogleCalendar"
+						style="display: flex; align-items: center; padding: 0.5rem 1rem;">
+						Connect to
+						<img src="images/logos/Google__G__Logo.svg.png" alt="Google Logo"
+							style="width: 1.2rem; margin-left: 0.5rem;">
+					</a-button>
+					<p v-if="isCalendarConnected" style="margin: 0; font-size: 0.9rem; color: #28a745;">
+						<span style="display: flex; align-items: center;">
+
+							<a-icon type="check-circle" style="margin-right: 0.5rem;" />
+							Synced
+						</span>
+					</p>
+				</div>
+
+
 
 				<!-- Connectivity Notifications -->
 				<div class="section">
-					<div style="display: flex;    justify-content: space-between;">
+					<div style="display: flex; justify-content: space-between;">
 						<h6 class="font-semibold">Connectivity Notifications</h6>
-						<a-switch v-model="notificationsEnabled" checked-children="On" unchecked-children="Off" />
+						<a-switch v-model="notificationsEnabled" checked-children="On" un-checked-children="Off" />
 
 					</div>
 
 					<p class="text-muted">
 						Turn this setting on to receive alerts for connectivity changes.
 					</p>
+
 				</div>
 
 				<!-- Privacy Section -->
 				<div class="section">
 					<h6 class="font-semibold">Privacy</h6>
 					<p class="text-muted">
-						By using this platform, you consent to the collection and use of your data as described in our
+						By using this platform, you consent to the collection and use of your data as described in
+						our
 						privacy
-						policy. You can review your consent status below and clear your profile data if desired. </p>
-					<p><b>Consent Status:</b> {{ consentGiven ? "Given" : "Not Given" }}</p>
-					<a-button type="default" @click="toggleConsent">
-						{{ consentGiven ? "Revoke Consent" : "Give Consent" }}
-					</a-button>
-					<a-button type="danger" @click="clearProfileData">
-						Clear Profile Data
-					</a-button>
+						policy. You can review your consent status below and clear your profile data if desired.
+					</p>
+					<p><b>Consent Status:</b> {{ this.profile.consentGiven ? "Given" : "Not Given" }}</p>
+					<div class="privacy-button">
+						<a-button type="default" @click="toggleConsent">
+							{{ this.profile.consentGiven ? "Revoke Consent" : "Give Consent" }}
+						</a-button>
+						<a-button type="danger" @click="clearProfileData">
+							Clear Profile Data
+						</a-button>
+					</div>
+
 				</div>
 			</div>
 		</template>
@@ -131,8 +161,8 @@ export default {
 	data() {
 		return {
 			isEditing: false,
-			consentGiven: true,
 			notificationsEnabled: true,
+			userId: AuthenticationService.currentUserValue.userId,
 			profile: null,
 			avatars: [
 				{ value: "images/face-1.jpg", label: "Face 1" },
@@ -147,48 +177,112 @@ export default {
 			],
 		};
 	},
+
+	computed: {
+		isCalendarConnected() {
+			const tokenExpirationTime = this.profile?.googleAccessTokenExpiry;
+			return (
+				this.profile?.googleAccessToken &&
+				tokenExpirationTime &&
+				Date.now() < new Date(tokenExpirationTime).getTime()
+			);
+		}
+	},
 	created() {
 		this.loadUserProfile();
+		// Check the token for the google Calendar 
 	},
+	watch: {
+		'profile.googleAccessToken': {
+			handler: 'handleCalendarConnectionChange',
+			immediate: true,
+		},
+		'profile.tokenExpirationTime': {
+			handler: 'handleCalendarConnectionChange',
+			immediate: true,
+		},
+	},
+
 	methods: {
 		async loadUserProfile() {
 			try {
-				const userId = AuthenticationService.currentUserValue.userId;
-				const userProfile = await userService.getById(userId);
+				const userProfile = await userService.getById(this.userId);
 				this.profile = { ...userProfile.data };
 			} catch (error) {
 				this.$message.error("Failed to load user profile.");
 			}
 		},
+
+		handleCalendarConnectionChange() {
+			this.$emit("google-connectivity",this.isCalendarConnected)
+		},
+
+
 		async saveProfile() {
 			try {
-				const userId = AuthenticationService.currentUserValue.userId;
-				await userService.putUser(userId, this.profile);
+				await userService.putUser(this.userId, this.profile);
 				this.$message.success("Profile updated successfully.");
 				this.$emit("profile-updated")
 			} catch (error) {
 				this.$message.error("Failed to save profile.");
 			}
-		}, debounceSave: debounce(function () {
+		},
+
+		debounceSave: debounce(function () {
 			this.saveProfile();
 		}, 300),
+
 		toggleEdit() {
 			this.isEditing = !this.isEditing;
 			if (!this.isEditing) this.debounceSave();
 		},
+
 		clearProfileData() {
 			this.$confirm({
 				title: "Clear profile data?",
 				content: "This action cannot be undone.",
-				onOk: () => {
-					this.profile = null;
-					this.$message.success("Profile data cleared.");
+				onOk: async () => {
+					try {
+						await userService.deleteUserPrivacy(this.userId);
+						this.$message.success("Profile data cleared.");
+					} catch (error) {
+						console.log(error.message);
+						this.$message.error("Profile: " + error.message);
+					}
+
 				},
 			});
 		},
+
+		connectGoogleCalendar() {
+			const CLIENT_ID = process.env.VUE_APP_GOOGLE_CLIENT_ID || "656112522901-ec34iteeu8prg629oab9qbn831tbnd22.apps.googleusercontent.com";
+			const REDIRECT_URI = process.env.VUE_APP_GOOGLE_REDIRECT_URIS || "http://localhost:8080/calendar";
+			const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
+
+			const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(SCOPE)}`;
+
+			const popupWindow = window.open(
+				authUrl,
+				"GoogleCalendarAuth",
+				"width=600,height=600,scrollbars=yes,resizable=yes"
+			);
+
+			const pollTimer = setInterval(() => {
+				try {
+					if (popupWindow.closed) {
+						clearInterval(pollTimer);
+						this.$message.info("Connection process completed or cancelled.");
+						this.loadUserProfile();
+					}
+				} catch (e) {
+					console.error("Error checking popup status:", e);
+				}
+			}, 1000);
+		},
+
 		toggleConsent() {
-			this.consentGiven = !this.consentGiven;
-			this.$message.info(`Consent ${this.consentGiven ? "given" : "revoked"}.`);
+			this.profile.consentGiven = !this.profile.consentGiven;
+			this.debounceSave();
 		},
 		formatDate(date) {
 			return date ? new Date(date).toLocaleDateString() : "N/A";
@@ -237,5 +331,15 @@ export default {
 	color: red;
 }
 
+.privacy-button {
+	display: flex;
+	justify-content: flex-end;
+}
 
+.anticon-notification {
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+	font-size: 16px;
+}
 </style>
