@@ -18,9 +18,10 @@ import App from "./App.vue";
 import DefaultLayout from "./layouts/Default.vue";
 import DashboardLayout from "./layouts/Dashboard.vue";
 import router from "./router";
-import './plugins/click-away'
+import "./plugins/click-away";
 import "./scss/app.scss";
 import { Icon } from "leaflet";
+
 delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -28,7 +29,6 @@ Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 Vue.use(Antd);
-
 Vue.config.productionTip = false;
 
 // Adding template layouts to the vue components.
