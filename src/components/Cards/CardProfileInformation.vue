@@ -250,7 +250,9 @@ export default {
 			// Logic to handle token expiration (e.g., logging out user)
 			console.log('Token expired!');
 			this.isTokenExpired = true; // Set the token expired flag
-			handleCalendarConnectionChange();
+			this.handleCalendarConnectionChange();
+			clearInterval(this.timer);
+
 		},
 
 		// Load user profile and check the token expiration

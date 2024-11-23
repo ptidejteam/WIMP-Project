@@ -2,10 +2,13 @@
   <a-card :bordered="true" :bodyStyle="{ padding: '16px' }">
     <template #title>
       <div class="header">
-        <h6 class="font-semibold m-0">Locations Control Panel</h6>
+        <div style="display: flex;flex-direction: column;">
+          <h6 class="font-semibold m-0">Locations Control Panel</h6>
+          <small style="font-style: italic;">Updated: {{ lastUpdated || "Fetching data..." }}</small>
+
+        </div>
         <div>
           <a-button @click="resetSettings" icon="redo" type="link">Refresh</a-button>
-          <small style="font-style: italic;">Updated: {{ lastUpdated || "Fetching data..." }}</small>
         </div>
       </div>
     </template>

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a-card :bordered="true" class="header-solid h-full mb-24" :bodyStyle="{ paddingTop: '14px' }">
+        <a-card :bordered="true" :bodyStyle="{ paddingTop: '16px' }">
             <template #title>
                 <span style="display: flex; align-items: center;">
                     <h6 class="font-semibold">User Availability</h6>

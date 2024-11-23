@@ -1,10 +1,10 @@
 <template>
     <!-- Users Table Card -->
-    <a-card :bordered="false" class="header-solid h-full" :bodyStyle="{ padding: 0 }">
+    <a-card :bordered="false"  :bodyStyle="{ padding: '16px' }">
         <template #title>
             <a-row type="flex" align="middle">
                 <a-col :span="24" :md="12">
-                    <h6>Users</h6>
+                    <h6>Users Control Panel</h6>
                     <p>List of all users except yourself</p>
                 </a-col>
                 <a-col :span="24" :md="12" style="display: flex; align-items: center; justify-content: flex-end">
@@ -12,8 +12,11 @@
                 </a-col>
             </a-row>
         </template>
-
-        <a-table :columns="columns" :data-source="filteredUsers" :pagination="false" :rowKey="record => record._id">
+        <template v-if="!users">
+            <a-skeleton />
+        </template>
+        <a-table v-else :columns="columns" :data-source="filteredUsers" :pagination="false"
+            :rowKey="record => record._id">
             <template slot="userDetails" slot-scope="record">
                 <div class="table-avatar-info">
                     <a-avatar shape="circle" :src="record.avatar" />
@@ -37,7 +40,8 @@
             </template>
 
             <template slot="emailStatus" slot-scope="record">
-                <a-tag class="tag-status" :class="record.emailStatus === 'verified' ? 'ant-tag-success' : 'ant-tag-warning'">
+                <a-tag class="tag-status"
+                    :class="record.emailStatus === 'verified' ? 'ant-tag-success' : 'ant-tag-warning'">
                     {{ record.emailStatus }}
                 </a-tag>
             </template>
@@ -53,12 +57,14 @@
             <a-form layout="vertical">
                 <a-row gutter="16">
                     <a-col :span="12">
-                        <a-form-item label="First Name" :rules="[{ required: true, message: 'Please enter the first name' }]">
+                        <a-form-item label="First Name"
+                            :rules="[{ required: true, message: 'Please enter the first name' }]">
                             <a-input v-model="newUser.firstName" placeholder="Enter first name" />
                         </a-form-item>
                     </a-col>
                     <a-col :span="12">
-                        <a-form-item label="Last Name" :rules="[{ required: true, message: 'Please enter the last name' }]">
+                        <a-form-item label="Last Name"
+                            :rules="[{ required: true, message: 'Please enter the last name' }]">
                             <a-input v-model="newUser.lastName" placeholder="Enter last name" />
                         </a-form-item>
                     </a-col>
@@ -67,11 +73,13 @@
                 <a-row gutter="16">
                     <a-col :span="12">
                         <a-form-item label="Birthday">
-                            <a-date-picker v-model="newUser.birthday" style="width: 100%;" placeholder="Select birthday" />
+                            <a-date-picker v-model="newUser.birthday" style="width: 100%;"
+                                placeholder="Select birthday" />
                         </a-form-item>
                     </a-col>
                     <a-col :span="12">
-                        <a-form-item label="Username" :rules="[{ required: true, message: 'Please enter a unique username' }]">
+                        <a-form-item label="Username"
+                            :rules="[{ required: true, message: 'Please enter a unique username' }]">
                             <a-input v-model="newUser.userName" placeholder="Enter username" />
                         </a-form-item>
                     </a-col>
@@ -93,7 +101,8 @@
                 <a-row gutter="16">
                     <a-col :span="12">
                         <a-form-item label="Position">
-                            <a-select v-model="newUser.position" placeholder="Select position" @change="handlePositionChange">
+                            <a-select v-model="newUser.position" placeholder="Select position"
+                                @change="handlePositionChange">
                                 <a-select-option value="Student">Student</a-select-option>
                                 <a-select-option value="Teacher">Teacher</a-select-option>
                             </a-select>
@@ -114,7 +123,7 @@ export default {
     data() {
         return {
             currentUserId: null,
-            users: [],
+            users: null,
             filteredUsers: [],
             editingUserId: null,
             pollingInterval: 10000, // Polling interval in milliseconds (10 seconds)
@@ -140,7 +149,7 @@ export default {
                     key: 'actions',
                     scopedSlots: { customRender: 'actions' },
                 }
-            ],  
+            ],
 
             showAddUserDialog: false,
             newUser: {
@@ -160,7 +169,7 @@ export default {
     },
     async created() {
         await this.loadUsers();
-        this.startPolling(); // Start polling when component is created
+        //this.startPolling(); // Start polling when component is created
     },
     beforeDestroy() {
         this.stopPolling(); // Clean up polling on component destroy
