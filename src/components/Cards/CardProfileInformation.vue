@@ -101,13 +101,13 @@
 						<img src="images/logos/Google__G__Logo.svg.png" alt="Google Logo"
 							style="width: 1.2rem; margin-left: 0.5rem;">
 					</a-button>
-					<p v-if="isCalendarConnected" style="margin: 0; font-size: 0.9rem; color: #28a745;">
-						<span style="display: flex; align-items: center;">
-
-							<a-icon type="check-circle" style="margin-right: 0.5rem;" />
-							Synced
-						</span>
+					<p v-if="isCalendarConnected"
+						style="margin: 0; font-size: 0.9rem; color: #28a745; display: flex; align-items: center;">
+						<a-icon type="check-circle" style="margin-right: 0.5rem;"></a-icon>
+						<span style="margin-right: auto;">Synced</span>
+						<a-button type="danger" icon="delete" shape="round" style="margin-left: 0.5rem;"></a-button>
 					</p>
+
 				</div>
 
 
@@ -137,12 +137,19 @@
 					</p>
 					<p><b>Consent Status:</b> {{ this.profile.consentGiven ? "Given" : "Not Given" }}</p>
 					<div class="privacy-button">
-						<a-button type="default" @click="toggleConsent">
+						<a-button type="default" @click="toggleConsent" shape="round">
 							{{ this.profile.consentGiven ? "Revoke Consent" : "Give Consent" }}
 						</a-button>
-						<a-button type="danger" @click="clearProfileData">
-							Clear Profile Data
-						</a-button>
+						<a-popconfirm
+							title="Are you sure you want to clear your profile data? This action cannot be undone."
+							placement="topLeft" ok-text="Yes, clear it" cancel-text="Cancel"
+							@confirm="clearProfileData">
+							<a-button type="danger" icon="delete" shape="round">
+								Clear Profile Data
+							</a-button>
+						</a-popconfirm>
+
+
 					</div>
 
 				</div>
@@ -298,21 +305,21 @@ export default {
 		},
 
 		// Clear user profile data
-		clearProfileData() {
-			this.$confirm({
-				title: "Clear profile data?",
-				content: "This action cannot be undone.",
-				onOk: async () => {
-					try {
-						await userService.deleteUserPrivacy(this.userId);
-						this.$message.success("Profile data cleared.");
-						this.loadUserProfile();
-					} catch (error) {
-						console.log(error.message);
-						this.$message.error("Profile: " + error.message);
-					}
-				},
-			});
+		async clearProfileData() {
+			// this.$confirm({
+			// 	title: "Clear profile data?",
+			// 	content: "This action cannot be undone.",
+			// 	onOk: async () => {
+			try {
+				await userService.deleteUserPrivacy(this.userId);
+				this.$message.success("Profile data cleared.");
+				this.loadUserProfile();
+			} catch (error) {
+				console.log(error.message);
+				this.$message.error("Profile: " + error.message);
+			}
+			// 	},
+			// });
 		},
 
 		// Connect to Google Calendar
@@ -335,7 +342,7 @@ export default {
 						clearInterval(pollTimer);
 						this.$message.info("Connection process completed or cancelled.");
 						this.loadUserProfile();
-						
+
 					}
 				} catch (e) {
 					console.error("Error checking popup status:", e);
