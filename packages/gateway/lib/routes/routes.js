@@ -26,6 +26,17 @@ exports.routes = [
     },
   },
   {
+    url: `/${API_PREFIX}/logout`,
+    authenticationRequired: true,
+    proxy: {
+      target: `${USER_URL}/logout`,
+      changeOrigin: true,
+      pathRewrite: {
+        [`^/${API_PREFIX}/logout`]: "",
+      },
+    },
+  },
+  {
     url: `/${API_PREFIX}/refresh`,
     authenticationRequired: true,
     applyBodyParser: true,
