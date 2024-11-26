@@ -17,4 +17,10 @@ exports.routesConfig = function (app) {
         IdentityChecker.isUserStillExistsWithSamePrivileges,
         Authenticator.refresh_token
     ]);
+
+
+    app.post('/logout', [
+        Validator.validJWTNeeded,
+        Authenticator.logout
+    ]);
 };
