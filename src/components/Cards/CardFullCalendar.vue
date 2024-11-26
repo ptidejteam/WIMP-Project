@@ -5,9 +5,11 @@
       <div class="header">
         <div style="display: flex; flex-direction: column;">
           <h6 class="font-semibold m-0">Calendar</h6>
-          <small style="font-style: italic;">Updated: {{ lastUpdated || "Fetching data..." }}</small>
+          <small style="font-style: italic;">Updated: {{ lastUpdated | dateTime }}</small>
         </div>
-        <a-button icon="redo" type="link" @click="fetchEvents">Refresh</a-button>
+        <a-alert v-if="!googleCalendarConnectivity" message="Your google calendar is not connected" type="warning"
+          show-icon />
+        <a-button icon="redo" type="link" @click="fetchData">Refresh</a-button>
       </div>
     </template>
 
@@ -17,33 +19,22 @@
     <template v-else>
       <!-- Controls -->
       <div style="margin: 5px 12px; display: flex; justify-content: space-between; align-items: flex-end;">
-        <div style="    display: flex;
-    align-items: flex-end; ">
-          <div>
-            <label for="viewSelect" style="font-weight: bold; margin-bottom: 8px; display: block;">
-              Calendar View:
-            </label>
-            <a-select id="viewSelect" v-model="options.defaultView" style="width: 100%;" @change="changeView">
-              <a-select-option value="month">Month</a-select-option>
-              <a-select-option value="week">Week</a-select-option>
-              <a-select-option value="day">Day</a-select-option>
-            </a-select>
-          </div>
+        <div style=" display: flex; align-items: flex-end; ">
+
+          <a-select id="viewSelect" v-model="options.defaultView" style="width: 100%;" @change="changeView">
+            <a-select-option value="month">Month</a-select-option>
+            <a-select-option value="week">Week</a-select-option>
+            <a-select-option value="day">Day</a-select-option>
+          </a-select>
           <a-button @click="calendar.today()" label="Today">Today</a-button>
         </div>
-        <div style="    display: flex
-;
-    flex-direction: row;
-    ">
-          <a-button @click="calendar.prev()" icon="left"  shape="circle" type="primary"></a-button>
-          <h5 style="margin: 0 36px" class="font-semibold">{{ formatDate(calendar.getDateRangeStart(),true) + " ~ " +   formatDate(calendar.getDateRangeEnd(),true) }}</h5>
-
-          <a-button @click="calendar.next()" icon="right"  shape="circle" type="primary"></a-button>
+        <div style="display: flex;flex-direction: row;">
+          <a-button @click="calendar.prev()" icon="left" shape="circle" type="primary"></a-button>
+          <h5 style="margin: 0 36px" class="font-semibold">{{ calendar.getDateRangeStart() | date }} ~
+            {{ calendar.getDateRangeEnd() | date }}</h5>
+          <a-button @click="calendar.next()" icon="right" shape="circle" type="primary"></a-button>
         </div>
-
-
-
-        <a-button type="primary" @click="showEventForm">Add Event</a-button>
+        <a-button @click="showEventForm" type="primary" shape="round" icon="plus">Request</a-button>
       </div>
     </template>
 
@@ -51,56 +42,50 @@
     <a-spin :spinning="spinning">
       <a-card>
         <div id="calendar" ref="calendarContainer" style="height: 800px;"></div>
-
       </a-card>
     </a-spin>
 
     <!-- Event Modal -->
-    <a-modal :visible="isEventFormVisible" title="Add/Edit Event">
-      <a-form layout="vertical">
-        <a-form-item label="Title">
-          <a-input v-model="eventForm.title" placeholder="Enter event title" />
-        </a-form-item>
-        <a-form-item label="Start Date">
-          <a-date-picker v-model="eventForm.start" show-time placeholder="Select start date" />
-        </a-form-item>
-        <a-form-item label="End Date">
-          <a-date-picker v-model="eventForm.end" show-time placeholder="Select end date" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+    <EventFormModal :visible="isEventFormVisible" @close="closeEventForm" @submit="handleFormSubmit" />
 
     <!-- Event Details Modal -->
-    <a-modal :visible="isEventDetailsVisible" :footer="null">
-      <div v-if="selectedEvent">
-        <a-card bordered style="background-color: #f5f5f566; border-radius: 8px;">
-          <template #title>
-            <h3 style="margin: 0; color: #1890ff;">{{ selectedEvent.title }}</h3>
-          </template>
-          <div style="display: flex; gap: 16px; align-items: center;">
-            <a-icon type="calendar" style="font-size: 20px;  gap: 16px; color: #52c41a;" />
+    <a-modal :visible="isEventDetailsVisible" title="Event Details" @ok="closeEventDetails" @cancel="closeEventDetails">
+      <template v-if="selectedEvent">
+        <div class="event-container">
+          <h3 class="event-title">{{ selectedEvent.title }}</h3>
+          <div class="event-details">
+            <a-icon type="calendar" class="event-icon event-calendar-icon" />
+            <strong>Time:</strong>
             <div>
-              <p style="margin: 0;"><strong>Start:</strong> {{ formatDate(selectedEvent.start) }}</p>
-              <p style="margin: 0;"><strong>End:</strong> {{ formatDate(selectedEvent.end) }}</p>
+              <p><strong>Start:</strong> {{ selectedEvent.start | dateTime }}</p>
+              <p><strong>End:</strong> {{ selectedEvent.end | dateTime }}</p>
             </div>
           </div>
-          <a-divider />
-          <div style="margin-top: 16px;">
-            <p>
-              <a-icon type="info-circle" style="color: #1890ff;" /> <strong>Description:</strong>
-            </p>
-            <p style="margin-left: 24px;">{{ selectedEvent.description || "No description provided" }}</p>
+          <hr>
+          <!-- Location Section -->
+          <div class="event-details">
+            <a-icon type="environment" class="event-icon event-location-icon" />
+            <strong>Location:</strong>
+            <p class="event-text">{{ selectedEvent.location || "Location not specified" }}</p>
           </div>
-          <a-divider />
-          <div style="margin-top: 16px;">
-            <p>
-              <a-icon type="tag" style="color: #faad14;" /> <strong>Category:</strong>
-            </p>
-            <p style="margin-left: 24px;">{{ selectedEvent.category || "General" }}</p>
+          <hr>
+
+          <div class="event-details">
+            <a-icon type="info-circle" class="event-icon event-info-icon" />
+            <strong>Description:</strong>
+            <p class="event-text">{{ selectedEvent.description || "No description provided" }}</p>
           </div>
-        </a-card>
-      </div>
+          <hr>
+
+          <div class="event-details">
+            <a-icon type="tag" class="event-icon event-category-icon" />
+            <strong>Category:</strong>
+            <p class="event-text">{{ selectedEvent.category | capitalize }}</p>
+          </div>
+        </div>
+      </template>
     </a-modal>
+
 
   </a-card>
 </template>
@@ -109,9 +94,13 @@
 import Calendar from "@toast-ui/calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import { AuthenticationService } from "../../services/auth.service";
-import { userService } from "../../services/user.service";
-
+import { meetingService } from "../../services/meeting.service";
+import { Role } from "../../helpers/roles";
+import EventFormModal from "../Modals/EventFormModal.vue";
 export default {
+  components: {
+    EventFormModal
+  },
   props: {
     googleCalendarConnectivity: {
       type: Boolean,
@@ -120,18 +109,23 @@ export default {
     requestedUser: {
       type: String,
       default: ""
-    }
+    },
+    // requesterRole:  {
+    //   type : Role, 
+    //   default : Role.Surfer
+    // }
   },
   data() {
     return {
       calendar: null,
       events: [],
       spinning: false,
-      lastUpdated: this.formatDate(Date.now()),
+      lastUpdated: null,
       userId: AuthenticationService.currentUserValue.userId,
       googleAccessToken: null,
       isEventFormVisible: false,
       isEventDetailsVisible: false,
+      Role: Role,
       options: {
         defaultView: "month",
         useDetailPopup: false, // Disable built-in detail popup
@@ -147,60 +141,45 @@ export default {
       selectedEvent: null,
     };
   },
-  computed: {
+
+  watch: {
+    googleCalendarConnectivity: {
+      handler: 'fetchData',
+    },
   },
   async mounted() {
     this.initializeCalendar();
     if (this.googleCalendarConnectivity) {
-      await this.fetchEvents();
+      await this.fetchData();
     }
   },
   methods: {
     // Initialize the calendar with options
     initializeCalendar() {
       this.calendar = new Calendar(this.$refs.calendarContainer, this.options);
-      console.log(this.calendar?.today())
-
       this.calendar.on("clickEvent", this.showEventDetails);
-      this.calendar.on("beforeCreateSchedule", this.addQuickEvent);
     },
-
-    // Fetch events from the Google Calendar API
-    async fetchEvents() {
+    async fetchData() {
       if (this.spinning) return;
-
       this.spinning = true;
       try {
-        const response = await userService.getById(this.userId);
-        this.googleAccessToken = response?.data?.googleAccessToken;
+        const response = await meetingService.getMeetingById(this.userId);
+        response.data.forEach(item => {
+          item.id = item._id; // Assign _id to id
+          delete item._id;    // Remove _id
+          delete item.__v;
+        });
 
-        if (!this.googleAccessToken) {
-          throw new Error("Google access token is missing.");
-        }
-
-        const calendarResponse = await fetch(
-          "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${this.googleAccessToken}`,
-            },
-          }
-        );
-
-        if (!calendarResponse.ok) throw new Error("Failed to fetch events.");
-
-        const data = await calendarResponse.json();
-        this.events = data.items.map((event) => ({
+        this.events = response.data.map((event) => ({
           id: event.id,
-          calendarId: "cal1",
           title: event.summary || "No Title",
           category: "time",
-          start: event.start?.dateTime || event.start?.date,
-          end: event.end?.dateTime || event.end?.date,
+          location: event.location,
+          start: event.start,
+          end: event.end,
           description: event.description || "",
+          backgroundColor: event.source === "external" ? "#7ed6df" : "#3498db"
         }));
-
         this.calendar.clear();
         this.calendar.createEvents(this.events);
         this.lastUpdated = Date.now();
@@ -217,6 +196,10 @@ export default {
       this.calendar.changeView(view);
     },
 
+    handleFormSubmit(formData) {
+      console.log("Form Submitted:", formData);
+      // Handle form data submission (e.g., send to API or save to store)
+    },
     // Show event details in a modal
     showEventDetails(schedule) {
       const event = this.events.find((e) => e.id === schedule.event.id);
@@ -224,10 +207,14 @@ export default {
       this.isEventDetailsVisible = true;
     },
 
-    // Close the event details modal
+    // Close the Event Details modal
     closeEventDetails() {
       this.isEventDetailsVisible = false;
       this.selectedEvent = null;
+    },
+
+    closeEventForm() {
+      this.isEventFormVisible = false;
     },
 
     // Show the event form modal
@@ -235,35 +222,29 @@ export default {
       this.isEventFormVisible = true;
     },
 
-    // Format the date to a readable format
-    formatDate(date, isRange = false) {
-      const options = {
+  },
+  filters: {
+    capitalize(value) {
+      if (!value) return "";
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    },
+    dateTime(value) {
+      return !value ? "" : new Date(value).toLocaleString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-      }
-      if(isRange) { 
-        delete options.hour;
-        delete options.minute;
-      }
-      return  new Date(date).toLocaleString("en-US", options);
+      });
     },
 
-    // Add a quick event to the calendar
-    addQuickEvent(event) {
-      const newEvent = {
-        id: `event-${Date.now()}`,
-        calendarId: "cal1",
-        title: "New Event",
-        start: event.start,
-        end: event.end,
-        description: "Quickly created event.",
-      };
-      this.events.push(newEvent);
-      this.calendar.createEvents([newEvent]);
-    },
+    date(value) {
+      return !value ? "" : new Date(value).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
   },
 };
 </script>
@@ -275,5 +256,44 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.event-container {
+  padding: 16px;
+}
+
+.event-title {
+  margin-bottom: 16px;
+  color: #1890ff;
+  font-size: 1.5em;
+}
+
+.event-details {
+  display: flex;
+  gap: 16px;
+}
+
+.event-icon {
+  font-size: 20px;
+}
+
+.event-calendar-icon {
+  color: #52c41a;
+}
+
+.event-info-icon {
+  color: #1890ff;
+}
+
+.event-category-icon {
+  color: #faad14;
+}
+
+.event-section {
+  margin-top: 16px;
+}
+
+.event-text {
+  margin-left: 24px;
 }
 </style>
