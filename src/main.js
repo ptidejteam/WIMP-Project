@@ -20,6 +20,8 @@ import DashboardLayout from "./layouts/Dashboard.vue";
 import router from "./router";
 import "./plugins/click-away";
 import "./scss/app.scss";
+import "./plugins/socket"; // Import the WebSocket plugin
+
 import { Icon } from "leaflet";
 
 delete Icon.Default.prototype._getIconUrl;
