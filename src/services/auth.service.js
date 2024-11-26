@@ -2,6 +2,7 @@ import axios from "axios";
 import { BehaviorSubject } from "rxjs";
 import * as jwt from "jsonwebtoken";
 import { handleErrorResponse } from "../helpers/handle-response";
+import { requestOptions } from "./auth.header";
 
 const API_URL = process.env.VUE_APP_API_URL || "http://localhost:50052/api/v1";
 const currentUserSubject = new BehaviorSubject(
@@ -54,10 +55,13 @@ async function login(user) {
 
 async function refreshAccessToken() {
   const tokens = currentAuthTokens.value;
-  console.log(tokens);
-  const response = await axios.post(API_URL + "/refresh", {
-    refreshToken: tokens.refreshToken, // assuming your API uses this endpoint
-  });
+  const response = await axios.post(
+    API_URL + "/refresh",
+    {
+      refreshToken: tokens.refreshToken, // assuming your API uses this endpoint
+    },
+    requestOptions.header()
+  );
   console.log(response.data);
   if (response.data) {
     currentAuthTokens.next(response.data);
@@ -70,12 +74,14 @@ async function refreshAccessToken() {
   return response.data.accessToken; // return the new access token
 }
 
-function logout() {
-  // localStorage.removeItem("currentTokens");
-  // localStorage.removeItem("currentUser");
-  // localStorage.removeItem("googleAccessToken");
-  // localStorage.removeItem("tokenExpirationTime");
-
+async function logout() {
+  const response = await axios.post(
+    API_URL + "/logout",
+    {
+      _id: currentUserSubject.value.userId,
+    },
+    requestOptions.header()
+  );
   localStorage.clear();
   currentUserSubject.next(null);
   currentAuthTokens.next(null);
