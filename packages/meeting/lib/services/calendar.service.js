@@ -1,38 +1,40 @@
 const { google } = require("googleapis");
-const cron = require("node-cron"); // Import node-cron
+const cron = require("node-cron");
 const { subscribe } = require("@wimp-project/rabbitmq");
-const Meeting = require("../routes/models/meeting.model"); // Replace with your current event/meeting model
+const Meeting = require("../routes/models/meeting.model");
 
 // Google Calendar API setup
 const calendar = google.calendar("v3");
 
-// Map to store user tokens retrieved from the channel
+// In-memory storage for user tokens
 const userTokens = new Map();
 
-// Callback to handle incoming RabbitMQ connection messages
+/**
+ * Handles user connection messages from RabbitMQ.
+ */
 async function onConnectHandler(message) {
   try {
-    console.log(message);
-    const { _id, googleAccessToken, googleAccessTokenExpiry } =
-      JSON.parse(message);
-
-    // Store user token in the map
-    userTokens.set(_id, { googleAccessToken, googleAccessTokenExpiry });
-    console.log(`Updated token for user: ${_id}`);
+    const { _id, googleAccessToken, googleAccessTokenExpiry } = JSON.parse(message);
+    if (_id && googleAccessToken && googleAccessTokenExpiry) {
+      userTokens.set(_id, { googleAccessToken, googleAccessTokenExpiry });
+      console.log(`Token updated for user: ${_id}`);
+    } else {
+      console.warn(`Invalid connection data received: ${message}`);
+    }
   } catch (error) {
     console.error(`Error processing connection message: ${error.message}`);
   }
 }
 
-// Callback to handle incoming RabbitMQ disconnection messages
+/**
+ * Handles user disconnection messages from RabbitMQ.
+ */
 async function onDisconnectHandler(message) {
   try {
     const { _id } = JSON.parse(message);
-
-    // Remove user token from the map
-    if (userTokens.has(_id)) {
-      userTokens.delete(_id);
-      console.log(`Removed token for user: ${_id}`);
+    if (userTokens.delete(_id)) {
+      await Meeting.deleteMany({ requestedUserId: _id, source: "external" });
+      console.log(`Token removed and meetings cleared for user: ${_id}`);
     } else {
       console.warn(`No token found for user: ${_id}`);
     }
@@ -41,95 +43,90 @@ async function onDisconnectHandler(message) {
   }
 }
 
-// Subscribe to RabbitMQ communication channels
+/**
+ * Subscribes to RabbitMQ channels for user connection and disconnection.
+ */
 async function startSubscriptions() {
   try {
-    // Subscribe to the user-connection channel
-    await subscribe(process.env.SERVICE_QUEUE, onConnectHandler, {
-      exchange: "user-connection",
-      routingKey: "wimp-system",
-    });
-    console.log("Subscription to user-connection channel started.");
+    const options = { exchange: "wimp-system", routingKey: "wimp-system" };
 
-    // Subscribe to the user-disconnection channel
-    await subscribe(process.env.SERVICE_QUEUE, onDisconnectHandler, {
-      exchange: "user-disconnection",
-      routingKey: "wimp-system",
+    await subscribe(process.env.SERVICE_QUEUE, onConnectHandler, {
+      ...options,
+      exchange: "user-connection",
     });
-    console.log("Subscription to user-disconnection channel started.");
+    console.log("Subscribed to user-connection channel.");
+
+    await subscribe(process.env.SERVICE_QUEUE, onDisconnectHandler, {
+      ...options,
+      exchange: "user-disconnection",
+    });
+    console.log("Subscribed to user-disconnection channel.");
   } catch (error) {
     console.error(`Error subscribing to channels: ${error.message}`);
   }
 }
 
-// Subscribe to RabbitMQ communication channel
-async function startSubscriptions() {
-  try {
-    await subscribe(process.env.SERVICE_QUEUE, onConnectHandler, {
-      exchange: "user-connection",
-      routingKey: "wimp-system",
-    });
-
-    await subscribe(process.env.SERVICE_QUEUE, onDisconnectHandler, {
-      exchange: "user-disconnection",
-      routingKey: "wimp-system",
-    });
-    console.log("Subscription to user-connection channel started.");
-  } catch (error) {
-    console.error(`Error subscribing to channel: ${error.message}`);
+/**
+ * Checks if the token for a user is valid.
+ */
+function isTokenValid(userId) {
+  const userToken = userTokens.get(userId);
+  if (!userToken) {
+    console.log(`No token available for user: ${userId}`);
+    return false;
   }
+
+  const { googleAccessTokenExpiry } = userToken;
+  if (Date.now() >= new Date(googleAccessTokenExpiry).getTime()) {
+    console.log(`Token expired for user: ${userId}`);
+    return false;
+  }
+
+  return true;
 }
 
-// Function to fetch Google Calendar events for a specific user
+/**
+ * Fetches Google Calendar events for a specific user.
+ */
 async function fetchGoogleCalendarEvents(userId) {
+  if (!isTokenValid(userId)) {
+    return;
+  }
+
+  const { googleAccessToken } = userTokens.get(userId);
+
   try {
-    const userToken = userTokens.get(userId);
-
-    if (!userToken || !userToken.googleAccessToken) {
-      console.log(`No Google access token available for user: ${userId}`);
-      return;
-    }
-
-    // Check if the access token has expired
-    if (Date.now() >= new Date(userToken.googleAccessTokenExpiry).getTime()) {
-      console.log(`Google access token expired for user: ${userId}`);
-      return;
-    }
-
-    // Configure OAuth2 client with the user's access token
     const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: userToken.googleAccessToken });
+    oauth2Client.setCredentials({ access_token: googleAccessToken });
 
-    // Fetch events from Google Calendar
     const response = await calendar.events.list({
       auth: oauth2Client,
       calendarId: "primary",
       timeMin: new Date().toISOString(),
       singleEvents: true,
       orderBy: "startTime",
+      maxResults: 20,
     });
 
     const events = response.data.items || [];
-    console.log(`Fetched ${events.length} events for user ${userId}.`);
-
-    // Save or update events in the database
+    console.log(`Fetched ${events.length} events for user: ${userId}.`);
     await saveEventsToDatabase(userId, events);
   } catch (error) {
-    console.error(
-      `Error fetching Google Calendar events for user ${userId}: ${error.message}`
-    );
+    console.error(`Error fetching events for user ${userId}: ${error.message}`);
   }
 }
 
-// Function to save fetched events to the database
+/**
+ * Saves or updates Google Calendar events in the database.
+ */
 async function saveEventsToDatabase(userId, events) {
-  if (!events || events.length === 0) {
-    console.log(`No events to save for user ${userId}.`);
+  if (!events.length) {
+    console.log(`No events to save for user: ${userId}.`);
     return;
   }
 
   try {
-    for (const event of events) {
+    const upsertPromises = events.map((event) => {
       const meetingData = {
         requesterId: userId,
         eventId: event.id,
@@ -139,26 +136,27 @@ async function saveEventsToDatabase(userId, events) {
         end: new Date(event.end.dateTime || event.end.date),
         location: event.location || "",
         status: event.status || "confirmed",
-        source: "external", // Since this comes from Google Calendar
+        source: "external",
       };
 
-      // Upsert the event (insert if not exists, update if it exists)
-      await Meeting.updateOne(
+      return Meeting.updateOne(
         { requesterId: userId, eventId: event.id },
         { $set: meetingData },
-        { upsert: true } // Create a new record if none exists
+        { upsert: true }
       );
-    }
+    });
 
-    console.log(`Saved/Updated events for user ${userId} in the database.`);
+    await Promise.all(upsertPromises);
+    console.log(`Saved/Updated ${events.length} events for user: ${userId}.`);
   } catch (error) {
-    console.error(`Error saving events to the database: ${error.message}`);
+    console.error(`Error saving events to database: ${error.message}`);
   }
 }
 
-// Function to periodically fetch Google Calendar events
+/**
+ * Schedules periodic fetching of Google Calendar events.
+ */
 function listenToGoogleCalendar() {
-  // Schedule task to run every minute (adjust as needed)
   cron.schedule("*/1 * * * *", async () => {
     console.log("Checking Google Calendar events...");
     for (const userId of userTokens.keys()) {
@@ -167,6 +165,8 @@ function listenToGoogleCalendar() {
   });
 }
 
-// Initialize subscriptions and start listening
-startSubscriptions();
-listenToGoogleCalendar();
+// Initialize subscriptions and start fetching
+(async function initialize() {
+  await startSubscriptions();
+  listenToGoogleCalendar();
+})();

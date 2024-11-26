@@ -24,7 +24,7 @@ exports.insert = async (req, res) => {
     }
 
     const meetingData = { requesterId, requestedUserId, time };
-    const result = await MeetingModel.createMeeting(meetingData);
+    const result = await MeetingModel.create(meetingData);
     res.status(201).send({ id: result._id });
   } catch (error) {
     console.error("Error inserting meeting:", error);
@@ -56,18 +56,6 @@ exports.updateById = async (req, res) => {
 };
 
 // Get meeting by ID
-exports.getById = async (req, res) => {
-  try {
-    const result = await MeetingModel.findByEventId(req.params.eventId);
-    if (!result) {
-      return res.status(404).send({ message: "Meeting not found." });
-    }
-    res.status(200).send(result);
-  } catch (error) {
-    console.error("Error retrieving meeting by ID:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not retrieve meeting." });
-  }
-};
 exports.getById = async (req, res) => {
   try {
     const result = await MeetingModel.findByRequesterOrRequestedUserId(req.params.userId);

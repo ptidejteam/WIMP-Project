@@ -77,7 +77,7 @@ exports.findByRequesterOrRequestedUserId = (userId) =>
 exports.findByEventId = (eventId) => Meeting.find({ eventId }).lean().exec();
 
 // Create a new meeting
-exports.createMeeting = async (meetingData) => {
+exports.create = async (meetingData) => {
   const meeting = new Meeting(meetingData);
   return meeting.save();
 };
@@ -104,4 +104,4 @@ exports.deleteMany = (filter = {}) => Meeting.deleteMany(filter).exec();
 
 
 // Use the pre-defined UpdateOne 
-exports.updateOne = (data) => Meeting.updateOne(data).exec();
+exports.updateOne = (filter = {} , data = {} , options = {}) => Meeting.updateOne(filter,data,options).exec();
