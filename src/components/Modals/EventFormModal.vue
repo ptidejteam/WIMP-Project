@@ -82,7 +82,7 @@
 <script>
 import { AuthenticationService } from "../../services/auth.service";
 import { userService } from "../../services/user.service";
-import moment from "moment";
+import * as moment from "moment";
 
 export default {
     props: {
