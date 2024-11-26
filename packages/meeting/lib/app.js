@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const MeetingRouter = require("./routes/routes.config.js");
 const {runSeed} = require("./routes/models/meeting.seed.js");
+const { setupLogging } = require("../../user/lib/utils/logging.js");
 
 require("./services/calendar.service.js");
 require("dotenv").config({ path: require("path").resolve(__dirname, ".env") });
@@ -30,7 +31,7 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json());
 
 // Setting up the logging
-// setupLogging(app);
+setupLogging(app);
 
 
 /// Check if we need to seed the database or not 

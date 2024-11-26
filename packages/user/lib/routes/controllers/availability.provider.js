@@ -25,11 +25,6 @@ exports.insertOrUpdate = async (req, res) => {
     }
 
     const result = await AvailabilityModel.findOrCreate(userId);
-    // Notify the front about the changes of the Availability
-    publish("front", "wimp-system", userId)
-      .then(() => console.log("Front Notification sent"))
-      .catch((err) => console.error(err));
-
     // Return the information to the front
     res.status(201).send({ id: result._id });
   } catch (error) {
@@ -63,9 +58,8 @@ exports.updateAvailability = async (req, res) => {
       settings: result,
     });
     // Notify the front about the changes of the Availability
-    publish("front", "wimp-system", "userId")
-      .then(() => console.log("Front Notification sent"))
-      .catch((err) => console.error(err));
+      publish("front", "wimp-system", "availability").then(() => console.log("front notification sent")).catch((err) => console.error("something went wrong"));
+
   } catch (error) {
     console.error("Error updating user availability:", error);
     res.status(500).send({

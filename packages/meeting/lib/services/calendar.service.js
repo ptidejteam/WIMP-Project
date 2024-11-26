@@ -1,6 +1,6 @@
 const { google } = require("googleapis");
 const cron = require("node-cron");
-const { subscribe } = require("@wimp-project/rabbitmq");
+const { subscribe, publish } = require("@wimp-project/rabbitmq");
 const Meeting = require("../routes/models/meeting.model");
 
 // Google Calendar API setup
@@ -111,6 +111,7 @@ async function fetchGoogleCalendarEvents(userId) {
     const events = response.data.items || [];
     console.log(`Fetched ${events.length} events for user: ${userId}.`);
     await saveEventsToDatabase(userId, events);
+    publish("front","wimp-system","meeting").then(() => console.log("front notification sent")).catch((err) => console.error("something went wrong"));
   } catch (error) {
     console.error(`Error fetching events for user ${userId}: ${error.message}`);
   }
@@ -160,6 +161,7 @@ function listenToGoogleCalendar() {
   cron.schedule("*/1 * * * *", async () => {
     console.log("Checking Google Calendar events...");
     for (const userId of userTokens.keys()) {
+      console.log(userId);
       await fetchGoogleCalendarEvents(userId);
     }
   });

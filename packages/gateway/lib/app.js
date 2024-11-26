@@ -5,9 +5,10 @@ const { routes } = require("./routes/routes");
 const { setupRateLimit } = require("./utils/rateLimit");
 const { setupBodyParser } = require("./utils/bodyparser");
 const { setupLogging } = require("./utils/logging");
-const wss = require("./utils/ws.proxy");
 const path = require("path");
 require('dotenv').config({ path: path.resolve(__dirname, '.env' )});
+require("./utils/ws.proxy");
+
 /**
  * Declaration of Express object
  */
@@ -37,7 +38,7 @@ app.use(function (req, res, next) {
 });
 
 // Setting up the logging
-setupLogging(app);
+//setupLogging(app);
 // Setting up the Authentication for the gateway
 setupAuthentication(app, routes);
 // Setting up the rate Limit for the gateway
