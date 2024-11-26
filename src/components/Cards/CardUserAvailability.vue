@@ -82,12 +82,17 @@ export default {
     },
     mounted() {
         this.fetchUsers();
-        //this.startAutoRefresh();
+        this.$subscribeToEvent(this.handleRefresh);
+
+
     },
     beforeDestroy() {
-        this.stopAutoRefresh();
     },
     methods: {
+        handleRefresh(e){
+            console.log(e);
+            if(e.data === 'availability') { this.fetchUsers(); }
+        },
         formatAvailabilityStatus(val) {
             return String(val).charAt(0).toUpperCase() + String(val).slice(1);
         },
@@ -119,12 +124,7 @@ export default {
                 }, 500);
             }
         },
-        startAutoRefresh() {
-            this.refreshInterval = setInterval(this.fetchUsers, 5000);
-        },
-        stopAutoRefresh() {
-            clearInterval(this.refreshInterval);
-        },
+
         getAvailabilityStatus(status) {
             // Define the status for the badge
             switch (status.toLowerCase()) {

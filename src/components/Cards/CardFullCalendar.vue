@@ -152,8 +152,16 @@ export default {
     if (this.googleCalendarConnectivity) {
       await this.fetchData();
     }
+    // Subscribe to a WebSocket event
+    this.$subscribeToEvent(this.handleRefresh);
   },
   methods: {
+
+    handleRefresh(event) {
+      if(event.data === 'meeting'){ 
+        this.fetchData();
+      } 
+    },
     // Initialize the calendar with options
     initializeCalendar() {
       this.calendar = new Calendar(this.$refs.calendarContainer, this.options);
