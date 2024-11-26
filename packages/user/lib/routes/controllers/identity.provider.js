@@ -1,5 +1,6 @@
 const IdentityModel = require("../models/identity.model");
 const { hashPassword } = require("@wimp-project/utils");
+const { publish } = require("@wimp-project/rabbitmq");
 
 // Insert a new identity
 exports.insert = async (req, res) => {
@@ -70,6 +71,11 @@ exports.putById = async (req, res) => {
     if (!result) {
       return res.status(404).send({ message: "Identity not found" });
     }
+
+    // notify the other services that a new user is connected
+    publish("user-connection", "wimp-system", await IdentityModel.findById(req.params.userId))
+      .then(() => console.log("notification sent"))
+      .catch((err) => console.error(err));
     res.status(204).send(); // No content response
   } catch (error) {
     console.error("Error updating identity by ID:", error);
@@ -132,7 +138,6 @@ exports.saveGoogleToken = async (req, res) => {
     if (!userId) {
       return res.status(400).send({ message: "User ID is required." });
     }
-
     const result = await IdentityModel.saveGoogleToken(userId);
     res.status(201).send({ id: result._id });
   } catch (error) {
@@ -149,11 +154,14 @@ exports.clearPrivacyData = async (req, res) => {
     if (!userId)
       return res.status(400).send({ message: "User ID is required." });
     await IdentityModel.clearPrivacyData(userId);
+    // notify the other services that a new user is connected
+    publish("user-connection", "wimp-system", await IdentityModel.findById(req.params.userId))
+      .then(() => console.log("notification sent"))
+      .catch((err) => console.error(err));
     res.status(200).send({ message: "Account Privacy has been cleared" });
   } catch (error) {
     res.status(500).send({
-      message:
-        `[Internal Server Error]. Could not insert or update user privacy. \n ${error.message}`,
+      message: `[Internal Server Error]. Could not insert or update user privacy. \n ${error.message}`,
     });
   }
 };

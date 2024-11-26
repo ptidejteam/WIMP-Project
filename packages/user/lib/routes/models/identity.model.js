@@ -80,7 +80,6 @@ exports.findByEmail = (email) => Identity.findOne({ email }).lean().exec();
 exports.findById = async (id) => {
   const result = await Identity.findOne({ _id: id }).lean().exec();
   if (result) {
-    delete result._id;
     delete result.__v;
     delete result.password;
   }

@@ -2,31 +2,11 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const MeetingRouter = require("./routes/routes.config.js");
+require("./services/calendar.service.js");
+require("dotenv").config({ path: require("path").resolve(__dirname, ".env") });
 
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, ".env") });
-const { subscribe } = require("@wimp-project/rabbitmq");
 
-// Callback to handle incoming messages
-function messageHandler(message) {
-  console.log("Received message:", message);
-}
-
-// Subscribe to the communication channel to start running the meeting checks
-// to start the calendar check
-async function startSubscriptions() {
-  // Subscribe to different queues bound to different exchanges
-  await subscribe(process.env.SERVICE_QUEUE, messageHandler, {
-    exchange: "user-connection",
-    routingKey: "wimp-system",
-  });
-  await subscribe(process.env.SERVICE_QUEUE, messageHandler, {
-    exchange: "user-availability",
-    routingKey: "wimp-system",
-  });
-}
-
-startSubscriptions();
+// startSubscriptions();
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

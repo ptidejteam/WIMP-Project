@@ -22,7 +22,7 @@ const Schema = mongoose.Schema;
 
 const meetingSchema = new Schema(
   {
-    requesterId: { type: Schema.Types.ObjectId, ref: "Users", required: true },
+    requesterId: { type: Schema.Types.ObjectId, ref: "Users" },
     requestedUserId: {
       type: Schema.Types.ObjectId,
       ref: "Users",
@@ -101,3 +101,7 @@ exports.removeById = (id) => Meeting.deleteOne({ eventId : id }).exec();
 
 // Delete all meetings
 exports.deleteMany = (filter = {}) => Meeting.deleteMany(filter).exec();
+
+
+// Use the pre-defined UpdateOne 
+exports.updateOne = (data) => Meeting.updateOne(data).exec();

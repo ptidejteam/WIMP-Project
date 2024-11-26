@@ -5,9 +5,7 @@ const {
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { readSecurityFile } = require("@wimp-project/utils");
-// const { publish }  = require("@wimp-project/kafka");
 
-const { publish } = require("@wimp-project/rabbitmq");
 
 const cert = readSecurityFile();
 
@@ -30,11 +28,6 @@ exports.login = (req, res) => {
 
     // Combine salt and hash for refresh token
     const refreshToken = `${salt}$${hash}`;
-
-    // notify the other services that a new user is connected
-    publish("user-connection", "wimp-system" , userId)
-      .then(() => console.log("notification sent"))
-      .catch((err) => console.error(err));
     // Respond with tokens
     res.status(201).send({ accessToken: token, refreshToken });
   } catch (err) {
