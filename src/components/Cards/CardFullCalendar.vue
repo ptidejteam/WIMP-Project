@@ -207,7 +207,14 @@ export default {
       this.calendar.changeView(view);
     },
 
-    handleFormSubmit(formData) {
+    async handleFormSubmit(formData) {
+      try{ 
+        await meetingService.createMeeting(formData); 
+      }catch(err){ 
+        this.$message.error(err.response.data);
+
+      }
+      
       console.log("Form Submitted:", formData);
       // Handle form data submission (e.g., send to API or save to store)
     },
