@@ -168,6 +168,7 @@ export default {
   background: #fafafa;
   border: 1px solid #f0f0f0;
   border-radius: 4px;
+
 }
 
 .toggle-section {

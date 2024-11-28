@@ -1,16 +1,15 @@
 <template>
     <!-- Users Table Card -->
-    <a-card :bordered="false"  :bodyStyle="{ padding: '16px' }">
+    <a-card :bordered="false" :bodyStyle="{ padding: '16px' }">
+
         <template #title>
-            <a-row type="flex" align="middle">
-                <a-col :span="24" :md="12">
-                    <h6>Users Control Panel</h6>
-                    <p>List of all users except yourself</p>
-                </a-col>
-                <a-col :span="24" :md="12" style="display: flex; align-items: center; justify-content: flex-end">
-                    <a-button type="success" shape="circle" icon="plus" @click="showAddUserDialog = true"></a-button>
-                </a-col>
-            </a-row>
+            <div class="header">
+                <div class="header-info">
+                    <h6 class="font-semibold m-0">Users Control Panel</h6>
+                    <small style="font-style: italic;">Updated: {{ lastUpdated | dateTime }}</small>
+                </div>
+                <a-button icon="plus" type="link" @click="isModalVisible = true">Add</a-button>
+            </div>
         </template>
         <template v-if="!users">
             <a-skeleton />
@@ -45,89 +44,27 @@
                     {{ record.emailStatus }}
                 </a-tag>
             </template>
-
-            <template slot="actions" slot-scope="record">
-                <a-space>
-                    <a-button type="danger" shape="circle" icon="delete" @click="deleteUser(record._id)"></a-button>
-                </a-space>
-            </template>
         </a-table>
-
-        <a-modal title="Add New User" :visible="showAddUserDialog" @ok="createUser" @cancel="showAddUserDialog = false">
-            <a-form layout="vertical">
-                <a-row gutter="16">
-                    <a-col :span="12">
-                        <a-form-item label="First Name"
-                            :rules="[{ required: true, message: 'Please enter the first name' }]">
-                            <a-input v-model="newUser.firstName" placeholder="Enter first name" />
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                        <a-form-item label="Last Name"
-                            :rules="[{ required: true, message: 'Please enter the last name' }]">
-                            <a-input v-model="newUser.lastName" placeholder="Enter last name" />
-                        </a-form-item>
-                    </a-col>
-                </a-row>
-
-                <a-row gutter="16">
-                    <a-col :span="12">
-                        <a-form-item label="Birthday">
-                            <a-date-picker v-model="newUser.birthday" style="width: 100%;"
-                                placeholder="Select birthday" />
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                        <a-form-item label="Username"
-                            :rules="[{ required: true, message: 'Please enter a unique username' }]">
-                            <a-input v-model="newUser.userName" placeholder="Enter username" />
-                        </a-form-item>
-                    </a-col>
-                </a-row>
-
-                <a-row gutter="16">
-                    <a-col :span="12">
-                        <a-form-item label="Email">
-                            <a-input v-model="newUser.email" placeholder="Enter email" />
-                        </a-form-item>
-                    </a-col>
-                    <a-col :span="12">
-                        <a-form-item label="Password" :rules="[{ required: true, message: 'Please enter a password' }]">
-                            <a-input-password v-model="newUser.password" placeholder="Enter password" />
-                        </a-form-item>
-                    </a-col>
-                </a-row>
-
-                <a-row gutter="16">
-                    <a-col :span="12">
-                        <a-form-item label="Position">
-                            <a-select v-model="newUser.position" placeholder="Select position"
-                                @change="handlePositionChange">
-                                <a-select-option value="Student">Student</a-select-option>
-                                <a-select-option value="Teacher">Teacher</a-select-option>
-                            </a-select>
-                        </a-form-item>
-                    </a-col>
-                </a-row>
-            </a-form>
-        </a-modal>
+        <UserFormModal :isVisible="isModalVisible" :user="selectedUser" @close="isModalVisible = false" @save-user="saveUser" @delete-user="deleteUser"/>
     </a-card>
 </template>
 
 <script>
 import { AuthenticationService } from '../../services/auth.service';
 import { userService } from '../../services/user.service';
-import { Role } from "../../helpers/roles";
+import UserFormModal from '../Modals/UserFormModal.vue';
 
 export default {
+    components: {
+        UserFormModal
+    },
     data() {
         return {
-            currentUserId: null,
             users: null,
-            filteredUsers: [],
-            editingUserId: null,
-            pollingInterval: 10000, // Polling interval in milliseconds (10 seconds)
-            pollingTimer: null, // Timer to manage polling
+            userId : AuthenticationService.currentUserValue.userId,
+            isModalVisible: false,
+            lastUpdated : null,
+            selectedUser: null, // Initial selected user is null
             columns: [
                 {
                     title: 'Username',
@@ -143,58 +80,30 @@ export default {
                     title: 'Status',
                     key: 'status',
                     scopedSlots: { customRender: 'status' },
-                },
-                {
-                    title: 'Actions',
-                    key: 'actions',
-                    scopedSlots: { customRender: 'actions' },
                 }
             ],
-
-            showAddUserDialog: false,
-            newUser: {
-                firstName: '',
-                lastName: '',
-                birthday: null,
-                userName: '',
-                email: '',
-                password: '',
-                position: 'Student',
-                permissionLevel: 1,
-                avatar: 'images/face-1.jpg',
-                isActive: true,
-                emailStatus: 'pending',
-            },
         };
     },
-    async created() {
-        await this.loadUsers();
-        //this.startPolling(); // Start polling when component is created
+    computed: { 
+        filteredUsers() { 
+            return this.users?.filter(user => user._id !== this.userId);
+        }
     },
-    beforeDestroy() {
-        this.stopPolling(); // Clean up polling on component destroy
+    mounted() {
+        this.loadUsers();
     },
     methods: {
         async loadUsers() {
             try {
                 const users = await userService.getAll();
                 this.users = users.data;
-                const userId = AuthenticationService.currentUserValue["userId"];
-                this.filteredUsers = this.users.filter(user => user._id !== userId);
+                this.lastUpdated = Date.now();
+
             } catch (error) {
                 this.$message.error("Failed to load users:", error);
             }
         },
-        startPolling() {
-            this.pollingTimer = setInterval(this.loadUsers, this.pollingInterval);
-        },
-        stopPolling() {
-            clearInterval(this.pollingTimer);
-        },
-        handlePositionChange(value) {
-            this.newUser.permissionLevel = value === 'Student' ? Role.Surfer : Role.Member;
-        },
-        async createUser() {
+        async saveUser() {
             try {
                 const newUser = {
                     firstName: this.newUser.firstName,
@@ -228,9 +137,30 @@ export default {
             }
         },
     },
+    filters: {
+    dateTime(value) {
+      return !value ? "" : new Date(value).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    },
+  },
 };
+
 </script>
 
 <style scoped>
-/* Add any specific styles here */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-info {
+    display: flex;
+    flex-direction: column;
+}
 </style>

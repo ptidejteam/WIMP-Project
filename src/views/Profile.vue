@@ -4,11 +4,12 @@
  -->
 <template>
 	<a-spin :spinning="!user">
-
 		<div>
-			<!-- Header Background Image -->
+			<!-- Header Background -->
 			<template v-if="!user">
+				<!-- Loading or fallback content can go here if needed -->
 			</template>
+
 			<template v-else>
 				<div class="profile-nav-bg"></div>
 
@@ -17,11 +18,8 @@
 					<template #title>
 						<a-row type="flex" align="middle">
 							<a-col :span="24" :md="12" class="col-info">
-								<!-- Avatar Container with Overlay -->
 								<div class="avatar-container">
 									<a-avatar :size="120" shape="square" :src="user.avatar || defaultAvatar" />
-
-									<!-- Overlay to change profile picture -->
 									<div class="avatar-overlay">
 										<label class="upload-label">
 											<input type="file" @change="onPhotoChange" accept="image/*"
@@ -30,97 +28,70 @@
 										</label>
 									</div>
 								</div>
-
-								<!-- User Info Section -->
 								<div class="avatar-info">
 									<h4 class="font-semibold m-0">Hello, {{ user.name }}!</h4>
 									<p>{{ user.position }}</p>
 								</div>
 							</a-col>
-							<a-col :span="24" :md="12"
-								style="display: flex; justify-content: flex-end; align-items: center;">
-								<!-- Right-Aligned Quote and Button -->
+
+							<a-col :span="24" :md="12" class="right-section">
 								<div class="quote-section">
 									<p class="quote-text">
 										<em>"The only way to do great work is to love what you do." – Steve Jobs</em>
 									</p>
 								</div>
-								<!-- Button (Example: Change Profile Photo) -->
-								<!-- <a-button type="primary" style="margin-left: 10px;">Change Photo</a-button> -->
 							</a-col>
 						</a-row>
 					</template>
 				</a-card>
-				<!-- User Profile Card -->
 
+				<!-- Profile Content -->
 				<a-row type="flex" :gutter="24" align="stretch">
-
-					<!-- Profile Information Column Visible for Both Roles -->
-					<a-col :span="24" :md="8" class="mb-24" style="display: flex; flex-direction: column;">
-						<!-- Profile Information Card -->
-						<CardProfileInformation  @profile-updated="onProfileUpdated"
-							@google-connectivity="onGoogleConnectivity">
-						</CardProfileInformation>
+					<!-- Profile Information -->
+					<a-col :span="24" :md="8" class="profile-column">
+						<CardProfileInformation @profile-updated="onProfileUpdated"
+							@google-connectivity="onGoogleConnectivity" />
 					</a-col>
 
-					<!-- Conditional Rendering Based on User Role -->
-					<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8"
-						class="mb-24" style="display: flex; flex-direction: column;">
-						<!-- Availability Card -->
-						<CardAvailabilitySettings style="flex: 1;"></CardAvailabilitySettings>
+					<!-- Conditional Cards Based on User Role -->
+					<a-col v-if="isAuthorized" :span="24" :md="8" class="profile-column">
+						<CardAvailabilitySettings />
 					</a-col>
 
-					<!-- Conditional Rendering for Members -->
-					<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8"
-						class="mb-24" style="display: flex; flex-direction: column;">
-						<!-- First Row: Conversations Card -->
-						<div  style="flex: 0.5;">
-							<CardConversations></CardConversations>
+					<a-col v-if="isAuthorized" :span="24" :md="8" class="profile-column">
+						<div class="card-wrapper">
+							<CardConversations />
 						</div>
-
-						<!-- Second Row: Orders History Timeline Card -->
-						<div >
-							<CardLocation></CardLocation>
+						<div class="card-wrapper">
+							<CardLocation />
 						</div>
 					</a-col>
 
 					<!-- Full Calendar Card -->
-					<a-col :span="36" :md="16" class="mb-24" style="display: flex; flex-direction: column;">
-						<CardFullCalendar  :googleCalendarConnectivity="googleConnectivity"></CardFullCalendar>
+					<a-col v-if="!isAuthorized" :span="36" :md="16" class="mb-24"
+						style="display: flex; flex-direction: column;">
+						<CardFullCalendar :googleCalendarConnectivity="googleConnectivity"></CardFullCalendar>
 					</a-col>
-
 				</a-row>
 
-
-				<!-- Table & Timeline -->
-				<a-row :gutter="24" type="flex" align="stretch">
-					<!-- Table -->
-					<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :lg="16"
-						class="mb-24">
-
-						<!-- Projects Table Card -->
-						<CardUserTable></CardUserTable>
-						<!-- / Projects Table Card -->
-
-					</a-col>
-					<!-- / Table -->
-
-				</a-row>
-				<!-- / Table & Timeline -->
+				<!-- Additional Cards -->
 				<a-row v-if="user.role !== Role.Member">
-					<CardUserAvailability></CardUserAvailability>
+					<CardUserAvailability />
+				</a-row>
 
+				<a-row type="flex" :gutter="24" align="stretch" style="margin-top: 20px;" v-if="isAuthorized">
+					<a-col :span="24" :md="16">
+						<CardFullCalendar :googleCalendarConnectivity="googleConnectivity" />
+					</a-col>
+
+					<a-col :span="24" :md="8" class="table-column">
+						<CardUserTable />
+					</a-col>
 				</a-row>
 			</template>
-
-
-
-
-			<!-- / Projects Card -->
 		</div>
 	</a-spin>
 </template>
-
 <script>
 
 import CardPlatformSettings from "../components/Cards/CardPlatformSettings"
@@ -155,7 +126,7 @@ export default ({
 			user: null,
 			Role: Role,
 			defaultAvatar: 'images/face-1.jpg', // Default avatar image path
-			googleConnectivity :false,
+			googleConnectivity: false,
 		}
 	},
 	watch: {
@@ -172,6 +143,13 @@ export default ({
 	},
 	mounted() {
 		this.fetchUserData();
+	},
+	computed: {
+		isAuthorized() {
+			return this.user?.role === Role.Master || this.user?.role === Role.Member;
+		},
+
+
 	},
 	methods: {
 		onProfileUpdated() {
@@ -236,68 +214,64 @@ export default ({
 })
 
 </script>
-
-<style lang="scss">
-.quote-section {
-	font-style: italic;
-	font-size: 1rem;
-	color: #6c757d;
-	/* Soft gray color */
-	text-align: center;
+<style scoped>
+.profile-nav-bg {
+	/* Style for profile background */
 }
 
-/* Avatar container with relative positioning */
 .avatar-container {
 	position: relative;
-	display: inline-block;
 }
 
-/* Overlay positioned on top of avatar */
 .avatar-overlay {
 	position: absolute;
 	top: 0;
+	right: 0;
+	bottom: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	color: white;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	background: rgba(0, 0, 0, 0.5);
 	opacity: 0;
-	transition: opacity 0.3s ease;
-	border-radius: 4px;
-	/* Match the avatar's shape */
+	transition: opacity 0.3s;
 }
 
-/* Show the overlay when hovering over the container */
 .avatar-container:hover .avatar-overlay {
 	opacity: 1;
-	cursor: pointer;
 }
 
-/* Hide the file input but keep it accessible */
-.upload-input {
-	display: none;
-}
-
-/* Styling for the "Change Photo" text */
-.upload-text {
-	font-size: 14px;
-	text-transform: uppercase;
-}
-
-/* Label for clickable text */
 .upload-label {
 	cursor: pointer;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 100%;
 }
 
-// .ant-descriptions .ant-descriptions-row>th,
-// .ant-descriptions .ant-descriptions-row>td {
-// 	padding:  2%;
-// }</style>
+.right-section {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.quote-section {
+	text-align: right;
+}
+
+.card-wrapper {
+	flex: 0.5;
+	margin-bottom: 16px;
+}
+
+.calendar-column {
+	display: flex;
+	flex-direction: column;
+}
+
+.profile-column {
+	display: flex;
+	flex-direction: column;
+}
+
+.table-column {
+	display: flex;
+	flex-direction: column;
+}
+</style>
