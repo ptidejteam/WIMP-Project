@@ -35,12 +35,13 @@ const identitySchema = new Schema(
     isActive: { type: Boolean, default: true },
     position: { type: String, default: "Student" },
     avatar: { type: String, default: "images/face-1.jpg" },
-    workSpaces: { type: Array },
+    workSpaces: { type: Array, default:[] },
     phoneNumber: { type: String }, // Optional phone number for user
     preferences: {
       // User-specific settings/preferences
       language: { type: String, default: "en" }, // Language preference
       notifications: { type: Boolean, default: true }, // Enable/disable notifications
+      enableTracking : {type: Boolean , default : false} 
     },
     consentGiven: { type: Boolean, default: false },
     lastLogin: { type: Date }, // Last login timestamp

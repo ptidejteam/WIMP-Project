@@ -2,6 +2,7 @@ const IdentityModel = require('../../routes/models/identity.model');
 const crypto = require('crypto');
 const uuid = require('uuid');
 const validityTime = require('../env.config.js').jwtValidityTimeInSeconds;
+const { publish } = require("@wimp-project/rabbitmq");
 
 // Middleware to validate the presence of required fields
 exports.hasAuthValidFields = (req, res, next) => {
@@ -50,9 +51,12 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
             };
 
             // Save the last login time of the user 
-            user.lastLogin = Date.now();
-            await IdentityModel.updateById(user._id , user);
-            
+            user.lastLogin = Date.now();     
+            const res = await IdentityModel.updateById(user._id , user)       
+            // Send notification for the calendar service that a user is connected  
+            publish("user-connection", "wimp-system", res)
+            .then(() => console.log("notification sent"))
+            .catch((err) => console.error(err));
             return next();
         } else {
             return res.status(400).send({ errors: ['Invalid username or password'] });

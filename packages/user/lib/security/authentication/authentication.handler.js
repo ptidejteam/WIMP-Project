@@ -71,10 +71,10 @@ exports.resetRefreshSecret = (_req, res) => {
 exports.logout = (req, res) => {
   try {
     const { _id } = req.body;
-    // Help to clear some lingering connection - or information that messes up the flow
-    // publish("user-disconnection", "wimp-system", { _id })
-    //   .then(() => console.log("notification sent"))
-    //   .catch((err) => console.error(err));
+    //Help to clear some lingering connection - or information that messes up the flow
+    publish("user-disconnection", "wimp-system", { _id })
+      .then(() => console.log("notification sent"))
+      .catch((err) => console.error(err));
     console.log(_id);
   } catch (err) {
     console.error("Something went wrong with logout functionnality");
