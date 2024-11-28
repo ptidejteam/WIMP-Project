@@ -75,11 +75,11 @@
 				</a-row>
 
 				<!-- Additional Cards -->
-				<a-row v-if="user.role !== Role.Member">
+				<a-row v-if="user.role !== Role.Member" :span="36" :md="16" class="mb-24">
 					<CardUserAvailability />
 				</a-row>
 
-				<a-row type="flex" :gutter="24" align="stretch" style="margin-top: 20px;" v-if="isAuthorized">
+				<a-row type="flex" :gutter="24" style="margin-top: 20px;" v-if="isAuthorized">
 					<a-col :span="24" :md="16">
 						<CardFullCalendar :googleCalendarConnectivity="googleConnectivity" />
 					</a-col>
