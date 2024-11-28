@@ -13,8 +13,8 @@
     <div class="section" v-if="workSpaces.length !== 0">
       <div class="toggle-section">
         <h6 class="font-semibold">Enable Workspace Tracking</h6>
-        <a-tooltip :title="trackingEnabled ? 'Tracking is enabled' : 'Tracking is disabled'">
-          <a-switch v-model="trackingEnabled" @change="debounce(updateTrackingOption, 300)" checked-children="On"
+        <a-tooltip :title="enableTracking ? 'Tracking is enabled' : 'Tracking is disabled'">
+          <a-switch v-model="enableTracking" @change="debounce(updateTrackingOption, 300)" checked-children="On"
             un-checked-children="Off" />
         </a-tooltip>
       </div>
@@ -84,12 +84,12 @@ export default {
   data() {
     return {
       userId: AuthenticationService.currentUserValue.userId,
+      user: null,
       devices: [],
       lastUpdated: null,
       selectedWorkspace: null,
       workSpaces: null,
-      enableTracking : false,
-      trackingEnabled: false,
+      enableTracking: false,
       visible: false,
       mapOptions: {
         url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -106,6 +106,7 @@ export default {
     async fetchUserData() {
       try {
         const response = await userService.getById(this.userId);
+        this.user = response.data;
         this.workSpaces = response.data?.workSpaces || [];
         this.selectedWorkspace = this.workSpaces[0]?.id || null;
         this.enableTracking = response.data?.preferences?.enableTracking || false;
@@ -123,7 +124,17 @@ export default {
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(func, delay);
     },
-    updateTrackingOption() {
+    async updateTrackingOption() {
+      try {
+        await userService.putUser(this.userId, {
+          preferences: {
+            ...this.user.preferences,
+            enableTracking: this.enableTracking
+          }
+        });
+      } catch (err) {
+        this.$message.error("Failed to fetch workspace data.");
+      }
       console.log("Tracking enabled:", this.trackingEnabled);
     },
     onZoomChange(newZoom) {
@@ -192,6 +203,7 @@ export default {
 .description-text {
   font-size: 14px;
   color: #555;
+  margin: 10px;
 }
 
 .no-workspaces-text {
