@@ -50,13 +50,13 @@ async function startSubscriptions() {
   try {
     const options = { exchange: "wimp-system", routingKey: "wimp-system" };
 
-    await subscribe(process.env.SERVICE_QUEUE, onConnectHandler, {
+    await subscribe(process.env.SERVICE_CONNECTION_QUEUE, onConnectHandler, {
       ...options,
       exchange: "user-connection",
     });
     console.log("Subscribed to user-connection channel.");
 
-    await subscribe(process.env.SERVICE_QUEUE, onDisconnectHandler, {
+    await subscribe(process.env.SERVICE_DISCONNECTION_QUEUE, onDisconnectHandler, {
       ...options,
       exchange: "user-disconnection",
     });
