@@ -87,7 +87,7 @@
 						<a-switch v-else v-model="profile.isActive" />
 					</a-descriptions-item>
 				</a-descriptions>
-				<div class="section"
+				<div class="section" v-if="GCIntegrationAvailable"
 					style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border: 1px solid #e0e0e0; border-radius: 8px;">
 					<div style="display: flex; align-items: center;">
 						<a-badge :dot="!isCalendarConnected" style="margin-right: 1rem;">
@@ -113,7 +113,7 @@
 
 
 				<!-- Connectivity Notifications -->
-				<div class="section">
+				<div class="section" >
 					<div style="display: flex; justify-content: space-between;">
 						<h6 class="font-semibold">Connectivity Notifications</h6>
 						<a-switch v-model="notificationsEnabled" checked-children="On" un-checked-children="Off" />
@@ -196,6 +196,10 @@ export default {
 				Date.now() < new Date(tokenExpirationTime).getTime() &&
 				!this.isTokenExpired // Check if token is expired
 			);
+		},
+
+		GCIntegrationAvailable() { 
+			return this.profile?.permissionLevel > Role.Surfer;
 		}
 	},
 	created() {
