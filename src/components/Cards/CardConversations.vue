@@ -5,67 +5,40 @@
 		<template #title>
 			<div class="header">
 				<div style="display: flex; flex-direction: column;">
-					<h6 class="font-semibold m-0">📅 Meeting Requests</h6>
+					<h6 class="font-semibold m-0">Meeting Requests</h6>
 					<small style="font-style: italic;">Updated: {{ lastUpdated | date }}</small>
-
 				</div>
 				<a-button icon="redo" type="link" @click="fetchMeetings">Refresh</a-button>
 			</div>
+		</template>
+		<template v-if="isLoading">
+			<a-skeleton />
+		</template>
+		<template v-else>
+			<a-tabs v-if="!isLoading && meetings.length">
+				<a-tab-pane key="incoming-requester">
+					<template #tab>
+						Ongoing
+						<a-badge :count="meetingAsRequester.length" v-if="meetingAsRequester.length > 0" />
+					</template>
+					<WidgetMeetingList :meetings="meetingAsRequester" :showActions="false"
+						emptyMessage="No incoming requests as requester." @accept="acceptRequest"
+						@decline="declineRequest" />
+				</a-tab-pane>
 
-
+				<a-tab-pane key="incoming-requested">
+					<template #tab>
+						Incoming
+						<a-badge :count="meetingAsRequested.length" v-if="meetingAsRequested.length > 0" />
+					</template>
+					<WidgetMeetingList :meetings="meetingAsRequested" :isLoading="isLoading" :showActions="true"
+						emptyMessage="No incoming requests as requested." @accept="acceptRequest"
+						@decline="declineRequest" />
+				</a-tab-pane>
+			</a-tabs>
 		</template>
 
-		<!-- Card Content -->
-		<div class="meetings-list-container">
-			<!-- Loader -->
-			<a-spin v-if="isLoading" />
 
-			<!-- Meetings List -->
-			<a-list class="meetings-list" item-layout="horizontal" :split="false" v-if="!isLoading && meetings.length"
-				:data-source="meetings">
-				<a-list-item slot="renderItem" slot-scope="item">
-					<a-list-item-meta :title="item.user.firstName + ' ' + item.user.lastName"
-						:description="formatMeetingTime(item.time)">
-						<a-avatar slot="avatar" :size="48" shape="square" :src="item.user.avatar" alt="Avatar" />
-					</a-list-item-meta>
-
-					<!-- Meeting Status -->
-					<div>
-						<span v-if="item.status === 'pending'" class="status pending">
-							Pending
-						</span>
-						<span v-if="item.status === 'accepted'" class="status accepted">
-							Accepted
-						</span>
-						<span v-if="item.status === 'declined'" class="status declined">
-							Declined
-						</span>
-					</div>
-
-					<!-- Actions -->
-					<template #actions>
-						<span v-if="item.status === 'pending'">
-							<a-button type="primary" @click="acceptRequest(item._id)">Accept</a-button>
-							<a-button type="danger" @click="declineRequest(item._id)">Decline</a-button>
-						</span>
-						<span v-else>
-							<a-button type="default" disabled>{{ item.status | capitalize }}</a-button>
-						</span>
-					</template>
-				</a-list-item>
-			</a-list>
-
-			<!-- Empty State -->
-			<div v-else-if="!isLoading" class="empty-state">
-				<h6>No meeting requests available.</h6>
-				<p>Check back later for new requests.</p>
-			</div>
-
-			<!-- Error Message -->
-			<div v-if="error" class="error-message">
-				<p>⚠️ Failed to load meeting requests. Please try again later.</p>
-			</div>
-		</div>
 	</a-card>
 </template>
 
@@ -73,8 +46,12 @@
 import { meetingService } from "../../services/meeting.service";
 import { userService } from "../../services/user.service";
 import { AuthenticationService } from "../../services/auth.service";
+import WidgetMeetingList from "../Widgets/WidgetMeetingList.vue";
 
 export default {
+	components: {
+		WidgetMeetingList
+	},
 	data() {
 		return {
 			userId: AuthenticationService.currentUserValue.userId,
@@ -88,14 +65,21 @@ export default {
 	},
 	mounted() {
 		this.fetchMeetings();
-		// Uncomment the line below to enable polling if needed
-		// this.startPolling();
 	},
-	beforeDestroy() {
-		this.stopPolling();
+	computed: {
+		filteredMeeting() {
+			return this.meetings?.filter(o => o.source === "internal");
+		},
+		meetingAsRequester() {
+			console.log(this.filteredMeeting);
+			return this.filteredMeeting.filter(meeting => meeting.requesterId === this.userId);
+		},
+		meetingAsRequested() {
+			return this.filteredMeeting.filter(meeting => meeting.requestedUserId === this.userId);
+		},
+
 	},
 	methods: {
-
 		async fetchMeetings() {
 			this.isLoading = true;
 			this.error = false;
@@ -103,7 +87,7 @@ export default {
 			try {
 				const response = await meetingService.listMeetingsRequested(this.userId);
 				const meetings = response.data;
-
+				console.log(meetings);
 				const users = await Promise.all(
 					meetings.map(async (meeting) => {
 						if (!this.userCache[meeting.requesterId]) {
@@ -118,21 +102,13 @@ export default {
 					...meeting,
 					user: users[index]?.data || null,
 				}));
+				console.log(this.meetings);
+				this.lastUpdated = Date.now();
 			} catch (error) {
 				console.error(error);
 				this.error = true;
 			} finally {
 				this.isLoading = false;
-			}
-		},
-
-
-		startPolling() {
-			this.pollingInterval = setInterval(this.fetchMeetings, 5000); // Poll every 5 seconds
-		},
-		stopPolling() {
-			if (this.pollingInterval) {
-				clearInterval(this.pollingInterval);
 			}
 		},
 		async acceptRequest(id) {
@@ -153,8 +129,8 @@ export default {
 				this.$message.error("Failed to decline meeting request.");
 			}
 		},
-		formatMeetingTime(time) {
-			return new Date(time).toLocaleString();
+		formatMeetingTime(item) {
+			return new Date(item.start).toLocaleString();
 		},
 	},
 	filters: {
@@ -163,14 +139,15 @@ export default {
 			return value.charAt(0).toUpperCase() + value.slice(1);
 		},
 		date(value) {
-
-			return !value ? "" : new Date(value).toLocaleString("en-US", {
-				year: "numeric",
-				month: "short",
-				day: "numeric",
-				hour: "2-digit",
-				minute: "2-digit",
-			});
+			return !value
+				? ""
+				: new Date(value).toLocaleString("en-US", {
+					year: "numeric",
+					month: "short",
+					day: "numeric",
+					hour: "2-digit",
+					minute: "2-digit",
+				});
 		},
 	},
 };
@@ -178,13 +155,9 @@ export default {
 
 <style scoped>
 .meetings-list-container {
-	border: 1px solid #e8e8e8;
-	border-radius: 4px;
 	padding: 16px;
-	max-height: 250px;
-	/* Adjust height as needed */
+	height: 250px;
 	overflow-y: auto;
-	/* Makes the container scrollable */
 }
 
 .loading-spinner {
@@ -197,30 +170,9 @@ export default {
 	text-transform: capitalize;
 }
 
-.status.pending {
-	color: orange;
-}
-
-.status.accepted {
-	color: green;
-}
-
-.status.declined {
-	color: red;
-}
-
-.empty-state {
-	text-align: center;
-	padding: 20px;
-}
-
-.error-message {
-	text-align: center;
-	color: red;
-}
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 </style>
