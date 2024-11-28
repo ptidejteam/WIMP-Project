@@ -7,7 +7,7 @@
           <h6 class="font-semibold m-0">Calendar</h6>
           <small style="font-style: italic;">Updated: {{ lastUpdated | dateTime }}</small>
         </div>
-        <a-alert v-if="!googleCalendarConnectivity" message="Your google calendar is not connected" type="warning"
+        <a-alert v-if="!googleCalendarConnectivity && isSurfer " message="Your google calendar is not connected" type="warning"
           show-icon />
         <a-button icon="redo" type="link" @click="fetchData">Refresh</a-button>
       </div>
@@ -34,7 +34,8 @@
             {{ calendar.getDateRangeEnd() | date }}</h5>
           <a-button @click="calendar.next()" icon="right" shape="circle" type="primary"></a-button>
         </div>
-        <a-button @click="showEventForm" type="primary" shape="round" icon="plus">Request</a-button>
+        <a-button @click="showEventForm" type="primary" shape="round" icon="plus" v-if="!isSurfer">Request</a-button>
+        <div v-else></div>
       </div>
     </template>
 
@@ -110,10 +111,7 @@ export default {
       type: String,
       default: ""
     },
-    // requesterRole:  {
-    //   type : Role, 
-    //   default : Role.Surfer
-    // }
+
   },
   data() {
     return {
@@ -149,18 +147,23 @@ export default {
   },
   async mounted() {
     this.initializeCalendar();
-    if (this.googleCalendarConnectivity) {
-      await this.fetchData();
-    }
+    // if (this.googleCalendarConnectivity) {
+    await this.fetchData();
+    // }
     // Subscribe to a WebSocket event
     this.$subscribeToEvent(this.handleRefresh);
+  },
+  computed: { 
+    isSurfer() { 
+			return AuthenticationService.currentUserValue?.roles === Role.Surfer;
+		}
   },
   methods: {
 
     handleRefresh(event) {
-      if(event.data === 'meeting'){ 
+      if (event.data === 'meeting') {
         this.fetchData();
-      } 
+      }
     },
     // Initialize the calendar with options
     initializeCalendar() {
