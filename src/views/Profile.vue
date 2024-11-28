@@ -58,7 +58,7 @@
 					<!-- Profile Information Column Visible for Both Roles -->
 					<a-col :span="24" :md="8" class="mb-24" style="display: flex; flex-direction: column;">
 						<!-- Profile Information Card -->
-						<CardProfileInformation style="flex: 1;" @profile-updated="onProfileUpdated"
+						<CardProfileInformation  @profile-updated="onProfileUpdated"
 							@google-connectivity="onGoogleConnectivity">
 						</CardProfileInformation>
 					</a-col>
@@ -74,19 +74,19 @@
 					<a-col v-if="user.role === Role.Master || user.role === Role.Member" :span="24" :md="8"
 						class="mb-24" style="display: flex; flex-direction: column;">
 						<!-- First Row: Conversations Card -->
-						<div class="mb-24" style="flex: 1;">
+						<div  style="flex: 0.5;">
 							<CardConversations></CardConversations>
 						</div>
 
 						<!-- Second Row: Orders History Timeline Card -->
-						<div style="flex: 1;">
+						<div >
 							<CardLocation></CardLocation>
 						</div>
 					</a-col>
 
 					<!-- Full Calendar Card -->
 					<a-col :span="36" :md="16" class="mb-24" style="display: flex; flex-direction: column;">
-						<CardFullCalendar style="flex: 1;" :googleCalendarConnectivity="googleConnectivity"></CardFullCalendar>
+						<CardFullCalendar  :googleCalendarConnectivity="googleConnectivity"></CardFullCalendar>
 					</a-col>
 
 				</a-row>
