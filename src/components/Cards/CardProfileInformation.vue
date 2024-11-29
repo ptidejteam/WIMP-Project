@@ -4,7 +4,7 @@
 		<template #title>
 			<div class="profile-header">
 				<h6 class="font-semibold">Profile Control Panel</h6>
-				<a-button type="link" class="edit-button" @click="toggleEdit">
+				<a-button type="link" class="edit-button" @click="toggleEdit" :icon="!isEditing ? 'edit' : 'save'">
 					<span v-if="!isEditing">Edit</span>
 					<span v-else>Save</span>
 				</a-button>
@@ -105,7 +105,6 @@
 						style="margin: 0; font-size: 0.9rem; color: #28a745; display: flex; align-items: center;">
 						<a-icon type="check-circle" style="margin-right: 0.5rem;"></a-icon>
 						<span style="margin-right: auto;">Synced</span>
-						<a-button type="danger" icon="delete" shape="round" style="margin-left: 0.5rem;"></a-button>
 					</p>
 
 				</div>

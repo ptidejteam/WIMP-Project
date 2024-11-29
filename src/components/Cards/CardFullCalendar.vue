@@ -125,16 +125,10 @@ export default {
       isEventDetailsVisible: false,
       Role: Role,
       options: {
-        defaultView: "month",
+        defaultView: "week",
         useDetailPopup: false, // Disable built-in detail popup
         week: { taskView: false },
         month: { dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] },
-      },
-      eventForm: {
-        id: null,
-        title: "",
-        start: null,
-        end: null,
       },
       selectedEvent: null,
     };

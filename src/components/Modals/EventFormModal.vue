@@ -1,80 +1,89 @@
 <template>
-    <a-modal :visible="visible" title="Add/Edit Meeting" :footer="null" @cancel="closeModal">
-        <a-form :form="form" @submit="handleSubmit" layout="vertical">
-            <!-- Title Field -->
-            <a-form-item label="Title" :hasFeedback="true">
-                <a-input
-                    v-decorator="['summary', { rules: [{ required: true, message: 'Please enter the meeting title' }] }]"
-                    placeholder="Enter meeting summary" />
-            </a-form-item>
 
-            <!-- Requester (Disabled, Bound to Current User) -->
-            <a-form-item label="Requester">
-                <a-input v-model="requesterId" disabled placeholder="Requester is Me" />
-            </a-form-item>
+    <a-modal :visible="visible" title="Add Meeting" :footer="null" @cancel="closeModal">
+        <a-row>
+            <a-col>
+                <a-form :form="form" @submit="handleSubmit" layout="vertical">
+                    <!-- Title Field -->
+                    <a-form-item label="Title" :hasFeedback="true">
+                        <a-input
+                            v-decorator="['summary', { rules: [{ required: true, message: 'Please enter the meeting title' }] }]"
+                            placeholder="Enter meeting summary" />
+                    </a-form-item>
 
-            <!-- Requested User Dropdown -->
-            <a-form-item label="Requested User" :hasFeedback="true">
-                <a-select
-                    v-decorator="['requestedUserId', { rules: [{ required: true, message: 'Please select a user' }] }]"
-                    @change="handleUserChange" placeholder="Select requested user">
-                    <a-select-option v-for="user in filteredUsers" :key="user._id" :value="user._id">
-                        {{ fullname(user) }}
-                    </a-select-option>
-                </a-select>
-            </a-form-item>
+                    <!-- Requester (Disabled, Bound to Current User) -->
+                    <a-form-item label="Requeste (Me)">
+                        <a-input v-model="requesterId" disabled placeholder="Requester is Me" />
+                    </a-form-item>
 
-            <!-- Workspace Selection -->
-            <a-form-item v-if="!isVirtual" label="Location" :hasFeedback="true">
-                <a-select
-                    v-decorator="['location', { rules: [{ required: true, message: 'Please select a location' }] }]"
-                    placeholder="Select meeting location">
-                    <a-select-option v-for="workspace in requestedUserWorkspaces" :key="workspace.id"
-                        :value="workspace.id">
-                        {{ workspace.name }}
-                    </a-select-option>
-                </a-select>
-            </a-form-item>
+                    <!-- Requested User Dropdown -->
+                    <a-form-item label="Requested User" :hasFeedback="true">
+                        <a-select
+                            v-decorator="['requestedUserId', { rules: [{ required: true, message: 'Please select a user' }] }]"
+                            @change="handleUserChange" placeholder="Select requested user">
+                            <a-select-option v-for="user in filteredUsers" :key="user._id" :value="user._id">
+                                {{ fullname(user) }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
 
-            <!-- Virtual Meeting Checkbox -->
-            <a-form-item>
-                <a-checkbox v-model="isVirtual">Is this a virtual meeting?</a-checkbox>
-            </a-form-item>
-            <!-- Suggested Time Duration Buttons -->
-            <div style="margin-bottom: 12px;">
-                <span>Suggested Durations: </span>
-                <a-button v-for="duration in [15, 30, 60]" :key="duration" style="gap:15px;"
-                    @click="suggestDuration(duration)">
-                    {{ duration }} mins
-                </a-button>
-            </div>
-            <!-- Start Date and End Date -->
-            <div style="display: flex; justify-content: space-between;">
-                <a-form-item label="Start Date" :hasFeedback="true">
-                    <a-date-picker
-                        v-decorator="['start', { rules: [{ required: true, message: 'Please select a start date' }] }]"
-                        show-time placeholder="Select start date" />
-                </a-form-item>
+                    <!-- Workspace Selection -->
+                    <a-form-item v-if="!isVirtual" label="Location" :hasFeedback="true">
+                        <a-select
+                            v-decorator="['location', { rules: [{ required: true, message: 'Please select a location' }] }]"
+                            placeholder="Select meeting location">
+                            <a-select-option v-for="workspace in requestedUserWorkspaces" :key="workspace.id"
+                                :value="workspace.name">
+                                {{ workspace.name }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
 
-                <a-form-item label="End Date" :hasFeedback="true">
-                    <a-date-picker
-                        v-decorator="['end', { rules: [{ required: true, message: 'Please select an end date' }] }]"
-                        show-time placeholder="Select end date" />
-                </a-form-item>
-            </div>
+                    <!-- Virtual Meeting Checkbox -->
+                    <a-form-item>
+                        <a-checkbox v-model="isVirtual">Is this a virtual meeting?</a-checkbox>
+                    </a-form-item>
+                    <!-- Suggested Time Duration Buttons -->
+                    <div style="margin-bottom: 12px;">
+                        <span> Durations: </span>
+                        <a-button v-for="duration in [15, 30, 60, 120]" :key="duration" style="margin-left: 4px;
+    margin-right: 4px;" @click="suggestDuration(duration)">
+                            {{ duration }} mins
+                        </a-button>
+                    </div>
+                    <!-- Start Date and End Date -->
+                    <div style="display: flex; justify-content: space-between;">
+                        <a-form-item label="Start Date" :hasFeedback="true">
+                            <a-date-picker
+                                v-decorator="['start', { rules: [{ required: true, message: 'Please select a start date' }] }]"
+                                :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
+                                placeholder="Select start date" />
+                        </a-form-item>
 
-            <!-- Description -->
-            <a-form-item label="Description">
-                <a-textarea v-decorator="['description', { rules: [{ required: false }] }]"
-                    placeholder="Enter meeting description" />
-            </a-form-item>
+                        <a-form-item label="End Date" :hasFeedback="true">
+                            <a-date-picker
+                                v-decorator="['end', { rules: [{ required: true, message: 'Please select an end date' }] }]"
+                                :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
+                                placeholder="Select end date" />
+                        </a-form-item>
+                    </div>
 
-            <!-- Form Actions -->
-            <div style="text-align: right;">
-                <a-button @click="closeModal" style="margin-right: 8px;">Cancel</a-button>
-                <a-button type="primary" @click="handleSubmit">Submit</a-button>
-            </div>
-        </a-form>
+                    <!-- Description -->
+                    <a-form-item label="Description">
+                        <a-textarea v-decorator="['description', { rules: [{ required: false }] }]"
+                            placeholder="Enter meeting description" />
+                    </a-form-item>
+
+                    <!-- Form Actions -->
+                    <div style="text-align: right;">
+                        <a-button @click="closeModal" style="margin-right: 8px;">Cancel</a-button>
+                        <a-button type="primary" @click="handleSubmit">Submit</a-button>
+                    </div>
+                </a-form>
+            </a-col>
+        </a-row>
+
+
     </a-modal>
 </template>
 

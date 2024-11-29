@@ -131,16 +131,17 @@ export default {
 		},
 		async acceptRequest(id) {
 			try {
-				await meetingService.updateMeeting({ meetingId: id, status: "accepted" });
+				await meetingService.updateMeeting({ _id: id, status: "accepted" });
 				this.fetchMeetings();
 				this.$message.success(`Accepted meeting request with ID: ${id}`);
 			} catch (error) {
 				this.$message.error("Failed to accept meeting request.");
+				this.$message.error(error.response.data);
 			}
 		},
 		async declineRequest(id) {
 			try {
-				await meetingService.updateMeeting({ meetingId: id, status: "declined" });
+				await meetingService.updateMeeting({ _id: id, status: "declined" });
 				this.fetchMeetings();
 				this.$message.success(`Declined meeting request with ID: ${id}`);
 			} catch (error) {

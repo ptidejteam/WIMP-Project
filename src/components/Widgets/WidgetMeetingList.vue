@@ -15,7 +15,6 @@
                 </div>
                 <div class="meeting-expiration">
                     <a-tag v-if="isExpired(item.start)" color="red">Expired</a-tag>
-                    <a-tag v-else color="green">Active</a-tag>
                 </div>
                 <template #actions>
                     <span v-if="showActions && item.status === 'pending' && !isExpired(item.start)">
