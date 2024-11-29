@@ -1,4 +1,5 @@
 const MeetingModel = require("../models/meeting.model");
+const {  publish } = require("@wimp-project/rabbitmq");
 
 // List all meetings with pagination
 exports.list = async (req, res) => {
@@ -17,18 +18,17 @@ exports.list = async (req, res) => {
 // Insert a new meeting
 exports.insert = async (req, res) => {
   try {
-    const { requesterId, requestedUserId, time } = req.body;
+    const { requesterId, requestedUserId } = req.body;
 
-    if (!requesterId || !requestedUserId || !time) {
+    if (!requesterId || !requestedUserId) {
       return res.status(400).send({ message: "Requester ID, Requested User ID, and Time are required." });
     }
-
-    const meetingData = { requesterId, requestedUserId, time };
-    const result = await MeetingModel.create(meetingData);
+    const result = await MeetingModel.create(req.body);
+    publish("front","wimp-system","meeting-request").then(() => console.log("front notification sent")).catch((err) => console.error("something went wrong"));
+    publish("front","wimp-system","meeting").then(() => console.log("front notification sent")).catch((err) => console.error("something went wrong"));
     res.status(201).send({ id: result._id });
   } catch (error) {
-    console.error("Error inserting meeting:", error);
-    res.status(500).send({ message: "Internal Server Error. Could not insert meeting." });
+    res.status(500).send({ message: "Internal Server Error. Could not insert meeting." + error });
   }
 };
 

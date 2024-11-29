@@ -28,7 +28,7 @@ const meetingSchema = new Schema(
       ref: "Users",
       required: true,
     },
-    eventId: { type: String, required: true },
+    eventId: { type: String, required: false },
     source: {
       type: String,
       enum: ["internal", "external"],
@@ -63,6 +63,24 @@ meetingSchema.pre("save", function (next) {
 const Meeting = mongoose.model("Meetings", meetingSchema);
 
 // Methods
+// Check if there's an overlap for a given meeting
+exports.findOverlap = (value) => {
+  const { start, end, requesterId, requestedUserId } = value;
+  return Meeting.findOne({
+    $and: [
+      {
+        $or: [{ requesterId }, { requestedUserId }],
+      },
+      {
+        $or: [
+          { start: { $lt: end, $gte: start } },
+          { end: { $gt: start, $lte: end } },
+          { start: { $lte: start }, end: { $gte: end } }, // Fully encapsulating the new meeting
+        ],
+      },
+    ],
+  }).exec(); // Return the result as a promise
+};
 
 // Find meetings by requester ID
 exports.findByRequesterId = (requesterId) =>
@@ -97,11 +115,11 @@ exports.updateById = (id, data) =>
     .exec();
 
 // Delete a meeting by ID
-exports.removeById = (id) => Meeting.deleteOne({ eventId : id }).exec();
+exports.removeById = (id) => Meeting.deleteOne({ eventId: id }).exec();
 
 // Delete all meetings
 exports.deleteMany = (filter = {}) => Meeting.deleteMany(filter).exec();
 
-
-// Use the pre-defined UpdateOne 
-exports.updateOne = (filter = {} , data = {} , options = {}) => Meeting.updateOne(filter,data,options).exec();
+// Use the pre-defined UpdateOne
+exports.updateOne = (filter = {}, data = {}, options = {}) =>
+  Meeting.updateOne(filter, data, options).exec();
