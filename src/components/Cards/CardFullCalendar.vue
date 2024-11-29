@@ -7,8 +7,8 @@
           <h6 class="font-semibold m-0">Calendar</h6>
           <small style="font-style: italic;">Updated: {{ lastUpdated | dateTime }}</small>
         </div>
-        <a-alert v-if="!googleCalendarConnectivity && isSurfer " message="Your google calendar is not connected" type="warning"
-          show-icon />
+        <a-alert v-if="!googleCalendarConnectivity && isSurfer" message="Your google calendar is not connected"
+          type="warning" show-icon />
         <a-button icon="redo" type="link" @click="fetchData">Refresh</a-button>
       </div>
     </template>
@@ -62,21 +62,21 @@
               <p><strong>End:</strong> {{ selectedEvent.end | dateTime }}</p>
             </div>
           </div>
-          <hr>
+          <a-divider></a-divider>
           <!-- Location Section -->
           <div class="event-details">
             <a-icon type="environment" class="event-icon event-location-icon" />
             <strong>Location:</strong>
             <p class="event-text">{{ selectedEvent.location || "Location not specified" }}</p>
           </div>
-          <hr>
+          <a-divider></a-divider>
 
           <div class="event-details">
             <a-icon type="info-circle" class="event-icon event-info-icon" />
             <strong>Description:</strong>
             <p class="event-text">{{ selectedEvent.description || "No description provided" }}</p>
           </div>
-          <hr>
+          <a-divider></a-divider>
 
           <div class="event-details">
             <a-icon type="tag" class="event-icon event-category-icon" />
@@ -153,10 +153,10 @@ export default {
     // Subscribe to a WebSocket event
     this.$subscribeToEvent(this.handleRefresh);
   },
-  computed: { 
-    isSurfer() { 
-			return AuthenticationService.currentUserValue?.roles === Role.Surfer;
-		}
+  computed: {
+    isSurfer() {
+      return AuthenticationService.currentUserValue?.roles === Role.Surfer;
+    }
   },
   methods: {
 
@@ -181,16 +181,34 @@ export default {
           delete item.__v;
         });
 
-        this.events = response.data.map((event) => ({
-          id: event.id,
-          title: event.summary || "No Title",
-          category: "time",
-          location: event.location,
-          start: event.start,
-          end: event.end,
-          description: event.description || "",
-          backgroundColor: event.source === "external" ? "#7ed6df" : "#3498db"
-        }));
+        this.events = response.data.map((event) => {
+          let backgroundColor;
+          switch (event.status) {
+            case "pending":
+              backgroundColor = "#ecf0f1"; // Orange for pending
+              break;
+            case "confirmed":
+              backgroundColor = "#2ecc7166"; // Green for confirmed
+              break;
+            default:
+              backgroundColor = "#3498db"; // Default blue color
+          }
+
+          return {
+            id: event.id,
+            title: event.summary || "No Title",
+            category: "time",
+            location: event.location,
+            start: event.start,
+            end: event.end,
+            description: event.description || "",
+            backgroundColor: backgroundColor,
+            isPending : event.status === "pending",
+            isVisible: event.status !== "rejected"
+          };
+        });
+
+        //console.log(this.events);
         this.calendar.clear();
         this.calendar.createEvents(this.events);
         this.lastUpdated = Date.now();
@@ -208,13 +226,13 @@ export default {
     },
 
     async handleFormSubmit(formData) {
-      try{ 
-        await meetingService.createMeeting(formData); 
-      }catch(err){ 
+      try {
+        await meetingService.createMeeting(formData);
+      } catch (err) {
         this.$message.error(err.response.data);
 
       }
-      
+
       console.log("Form Submitted:", formData);
       // Handle form data submission (e.g., send to API or save to store)
     },

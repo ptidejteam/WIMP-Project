@@ -15,6 +15,15 @@
 			<a-skeleton />
 		</template>
 		<template v-else>
+			<template v-if="!meetings.length">
+				<div class="no-meeting-container">
+					<p class="no-meeting-text">
+						No meetings requested yet! Start by adding a meeting to keep your agenda organized and track
+						progress.
+					</p>
+
+				</div>
+			</template>
 			<a-tabs v-if="!isLoading && meetings.length">
 				<a-tab-pane key="incoming-requester">
 					<template #tab>
@@ -36,6 +45,7 @@
 						@decline="declineRequest" />
 				</a-tab-pane>
 			</a-tabs>
+
 		</template>
 
 
@@ -65,6 +75,8 @@ export default {
 	},
 	mounted() {
 		this.fetchMeetings();
+		this.$subscribeToEvent(this.handleRefresh);
+
 	},
 	computed: {
 		filteredMeeting() {
@@ -80,6 +92,12 @@ export default {
 
 	},
 	methods: {
+
+		handleRefresh(e) {
+			console.log(e);
+			if (e.data === 'meeting-request') { this.fetchMeetings(); }
+		},
+
 		async fetchMeetings() {
 			this.isLoading = true;
 			this.error = false;
@@ -174,5 +192,21 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+}
+
+.no-meeting-text {
+	width: 80%;
+	text-align: center;
+}
+
+.no-meeting-container {
+	padding: 20px;
+	background-color: #f9f9f9;
+	border: 1px dashed #d9d9d9;
+	border-radius: 8px;
+	height: 200px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 </style>
