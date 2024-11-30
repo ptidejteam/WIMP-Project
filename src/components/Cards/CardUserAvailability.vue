@@ -16,12 +16,12 @@
                     <a-button icon="redo" type="link" @click="fetchData">Refresh</a-button>
                 </div>
             </div>
-
-
         </template>
+
         <template v-if="!usersAvailability">
             <a-skeleton />
         </template>
+        
         <a-row v-else type="flex" :gutter="[24, 24]" class="user-cards-row">
             <!-- User Column -->
             <a-col v-for="user in filteredAvailibilty" :key="user.userId">
@@ -35,31 +35,30 @@
                         <div class="status-indicators">
                             <!-- Availability Status Badge -->
                             <a-badge :status="getAvailabilityStatus(user.availabilityStatus)"
-                                :text="formatAvailabilityStatus(user.availabilityStatus)" class="availability-badge"
-                                style="font-weight: bold; font-size: 16px;" />
+                                     :text="formatAvailabilityStatus(user.availabilityStatus)" 
+                                     class="availability-badge"
+                                     style="font-weight: bold; font-size: 16px;" />
                             <!-- Message Icon and Text -->
                             <div class="custom-message">
-                                <!-- <a-icon type="message" style="margin-right: 8px;" /> -->
                                 <span style="text-align: center;">"{{
                                     formatCustomMessage(user.customMessage, user.displayToOthers)
-                                }}"</span>
+                                    }}"</span>
                             </div>
                         </div>
                     </div>
                     <template #actions>
-                        <a-button type="primary" @click="isEventFormVisible = true"
-                            :disabled="user.availabilityStatus === 'do-not-disturb'" icon="plus" shape="round">
+                        <a-button type="primary" @click="handleRequest(user)"
+                                  :disabled="user.availabilityStatus === 'do-not-disturb'" icon="plus" shape="round">
                             Request
                         </a-button>
                     </template>
                 </a-card>
             </a-col>
         </a-row>
-            <!-- Event Modal -->
-        <!-- <MeetingFormModal :visible="isEventFormVisible" /> -->
+
+        <!-- Event Modal (only one instance) -->
+        <MeetingFormModal :visible="isEventFormVisible" :userId="userSelected ? userSelected.userId : null" @close="isEventFormVisible = false"/>
     </a-card>
-
-
 </template>
 
 <script>
@@ -67,23 +66,30 @@ import { userService } from '../../services/user.service';
 import { AuthenticationService } from '../../services/auth.service';
 import { Role } from '../../helpers/roles';
 import MeetingFormModal from '../Modals/MeetingFormModal.vue';
+
 export default {
-    components: { 
+    components: {
         MeetingFormModal
     },
     data() {
         return {
-            isEventFormVisible : true,
+            isEventFormVisible: false,
             usersAvailability: null,
             userId: AuthenticationService.currentUserValue.userId,
-            userRole : AuthenticationService.currentUserValue.roles,
+            userRole: AuthenticationService.currentUserValue.roles,
             loading: true,
+            userSelected: null,  // Ensure userSelected is null initially
             isModalVisible: false,
         };
     },
-    computed: { 
-        filteredAvailibilty() { 
-            return this.userRole < Role.Member ? this.usersAvailability?.filter(o => o.permissionLevel >= Role.Member) : this.usersAvailability;
+    computed: {
+        filteredAvailibilty() {
+            return this.userRole < Role.Member ? 
+                this.filterUserAvailibilty?.filter(o => o.permissionLevel >= Role.Member && o._id !== userId)  : this.filterUserAvailibilty;
+        },
+
+        filterUserAvailibilty() { 
+            return this.usersAvailability?.filter(o => o._id !== this.userId);
         }
     },
     mounted() {
@@ -91,6 +97,10 @@ export default {
         this.$subscribeToEvent(this.handleRefresh);
     },
     methods: {
+        handleRequest(value) { 
+            this.userSelected = value;
+            this.isEventFormVisible = true;
+        },
         handleRefresh(e) {
             console.log(e);
             if (e.data === 'availability') { this.fetchData(); }
@@ -98,7 +108,6 @@ export default {
         formatAvailabilityStatus(val) {
             return String(val).charAt(0).toUpperCase() + String(val).slice(1);
         },
-
         formatCustomMessage(val, isDisplayed) {
             return val === "" || !isDisplayed ? "No Messages" : val;
         },
@@ -130,16 +139,12 @@ export default {
                     ...user,
                     ...users[index]
                 }));
-                console.log(this.filteredAvailibilty);
             } catch (error) {
                 this.$message.error('Failed to load user availability.');
             } finally {
                 this.loading = false;
             }
         },
-
-
-
         getAvailabilityStatus(status) {
             // Define the status for the badge
             switch (status.toLowerCase()) {

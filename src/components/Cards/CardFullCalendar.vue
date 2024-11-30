@@ -128,8 +128,10 @@ export default {
         defaultView: "week",
         useDetailPopup: false, // Disable built-in detail popup
         week: { taskView: false },
+        isReadOnly:true,
         month: { dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] },
       },
+
       selectedEvent: null,
     };
   },
