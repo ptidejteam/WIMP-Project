@@ -102,7 +102,6 @@ export default {
             this.isEventFormVisible = true;
         },
         handleRefresh(e) {
-            console.log(e);
             if (e.data === 'availability') { this.fetchData(); }
         },
         formatAvailabilityStatus(val) {

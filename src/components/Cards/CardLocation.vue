@@ -7,7 +7,7 @@
           <h6 class="font-semibold m-0">Locations Control Panel</h6>
           <small class="italic-text">Updated: {{ lastUpdated | dateTime }}</small>
         </div>
-        <a-button icon="redo" type="link" @click="fetchUserData">Refresh</a-button>
+        <a-button icon="redo" type="link" @click="fetchData">Refresh</a-button>
       </div>
     </template>
 
@@ -16,12 +16,8 @@
       <div class="toggle-section">
         <h6 class="font-semibold">Enable Workspace Tracking</h6>
         <a-tooltip :title="enableTracking ? 'Tracking is enabled' : 'Tracking is disabled'">
-          <a-switch 
-            v-model="enableTracking" 
-            @change="debounce(updateTrackingOption, 300)" 
-            checked-children="On" 
-            un-checked-children="Off" 
-          />
+          <a-switch v-model="enableTracking" @change="debounce(updateTrackingOption, 300)" checked-children="On"
+            un-checked-children="Off" />
         </a-tooltip>
       </div>
       <p class="text-muted">
@@ -40,11 +36,7 @@
         <p class="no-workspaces-text">
           🚀 No workspaces available yet! Start by adding a workspace to enable location tracking.
         </p>
-        <a-button 
-          type="primary" 
-          icon="plus" 
-          @click="visible = true" 
-          class="add-workspace-button">
+        <a-button type="primary" icon="plus" @click="visible = true" class="add-workspace-button">
           Add Workspace
         </a-button>
       </div>
@@ -58,15 +50,9 @@
         </p>
       </div>
       <div class="workspace-controls">
-        <a-select 
-          v-model="selectedWorkspace" 
-          placeholder="Select a workspace" 
-          style="width: 90%;" 
+        <a-select v-model="selectedWorkspace" placeholder="Select a workspace" style="width: 90%;"
           @change="onWorkspaceSelection">
-          <a-select-option 
-            v-for="workspace in workSpaces" 
-            :key="workspace.id" 
-            :value="workspace.id">
+          <a-select-option v-for="workspace in workSpaces" :key="workspace.id" :value="workspace.id">
             {{ workspace.name }}
           </a-select-option>
         </a-select>
@@ -74,7 +60,7 @@
       </div>
 
       <!-- Map Display -->
-      <div class="map-container">
+      <!-- <div class="map-container">
         <LMap 
           :zoom="mapOptions.zoomLevel" 
           :center="mapOptions.mapCenter" 
@@ -100,16 +86,41 @@
             :fill-opacity="0.2" 
           />
         </LMap>
+      </div> -->
+
+
+
+      <div class="map-container">
+        <LMap :zoom="mapOptions.zoomLevel" :center="userLocation || mapOptions.mapCenter"
+          style="height: 300px; width: 100%;" @update:zoom="onZoomChange" @update:center="onCenterChange">
+          <LTileLayer :url="mapOptions.url" :attribution="mapOptions.attribution" />
+
+          <!-- Workspace Markers -->
+          <LMarker v-for="workspace in workSpaces" :key="'marker-' + workspace.id"
+            :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]">
+            <LPopup>
+              <h6>{{ workspace.name }}</h6>
+              <p>{{ workspace.description }}</p>
+            </LPopup>
+          </LMarker>
+
+          <!-- Workspace Circles -->
+          <LCircle v-for="workspace in workSpaces" :key="'circle-' + workspace.id"
+            :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]" :radius="workspace.lookoutDiameter"
+            color="blue" :fill-opacity="0.2" />
+
+          <!-- Live Location Marker -->
+          <LMarker v-if="userLocation" :lat-lng="userLocation">
+            <LPopup>You are here</LPopup>
+          </LMarker>
+        </LMap>
       </div>
+
     </template>
 
     <!-- Workspace Modal -->
-    <WorkspaceFormModal 
-      :visible="visible" 
-      @close="visible = false" 
-      :workspaces="workSpaces" 
-      @add-workspace="fetchUserData" 
-    />
+    <WorkspaceFormModal :visible="visible" @close="visible = false" :workspaces="workSpaces"
+      @add-workspace="fetchData" />
   </a-card>
 </template>
 
@@ -126,6 +137,8 @@ export default {
   data() {
     return {
       userId: AuthenticationService.currentUserValue.userId,
+      device: null,
+      userLocation: null, // Store the user's live location
       user: null,
       devices: [],
       lastUpdated: null,
@@ -142,12 +155,15 @@ export default {
     };
   },
   async mounted() {
-    await this.fetchUserData();
+    await this.fetchData();
+    this.$subscribeToEvent(this.trackLocation);
+
   },
   methods: {
-    async fetchUserData() {
+    async fetchData() {
       try {
         const response = await userService.getById(this.userId);
+        this.device = (await deviceService.getAll()).data[0];
         this.user = response.data;
         this.workSpaces = response.data?.workSpaces || [];
         this.selectedWorkspace = this.workSpaces[0]?.id || null;
@@ -184,6 +200,14 @@ export default {
     },
     onCenterChange(newCenter) {
       this.mapOptions.mapCenter = newCenter;
+    },
+    async trackLocation(event) {
+      if (event?.data === 'device-location') {
+        // this.fetchData();
+        const res = await deviceService.getIoTData(this.device.deviceId);
+        this.userLocation = res.data[0].data?.location?.coordinates;
+      }
+
     },
   },
   filters: {

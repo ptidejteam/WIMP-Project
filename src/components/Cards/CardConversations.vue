@@ -94,7 +94,6 @@ export default {
 	methods: {
 
 		handleRefresh(e) {
-			console.log(e);
 			if (e.data === 'meeting-request') { this.fetchMeetings(); }
 		},
 
@@ -105,7 +104,6 @@ export default {
 			try {
 				const response = await meetingService.listMeetingsRequested(this.userId);
 				const meetings = response.data;
-				console.log(meetings);
 				const users = await Promise.all(
 					meetings.map(async (meeting) => {
 						if (!this.userCache[meeting.requesterId]) {
@@ -120,8 +118,7 @@ export default {
 					...meeting,
 					user: users[index]?.data || null,
 				}));
-				console.log(this.meetings);
-				this.lastUpdated = Date.now();
+			this.lastUpdated = Date.now();
 			} catch (error) {
 				console.error(error);
 				this.error = true;
