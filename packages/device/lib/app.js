@@ -1,9 +1,8 @@
 const express = require("express");
 const DeviceRouter = require("./routes/routes.config");
-const LocationRouter = require("./services/routes.config");
 const bodyParser = require('body-parser');
 const { runSeed } = require("./routes/models/device.seed");
-
+const { runService } = require("./services/device.service");
 // Define the express object
 const app = express();
 
@@ -28,12 +27,11 @@ app.use(bodyParser.json());
 
 // Config device router
 DeviceRouter.routesConfig(app);
-LocationRouter.routesConfig(app);
-
 /// Check if we need to seed the database or not 
 /// Beware this will delete all the old data that exists in the database 
 if(process.env.SEED_DB === 'true') { 
-  runSeed()
+  runSeed();
 }
+runService();
 
 module.exports = app;

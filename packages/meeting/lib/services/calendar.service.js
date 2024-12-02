@@ -161,7 +161,6 @@ function listenToGoogleCalendar() {
   cron.schedule("*/1 * * * *", async () => {
     console.log("Checking Google Calendar events...");
     for (const userId of userTokens.keys()) {
-      console.log(userId);
       await fetchGoogleCalendarEvents(userId);
     }
   });

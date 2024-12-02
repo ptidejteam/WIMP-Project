@@ -110,12 +110,13 @@ exports.list = (perPage = 10, page = 0) =>
 
 // Update meeting status by ID
 exports.updateById = (id, data) =>
-  Meeting.findByIdAndUpdate(id, data, { new: true, runValidators: true })
+  Meeting.findByIdAndUpdate(id, data, { new: false})
     .lean()
     .exec();
 
+  
 // Delete a meeting by ID
-exports.removeById = (id) => Meeting.deleteOne({ eventId: id }).exec();
+exports.removeById = (id) => Meeting.deleteOne({ _id: id }).exec();
 
 // Delete all meetings
 exports.deleteMany = (filter = {}) => Meeting.deleteMany(filter).exec();

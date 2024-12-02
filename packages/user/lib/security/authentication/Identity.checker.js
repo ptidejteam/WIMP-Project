@@ -54,9 +54,8 @@ exports.isPasswordAndUserMatch = async (req, res, next) => {
             user.lastLogin = Date.now();     
             const res = await IdentityModel.updateById(user._id , user)       
             // Send notification for the calendar service that a user is connected  
-            publish("user-connection", "wimp-system", res)
-            .then(() => console.log("notification sent"))
-            .catch((err) => console.error(err));
+            await publish("user-connection", "wimp-system", res);
+            await publish("device-connection", "wimp-system", res);
             return next();
         } else {
             return res.status(400).send({ errors: ['Invalid username or password'] });

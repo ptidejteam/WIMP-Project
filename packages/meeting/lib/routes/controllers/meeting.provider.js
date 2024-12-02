@@ -24,9 +24,8 @@ exports.insert = async (req, res) => {
       return res.status(400).send({ message: "Requester ID, Requested User ID, and Time are required." });
     }
     const result = await MeetingModel.create(req.body);
-    publish("front","wimp-system","meeting-request").then(() => console.log("front notification sent")).catch((err) => console.error("something went wrong"));
-    publish("front","wimp-system","meeting").then(() => console.log("front notification sent")).catch((err) => console.error("something went wrong"));
-    res.status(201).send({ id: result._id });
+    await publish("front","wimp-system","meeting-request");
+    await publish("front","wimp-system","meeting");
   } catch (error) {
     res.status(500).send({ message: "Internal Server Error. Could not insert meeting." + error });
   }
@@ -35,8 +34,8 @@ exports.insert = async (req, res) => {
 // Update meeting by ID
 exports.updateById = async (req, res) => {
   try {
-    const { meetingId, ...updates } = req.body;
-    if (!meetingId) {
+    const { _id, ...updates } = req.body;
+    if (!_id) {
       return res.status(400).send({ message: "Meeting ID is required." });
     }
 
@@ -44,10 +43,12 @@ exports.updateById = async (req, res) => {
       return res.status(400).send({ message: "No update fields provided." });
     }
 
-    const result = await MeetingModel.updateById(meetingId, updates);
+    const result = await MeetingModel.updateById(_id, updates);
     if (!result) {
       return res.status(404).send({ message: "Meeting not found." });
     }
+    await publish("front","wimp-system","meeting-request");
+    await publish("front","wimp-system","meeting");
     res.status(200).send({ message: "Meeting updated successfully.", meeting: result });
   } catch (error) {
     console.error("Error updating meeting:", error);
@@ -78,6 +79,8 @@ exports.removeById = async (req, res) => {
       return res.status(404).send({ message: "Meeting not found." });
     }
     res.status(204).send(); // No content response
+    await publish("front","wimp-system","meeting-request");
+    await publish("front","wimp-system","meeting");
   } catch (error) {
     console.error("Error removing meeting by ID:", error);
     res.status(500).send({ message: "Internal Server Error. Could not remove meeting." });

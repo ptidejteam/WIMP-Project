@@ -68,13 +68,12 @@ exports.resetRefreshSecret = (_req, res) => {
   }
 };
 
-exports.logout = (req, res) => {
+exports.logout = async(req, res) => {
   try {
     const { _id } = req.body;
     //Help to clear some lingering connection - or information that messes up the flow
-    publish("user-disconnection", "wimp-system", { _id })
-      .then(() => console.log("notification sent"))
-      .catch((err) => console.error(err));
+    await publish("user-disconnection", "wimp-system", { _id });
+    await publish("device-disconnection", "wimp-system", { _id });
     console.log(_id);
   } catch (err) {
     console.error("Something went wrong with logout functionnality");

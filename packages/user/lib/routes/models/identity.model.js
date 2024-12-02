@@ -106,8 +106,9 @@ exports.list = (perPage = 10, page = 0) =>
     .lean()
     .exec();
 
-exports.updateById = (id, data) =>
-  Identity.findByIdAndUpdate(id, data, { new: false }).lean().exec();
+    exports.updateById = (id, data) =>
+      Identity.findByIdAndUpdate(id, data, { new: false }).lean().exec();
+    
 
 exports.removeById = (id) => Identity.deleteOne({ _id: id }).exec();
 

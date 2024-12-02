@@ -5,11 +5,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 // Function to connect to MongoDB
 const connect = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-      autoCreate: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URL);
     console.log("Successfully connected to the database.");
   } catch (err) {
     console.error("Failed to connect to the database:", err);
@@ -23,57 +19,29 @@ const Schema = mongoose.Schema;
 
 const deviceSchema = new Schema(
   {
-    deviceId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    name: {
-      type: String,
-      required: true,
-    },
+    deviceId: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
     deviceType: {
       type: String,
       required: true,
-      enum: ["sensor", "actuator", "gateway", "controller","wearable"], // Example device types
+      enum: ["sensor", "actuator", "gateway", "controller", "wearable"],
     },
-    status: {
-      type: String,
-      enum: ["online", "offline", "maintenance"],
-      default: "offline",
-    },
-    lastUpdated: {
-      type: Date,
-      default: Date.now,
-    },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Assuming there is a User model to reference the user
-      required: true,
-    },
+    lastUpdated: { type: Date, default: Date.now },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     data: [
       {
-        dataType: {
-          type: String, // Example: temperature, humidity, etc.
-          required: false,
-        },
-        value: {
-          type: Object,
-          required: false,
-        },
-        timestamp: {
-          type: Date,
-          default: Date.now, // Automatically set the timestamp to the current date/time
-        },
+        dataType: { type: String },
+        value: { type: mongoose.Schema.Types.Mixed }, // Supports flexible data types
+        timestamp: { type: Date, default: Date.now },
         location: {
           type: {
-            type: String, 
-            default: "Point", // GeoJSON format for type
-            enum: ["Point"], // Limit to "Point"
+            type: String,
+            enum: ["Point"],
+            default: "Point",
           },
           coordinates: {
-            type: [Number], // Array of numbers [longitude, latitude]
-            required: true,
+            type: [Number],
+            required: false,
           },
         },
       },
@@ -82,136 +50,72 @@ const deviceSchema = new Schema(
   { timestamps: true }
 );
 
-// Create a 2dsphere index for geospatial queries (if needed in the future)
+// Geospatial Index
 deviceSchema.index({ "data.location": "2dsphere" });
 
-// Virtual field for ID
+// Virtual for ID
 deviceSchema.virtual("id").get(function () {
   return this._id.toHexString();
 });
 
-// Ensure virtual fields are serialized
-deviceSchema.set("toJSON", {
-  virtuals: true,
-});
-
-// Custom findById function
-deviceSchema.findById = function (cb) {
-  return this.model("Devices").find({ id: this.id }, cb);
-};
+deviceSchema.set("toJSON", { virtuals: true });
 
 const Device = mongoose.model("Devices", deviceSchema);
 
-// Exported functions to manage device data
+// Exported functions
+exports.findByDeviceId = (deviceId) => Device.findOne({ deviceId });
 
-// Find device by deviceId
-exports.findByDeviceId = (deviceId) => {
-  return Device.findOne({ deviceId: deviceId });
-};
-
-// Find device by ID and return cleaned-up data
 exports.findById = (id) => {
-  return Device.findById(id).then((result) => {
-    result = result.toJSON();
-    delete result._id;
-    delete result.__v;
+  return Device.findById(id).lean().then((result) => {
+    if (result) {
+      delete result._id;
+      delete result.__v;
+    }
     return result;
   });
 };
 
-// Find all devices associated with a user
-exports.findByUserId = (userId) => {
-  return Device.find({ userId: userId });
-};
+exports.findByUserId = (userId) => Device.find({ userId });
 
-// Create a new device
-exports.createDevice = (deviceData) => {
-  const device = new Device(deviceData);
-  return device.save();
-};
+exports.createDevice = (deviceData) => new Device(deviceData).save();
 
-// List devices with pagination
-exports.list = (perPage, page) => {
-  return new Promise((resolve, reject) => {
-    Device.find()
-      .limit(perPage)
-      .skip(perPage * page)
-      .exec()
-      .then((devices) => {
-        resolve(devices);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-};
+exports.list = (perPage, page) =>
+  Device.find()
+    .limit(perPage)
+    .skip(perPage * page)
+    .exec();
 
-// Update device details by ID
-exports.updateDevice = (id, data) => {
-  return new Promise((resolve, reject) => {
-    Device.findByIdAndUpdate(id, data, { new: true })
-      .then((device) => {
-        resolve(device);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-};
+exports.updateDevice = (id, data) =>
+  Device.findByIdAndUpdate(id, data, { new: true }).exec();
 
 exports.deleteMany = () => Device.deleteMany({});
-// Remove a device by ID
-exports.removeById = (id) => {
-  return new Promise((resolve, reject) => {
-    Device.deleteOne({ _id: id })
-      .then((device) => {
-        resolve(device);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-};
 
-// Add new IoT data to a device
-exports.addIoTDataToDevice = (deviceId, newData) => {
-  return Device.findOneAndUpdate(
-    { deviceId: deviceId },
-    { 
-      $push: { data: newData }, // Add the new data object to the 'data' array
-      $set: { lastUpdated: Date.now() } // Optionally update lastUpdated field
-    },
-    { new: true, useFindAndModify: false }
-  );
-};
+exports.removeById = (id) => Device.findByIdAndDelete(id).exec();
 
-// Retrieve all IoT data for a device
-exports.getIoTDataForDevice = (deviceId) => {
-  return Device.findOne({ deviceId: deviceId }, "data").lean();
-};
-
-// Retrieve data for a device within a specified time range
-exports.getIoTDataByTimeRange = (deviceId, startTime, endTime) => {
-  return Device.findOne(
+exports.addIoTDataToDevice = (deviceId, newData) =>
+  Device.findOneAndUpdate(
+    { deviceId },
     {
-      deviceId: deviceId,
-      "data.timestamp": { $gte: startTime, $lte: endTime }, // Querying nested fields
+      $push: { data: newData },
+      $set: { lastUpdated: Date.now() },
     },
-    "data.$"
+    { new: true }
   );
-};
 
-// Get possible status values
-exports.getPossibleStatusValues = () => {
-  return deviceSchema.path('status').enumValues;
-};
+exports.getIoTDataForDevice = (deviceId) =>
+  Device.findOne({ deviceId }, "data").lean();
 
-// Get possible deviceType values
-exports.getPossibleDeviceTypes = () => {
-  return deviceSchema.path('deviceType').enumValues;
-};
+exports.getIoTDataByTimeRange = (deviceId, startTime, endTime) =>
+  Device.findOne(
+    {
+      deviceId,
+      "data.timestamp": { $gte: startTime, $lte: endTime },
+    },
+    "data"
+  );
 
+exports.getPossibleStatusValues = () =>
+  deviceSchema.path("status").enumValues || [];
 
-
-
-
+exports.getPossibleDeviceTypes = () =>
+  deviceSchema.path("deviceType").enumValues;
