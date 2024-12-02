@@ -29,19 +29,9 @@ const seedDatabase = async () => {
       deviceId: "fitbit_001",
       name: "Fitbit Device",
       deviceType: "wearable",
-      status: "online",
       userId: "64d0f68c5135f66f46069f8b", // Replace with actual User ID
       data: [
         {
-          dataType: "heart_rate",
-          timestamp: new Date(),
-          location: {
-            type: "Point",
-            coordinates: [-74.005974, 40.712776], // [longitude, latitude]
-          },
-        },
-        {
-          dataType: "steps",
           timestamp: new Date(),
           location: {
             type: "Point",

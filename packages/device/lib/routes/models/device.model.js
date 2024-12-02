@@ -27,7 +27,11 @@ const deviceSchema = new Schema(
       enum: ["sensor", "actuator", "gateway", "controller", "wearable"],
     },
     lastUpdated: { type: Date, default: Date.now },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     data: [
       {
         dataType: { type: String },
@@ -66,13 +70,15 @@ const Device = mongoose.model("Devices", deviceSchema);
 exports.findByDeviceId = (deviceId) => Device.findOne({ deviceId });
 
 exports.findById = (id) => {
-  return Device.findById(id).lean().then((result) => {
-    if (result) {
-      delete result._id;
-      delete result.__v;
-    }
-    return result;
-  });
+  return Device.findById(id)
+    .lean()
+    .then((result) => {
+      if (result) {
+        delete result._id;
+        delete result.__v;
+      }
+      return result;
+    });
 };
 
 exports.findByUserId = (userId) => Device.find({ userId });
@@ -105,17 +111,32 @@ exports.addIoTDataToDevice = (deviceId, newData) =>
 exports.getIoTDataForDevice = (deviceId) =>
   Device.findOne({ deviceId }, "data").lean();
 
-exports.getIoTDataByTimeRange = (deviceId, startTime, endTime) =>
-  Device.findOne(
+exports.getIoTDataByTimeRange = (deviceId, startTime, endTime) => {
+  const matchStage = {
+    $match: { deviceId },
+  };
+
+  // Add time range conditions only if provided
+  if (startTime || endTime) {
+    matchStage.$match["data.timestamp"] = {};
+    if (startTime) {
+      matchStage.$match["data.timestamp"].$gte = startTime;
+    }
+    if (endTime) {
+      matchStage.$match["data.timestamp"].$lte = endTime;
+    }
+  }
+
+  return Device.aggregate([
+    { $unwind: "$data" }, // Unwind the data array
+    matchStage, // Apply the match stage
+    { $sort: { "data.timestamp": -1 } }, // Sort by the latest timestamp
+    { $limit: 1 }, // Limit to one result
     {
-      deviceId,
-      "data.timestamp": { $gte: startTime, $lte: endTime },
+      $project: {
+        _id: 0,
+        data: 1,
+      },
     },
-    "data"
-  );
-
-exports.getPossibleStatusValues = () =>
-  deviceSchema.path("status").enumValues || [];
-
-exports.getPossibleDeviceTypes = () =>
-  deviceSchema.path("deviceType").enumValues;
+  ]).exec();
+};

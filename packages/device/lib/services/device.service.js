@@ -57,10 +57,14 @@ async function startSubscriptions() {
     });
     console.log("Subscribed to user-connection channel.");
 
-    await subscribe(process.env.SERVICE_DISCONNECTION_QUEUE, onDisconnectHandler, {
-      ...options,
-      exchange: "device-disconnection",
-    });
+    await subscribe(
+      process.env.SERVICE_DISCONNECTION_QUEUE,
+      onDisconnectHandler,
+      {
+        ...options,
+        exchange: "device-disconnection",
+      }
+    );
     console.log("Subscribed to user-disconnection channel.");
   } catch (error) {
     console.error(`Error subscribing to channels: ${error.message}`);
@@ -77,18 +81,30 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in meters
 }
 
 // Function to check if a device is within the lockout area of a workspace
-function isDeviceInLockoutArea(deviceLocation, workspaceLocation, lockoutRadiusInMeters) {
+function isDeviceInLockoutArea(
+  deviceLocation,
+  workspaceLocation,
+  lockoutRadiusInMeters
+) {
   const { latitude: deviceLat, longitude: deviceLon } = deviceLocation;
   const { latitude: workspaceLat, longitude: workspaceLon } = workspaceLocation;
 
-  const distance = calculateDistance(deviceLat, deviceLon, workspaceLat, workspaceLon);
+  const distance = calculateDistance(
+    deviceLat,
+    deviceLon,
+    workspaceLat,
+    workspaceLon
+  );
   return distance <= lockoutRadiusInMeters;
 }
 
@@ -119,11 +135,21 @@ async function checkDevicesInLockoutArea() {
           const workspaceLocation = workspace.location; // Assuming workspace includes location
           const lockoutRadius = workspace.lockoutRadius || 100; // Default to 100 meters if no lockout radius is provided
 
-          if (isDeviceInLockoutArea(deviceLocation, workspaceLocation, lockoutRadius)) {
-            console.log(`Device ${deviceId} is in the lockout area of workspace ${workspace.id} for user ${userId}.`);
+          if (
+            isDeviceInLockoutArea(
+              deviceLocation,
+              workspaceLocation,
+              lockoutRadius
+            )
+          ) {
+            console.log(
+              `Device ${deviceId} is in the lockout area of workspace ${workspace.id} for user ${userId}.`
+            );
             // Take action (e.g., send a notification or log the event)
           } else {
-            console.log(`Device ${deviceId} is outside the lockout area of workspace ${workspace.id} for user ${userId}.`);
+            console.log(
+              `Device ${deviceId} is outside the lockout area of workspace ${workspace.id} for user ${userId}.`
+            );
           }
         });
       });
@@ -143,29 +169,40 @@ async function handleFirebaseData(snapshot) {
 
   try {
     // Retrieve all devices and check if they are in the lockout area of each user's workspace
-    await checkDevicesInLockoutArea();
-
-    // You can also update the device location in your database, for example:
     const devices = await deviceModel.list(1, 0);
     if (devices.length === 0) {
       console.log("No devices found. Skipping update.");
       return;
     }
 
-    const deviceId = devices[0].deviceId;
-    const existingDevice = await deviceModel.findByDeviceId(deviceId);
+    let updatedDevice = false; // Flag to track if a device was updated
 
-    if (existingDevice) {
-      await deviceModel.addIoTDataToDevice(deviceId, {
-        dataType: "location",
-        location: {
-          type: "Point",
-          coordinates: [locationData.longitude, locationData.latitude],
-        },
-      });
-      console.log(`Device ${deviceId} updated with new location data.`);
-    } else {
-      console.log(`Device ${deviceId} not found. Skipping update.`);
+    for (const device of devices) {
+      const deviceId = device.deviceId;
+      const existingDevice = await deviceModel.findByDeviceId(deviceId);
+
+      if (existingDevice) {
+        await deviceModel.addIoTDataToDevice(deviceId, {
+          dataType: "location",
+          location: {
+            type: "Point",
+            coordinates: [
+              locationData.location.longitude,
+              locationData.location.latitude,
+            ],
+          },
+        });
+        console.log(`Device ${deviceId} updated with new location data.`);
+        updatedDevice = true; // Mark as updated
+      } else {
+        console.log(`Device ${deviceId} not found. Skipping update.`);
+      }
+    }
+
+    // Publish only once if a device was updated
+    if (updatedDevice) {
+      await publish("front", "wimp-system", "device-location");
+      console.log("Published device location update.");
     }
   } catch (error) {
     console.error("Error handling Firebase data:", error.message);
@@ -173,7 +210,7 @@ async function handleFirebaseData(snapshot) {
 }
 
 // Function to listen for Firebase data updates
-function listenToRandomLocations() {
+function listenToLocations() {
   locationsRef.on("child_added", handleFirebaseData); // Listen to new child data
   locationsRef.on("child_changed", handleFirebaseData); // Listen to changed data
   console.log("Listening for random location updates...");
@@ -185,16 +222,45 @@ function checkConnection() {
   connectedRef.on("value", (snapshot) => {
     if (snapshot.val()) {
       console.log("Connected to Firebase Realtime Database.");
-      listenToRandomLocations();
+      listenToLocations();
     } else {
       console.log("Disconnected from Firebase Realtime Database.");
     }
   });
 }
 
+/**
+ * Simulates random feeder data and pushes to Firebase.
+ */
+function simulateRandomFeeder() {
+  setInterval(() => {
+    const randomLocation = {
+      latitude: (Math.random() * 180 - 90).toFixed(6), // Random latitude between -90 and 90
+      longitude: (Math.random() * 360 - 180).toFixed(6), // Random longitude between -180 and 180
+    };
+
+    const randomData = {
+      deviceId: "fitbit_001",
+      location: randomLocation,
+      timestamp: Date.now(),
+    };
+
+    locationsRef
+      .child(randomData.deviceId)
+      .set(randomData)
+      .then(() => console.log(`Random data added:`, randomData))
+      .catch((error) =>
+        console.error("Error adding random data:", error.message)
+      );
+  }, 5000); // Push new data every 5 seconds
+}
+
 // Initialize subscriptions and start fetching
 (async function initialize() {
   await startSubscriptions();
+  if(process.env.RADOMN_LOCATION_FEEDER === 'true'){
+    simulateRandomFeeder();
+  }
 })();
 
 exports.runService = () => {

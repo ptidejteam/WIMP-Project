@@ -116,7 +116,8 @@ exports.getIoTData = async (req, res) => {
         new Date(endTime)
       );
     } else {
-      result = await DeviceModel.getIoTDataForDevice(req.params.deviceId);
+      console.log("getting without range");
+      result = await DeviceModel.getIoTDataByTimeRange(req.params.deviceId);
     }
 
     if (!result) {

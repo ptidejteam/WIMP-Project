@@ -73,9 +73,7 @@ exports.putById = async (req, res) => {
     }
 
     // notify the other services that a new user is connected
-    publish("user-connection", "wimp-system", await IdentityModel.findById(req.params.userId))
-      .then(() => console.log("notification sent"))
-      .catch((err) => console.error(err));
+    await publish("user-connection", "wimp-system", await IdentityModel.findById(req.params.userId));
     res.status(204).send(); // No content response
   } catch (error) {
     console.error("Error updating identity by ID:", error);
@@ -155,9 +153,7 @@ exports.clearPrivacyData = async (req, res) => {
       return res.status(400).send({ message: "User ID is required." });
     await IdentityModel.clearPrivacyData(userId);
     // notify the other services that a new user is connected
-    publish("user-disconnection", "wimp-system", await IdentityModel.findById(req.params.userId))
-      .then(() => console.log("notification sent"))
-      .catch((err) => console.error(err));
+    await publish("user-disconnection", "wimp-system", await IdentityModel.findById(req.params.userId));
     res.status(200).send({ message: "Account Privacy has been cleared" });
   } catch (error) {
     res.status(500).send({
