@@ -134,8 +134,10 @@
 						privacy
 						policy. You can review your consent status below and clear your profile data if desired.
 					</p>
-					<p><b>Consent Status:</b> {{ this.profile.consentGiven ? "Given" : "Not Given" }}</p>
 					<div class="privacy-button">
+						<p><b>Consent Status:</b> {{ this.profile.consentGiven ? "Given" : "Not Given" }}</p>
+					<div >
+						
 						<a-button type="default" @click="toggleConsent" shape="round">
 							{{ this.profile.consentGiven ? "Revoke Consent" : "Give Consent" }}
 						</a-button>
@@ -150,6 +152,8 @@
 
 
 					</div>
+					</div>
+
 
 				</div>
 			</div>
@@ -414,7 +418,8 @@ export default {
 
 .privacy-button {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
+	align-items: flex-end;
 }
 
 .anticon-notification {

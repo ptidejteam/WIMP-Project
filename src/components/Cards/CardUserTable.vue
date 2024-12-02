@@ -1,21 +1,21 @@
 <template>
-    <!-- Users Table Card -->
     <a-card :bordered="false" :bodyStyle="{ padding: '16px' }">
-
         <template #title>
             <div class="header">
                 <div class="header-info">
                     <h6 class="font-semibold m-0">Users Control Panel</h6>
                     <small style="font-style: italic;">Updated: {{ lastUpdated | dateTime }}</small>
                 </div>
-                <a-button icon="plus" type="link" @click="isModalVisible = true">Add</a-button>
+                <a-button icon="plus" type="link" @click="openUserModal()">Add</a-button>
             </div>
         </template>
+
         <template v-if="!users">
             <a-skeleton />
         </template>
+
         <a-table v-else :columns="columns" :data-source="filteredUsers" :pagination="false"
-            :rowKey="record => record._id">
+            :rowKey="record => record._id" :scroll="{ x: 'max-content' }">
             <template slot="userDetails" slot-scope="record">
                 <div class="table-avatar-info">
                     <a-avatar shape="circle" :src="record.avatar" />
@@ -33,21 +33,21 @@
             </template>
 
             <template slot="status" slot-scope="record">
-                <a-tag class="tag-status" :class="record.isActive ? 'ant-tag-primary' : 'ant-tag-muted'">
+                <a-tag :class="record.isActive ? 'ant-tag-primary' : 'ant-tag-muted'">
                     {{ record.isActive ? "Active" : "Inactive" }}
                 </a-tag>
             </template>
 
-            <template slot="emailStatus" slot-scope="record">
-                <a-tag class="tag-status"
-                    :class="record.emailStatus === 'verified' ? 'ant-tag-success' : 'ant-tag-warning'">
-                    {{ record.emailStatus }}
-                </a-tag>
+            <template slot="actions" slot-scope="record">
+                <a-button type="link" icon="edit" @click="openUserModal(record)">Edit</a-button>
             </template>
         </a-table>
-        <UserFormModal :isVisible="isModalVisible" :user="selectedUser" @close="isModalVisible = false" @save-user="saveUser" @delete-user="deleteUser"/>
+
+        <UserFormModal :isVisible="isModalVisible" :user="selectedUser" @close="closeUserModal" @save-user="saveUser"
+            @delete-user="deleteUser" />
     </a-card>
 </template>
+
 
 <script>
 import { AuthenticationService } from '../../services/auth.service';
@@ -55,37 +55,24 @@ import { userService } from '../../services/user.service';
 import UserFormModal from '../Modals/UserFormModal.vue';
 
 export default {
-    components: {
-        UserFormModal
-    },
+    components: { UserFormModal },
     data() {
         return {
             users: null,
-            userId : AuthenticationService.currentUserValue.userId,
+            userId: AuthenticationService.currentUserValue.userId,
             isModalVisible: false,
-            lastUpdated : null,
-            selectedUser: null, // Initial selected user is null
+            lastUpdated: null,
+            selectedUser: null, // Holds the user being edited
             columns: [
-                {
-                    title: 'Username',
-                    key: 'userDetails',
-                    scopedSlots: { customRender: 'userDetails' },
-                },
-                {
-                    title: 'Position',
-                    key: 'position',
-                    scopedSlots: { customRender: 'position' },
-                },
-                {
-                    title: 'Status',
-                    key: 'status',
-                    scopedSlots: { customRender: 'status' },
-                }
+                { title: 'Username', key: 'userDetails', scopedSlots: { customRender: 'userDetails' } },
+                { title: 'Position', key: 'position', scopedSlots: { customRender: 'position' } },
+                { title: 'Status', key: 'status', scopedSlots: { customRender: 'status' } },
+                { title: 'Actions', key: 'actions', fixed: "right", scopedSlots: { customRender: 'actions' } }
             ],
         };
     },
-    computed: { 
-        filteredUsers() { 
+    computed: {
+        filteredUsers() {
             return this.users?.filter(user => user._id !== this.userId);
         }
     },
@@ -95,36 +82,43 @@ export default {
     methods: {
         async loadUsers() {
             try {
-                const users = await userService.getAll();
-                this.users = users.data;
+                const response = await userService.getAll();
+                this.users = response.data;
                 this.lastUpdated = Date.now();
-
             } catch (error) {
-                this.$message.error("Failed to load users:", error);
+                this.$message.error("Failed to load users.");
             }
         },
-        async saveUser() {
+        openUserModal(user = null) {
+            console.log(user);
+            this.selectedUser = user ? { ...user } : null;
+            this.isModalVisible = true;
+        },
+        closeUserModal() {
+            this.isModalVisible = false;
+            this.selectedUser = null;
+        },
+        async saveUser(user) {
             try {
-                const newUser = {
-                    firstName: this.newUser.firstName,
-                    lastName: this.newUser.lastName,
-                    birthday: this.newUser.birthday,
-                    userName: this.newUser.userName,
-                    email: this.newUser.email,
-                    password: this.newUser.password,
-                    position: this.newUser.position,
-                    permissionLevel: this.newUser.permissionLevel,
-                    avatar: this.newUser.avatar,
-                    isActive: true,
-                    emailStatus: this.newUser.emailStatus,
-                };
-
-                await userService.create(newUser);
-                this.$message.success("User created successfully. Invitation email sent.");
-                this.showAddUserDialog = false;
+                console.log("-----------------------");
+                console.log(user);
+                if (user._id) {
+                    await userService.updateUser(user._id, user); // Update existing user
+                    this.$message.success("User updated successfully.");
+                } else {
+                    await userService.create(user); // Create new user
+                    this.$message.success("User created successfully.");
+                }
                 await this.loadUsers();
             } catch (error) {
-                this.$message.error("Failed to create user:", error);
+                this.$notification['error']({
+                    message: 'Failed to save user.',
+                    description:
+                        error.response.data.message,
+                });
+
+            } finally {
+                this.closeUserModal();
             }
         },
         async deleteUser(userId) {
@@ -133,23 +127,22 @@ export default {
                 this.$message.success("User deleted successfully.");
                 await this.loadUsers();
             } catch (error) {
-                this.$message.error("Failed to delete user:", error);
+                this.$message.error("Failed to delete user.");
             }
-        },
+        }
     },
     filters: {
-    dateTime(value) {
-      return !value ? "" : new Date(value).toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    },
-  },
+        dateTime(value) {
+            return new Date(value).toLocaleString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
+    }
 };
-
 </script>
 
 <style scoped>

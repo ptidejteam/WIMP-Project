@@ -1,5 +1,6 @@
 <template>
   <a-card :bordered="true" :bodyStyle="{ padding: '16px' }">
+    <!-- Title Section -->
     <template #title>
       <div class="header">
         <div class="header-info">
@@ -10,64 +11,105 @@
       </div>
     </template>
 
-    <div class="section" v-if="workSpaces.length !== 0">
+    <!-- Toggle Tracking Section -->
+    <div class="section" v-if="workSpaces && workSpaces.length > 0">
       <div class="toggle-section">
         <h6 class="font-semibold">Enable Workspace Tracking</h6>
         <a-tooltip :title="enableTracking ? 'Tracking is enabled' : 'Tracking is disabled'">
-          <a-switch v-model="enableTracking" @change="debounce(updateTrackingOption, 300)" checked-children="On"
-            un-checked-children="Off" />
+          <a-switch 
+            v-model="enableTracking" 
+            @change="debounce(updateTrackingOption, 300)" 
+            checked-children="On" 
+            un-checked-children="Off" 
+          />
         </a-tooltip>
       </div>
-      <p class="text-muted">Toggle this setting to enable or disable live location tracking for the selected workspace.
+      <p class="text-muted">
+        Toggle this setting to enable or disable live location tracking for the selected workspace.
       </p>
     </div>
 
+    <!-- Skeleton Loader -->
     <template v-if="!workSpaces">
       <a-skeleton />
     </template>
+
+    <!-- No Workspaces Section -->
     <template v-else-if="workSpaces.length === 0">
       <div class="no-workspaces-container">
         <p class="no-workspaces-text">
           🚀 No workspaces available yet! Start by adding a workspace to enable location tracking.
         </p>
-        <a-button type="primary" icon="plus" @click="visible = true" class="add-workspace-button">
+        <a-button 
+          type="primary" 
+          icon="plus" 
+          @click="visible = true" 
+          class="add-workspace-button">
           Add Workspace
         </a-button>
       </div>
     </template>
+
+    <!-- Workspaces Selection and Map -->
     <template v-else>
       <div class="workSpaces-section">
-        <p class="description-text">Select a workspace from the list to display its current location on the map.</p>
+        <p class="description-text">
+          Select a workspace from the list to display its current location on the map.
+        </p>
       </div>
       <div class="workspace-controls">
-        <a-select v-model="selectedWorkspace" placeholder="Select a workspace" style="width: 90%;"
+        <a-select 
+          v-model="selectedWorkspace" 
+          placeholder="Select a workspace" 
+          style="width: 90%;" 
           @change="onWorkspaceSelection">
-          <a-select-option v-for="workspace in workSpaces" :key="workspace.id" :value="workspace.id">
+          <a-select-option 
+            v-for="workspace in workSpaces" 
+            :key="workspace.id" 
+            :value="workspace.id">
             {{ workspace.name }}
           </a-select-option>
         </a-select>
-        <a-button icon="plus" @click="visible = true" />
-
+        <a-button icon="plus" @click="visible = true">Add Workspace</a-button>
       </div>
+
+      <!-- Map Display -->
       <div class="map-container">
-        <LMap :zoom="mapOptions.zoomLevel" :center="mapOptions.mapCenter" style="height: 300px; width: 100%;"
-          @update:zoom="onZoomChange" @update:center="onCenterChange">
+        <LMap 
+          :zoom="mapOptions.zoomLevel" 
+          :center="mapOptions.mapCenter" 
+          style="height: 300px; width: 100%;" 
+          @update:zoom="onZoomChange" 
+          @update:center="onCenterChange">
           <LTileLayer :url="mapOptions.url" :attribution="mapOptions.attribution" />
-          <LMarker v-for="workspace in workSpaces" :key="'marker-' + workspace.id"
+          <LMarker 
+            v-for="workspace in workSpaces" 
+            :key="'marker-' + workspace.id" 
             :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]">
             <LPopup>
               <h6>{{ workspace.name }}</h6>
               <p>{{ workspace.description }}</p>
             </LPopup>
           </LMarker>
-          <LCircle v-for="workspace in workSpaces" :key="'circle-' + workspace.id"
-            :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]" :radius="workspace.lookoutDiameter"
-            color="blue" :fill-opacity="0.2" />
+          <LCircle 
+            v-for="workspace in workSpaces" 
+            :key="'circle-' + workspace.id" 
+            :lat-lng="[workspace.coordinates.lat, workspace.coordinates.lng]" 
+            :radius="workspace.lookoutDiameter" 
+            color="blue" 
+            :fill-opacity="0.2" 
+          />
         </LMap>
       </div>
     </template>
-    <WorkspaceFormModal :visible="visible" @close="visible = false" :workspaces="workSpaces"
-      @add-workspace="fetchUserData" />
+
+    <!-- Workspace Modal -->
+    <WorkspaceFormModal 
+      :visible="visible" 
+      @close="visible = false" 
+      :workspaces="workSpaces" 
+      @add-workspace="fetchUserData" 
+    />
   </a-card>
 </template>
 
