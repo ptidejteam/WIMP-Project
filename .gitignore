@@ -32,3 +32,5 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.code-workspace
+*.json
