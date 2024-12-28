@@ -18,7 +18,7 @@ export function initialize() {
 
 function getReading() {
   watchID = geolocation.watchPosition(locationSuccess, locationError, {
-    timeout: 60 * 1000,
+    timeout: 120 * 1000,
   });
   function locationSuccess(position) {
     send({
@@ -41,7 +41,7 @@ function getReading() {
 function start() {
   if (!watchID) {
     getReading();
-    watchID = setInterval(getReading,1000);
+    watchID = setInterval(getReading,360*1000);
   }
 }
 
