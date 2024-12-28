@@ -22,6 +22,11 @@
     },
     "appUUID": "993a0c3f-9bfd-4175-a08e-bad41e9c4613"
   },
+  "name": "@wimp-project/fitbit",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "YahiaFellah <33671463+yahiaelfellah@users.noreply.github.com>",
+  "homepage": "https://github.com/ptidejteam/WIMP-Project#readme",
   "dependencies": {
     "@fitbit/sdk": "~4.0.0",
     "@fitbit/sdk-cli": "^1.7.0"
