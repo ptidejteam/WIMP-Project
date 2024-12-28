@@ -37,17 +37,8 @@ exports.isDeviceInLockoutArea = function (
 };
 
 
-// exports.IsInLockoutArea = function(){
-//     try {
-
-
-//     } catch {
-
-//     }
-
-// }
 // Function to check each user's workspaces for lockout area violation
-async function checkDevicesInLockoutArea() {
+exports.checkDevicesInLockoutArea = async function() {
   try {
     // Retrieve all devices from your model or database
     const devices = await deviceModel.list(1, 0); // Adjust the parameters as needed
