@@ -8,6 +8,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --open",
+    "prebuild:patch": "npm version patch",
+    "prebuild:major": "npm version major",
     "build": "cross-env CI=false cross-env PUBLIC_URL=/ vue-cli-service build",
     "dev": "npm run serve"
   },

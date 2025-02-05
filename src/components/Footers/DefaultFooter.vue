@@ -5,7 +5,7 @@
 
 		<!-- Copyright Notice -->
 		<p class="copyright">
-			Copyright © {{new Date().getFullYear()}} WIMP.
+			WIMP - Copyright © {{new Date().getFullYear()}} <a href="https://www.ptidej.net/">Ptidej Team</a>.
 		</p>
 		<!-- / Copyright Notice -->
 
